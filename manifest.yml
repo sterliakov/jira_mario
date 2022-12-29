@@ -1,0 +1,11 @@
+modules:
+  jira:issuePanel:
+    - key: jira-mario-hello-world-panel
+      function: main
+      title: jira_mario
+      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+  function:
+    - key: main
+      handler: index.run
+app:
+  id: ari:cloud:ecosystem::app/e067347f-97c9-494e-a0a2-561f9f0f5212
