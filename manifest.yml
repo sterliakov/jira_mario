@@ -1,15 +1,19 @@
 modules:
-    jira:issueGlance:
-        - key: jira-mario-hello-world-panel
-          function: main
-          title: jira_mario
-          label: Play Mario
-          # icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+    jira:issuePanel:
+        - key: jira-mario-panel
+          resource: main
+          resolver:
+            function: resolver
+          title: Mario
+          icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
     function:
-        - key: main
-          handler: index.run
+        - key: resolver
+          handler: index.handler
 app:
     id: ari:cloud:ecosystem::app/e067347f-97c9-494e-a0a2-561f9f0f5212
+resources:
+    - key: main
+      path: static/mario/build
 permissions:
     scopes:
         - storage:app

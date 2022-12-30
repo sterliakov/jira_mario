@@ -17,6 +17,7 @@ module.exports = {
         'eslint:recommended',
         'eslint-config-prettier',
         'plugin:sonarjs/recommended',
+        'plugin:react/recommended',
     ],
     plugins: ['react-hooks'],
     rules: {
@@ -44,5 +45,6 @@ module.exports = {
         curly: [2, 'multi', 'consistent'],
         'no-constant-condition': [2, {checkLoops: false}],
         'no-unused-vars': 0,
+        'react/react-in-jsx-scope': 0,
     },
 };
