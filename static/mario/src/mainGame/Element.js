@@ -5,62 +5,61 @@ export default class Element {
     width = 32;
     height = 32;
 
-    constructor() {
-        this.gameUI = GameUI.getInstance();
+    constructor(canvas, type, x, y) {
+        this.gameUI = new GameUI(canvas);
 
         this.element = new Image();
         this.element.src = './images/elements.png';
+
+        if (type) this.fromType(type);
+        if (typeof x !== 'undefined' && typeof y !== 'undefined')
+            [this.x, this.y] = [x, y];
     }
 
-    platform() {
-        this.type = 1;
-        this.sX = 0;
+    fromType(type) {
+        this.type = type;
+        this.sX = (type - 1) * this.width;
     }
 
-    coinBox() {
-        this.type = 2;
-        this.sX = 1 * this.width;
-    }
+    // platform() {
+    //     this.type = 1;
+    // }
 
-    powerUpBox() {
-        this.type = 3;
-        this.sX = 2 * this.width;
-    }
+    // coinBox() {
+    //     this.type = 2;
+    // }
 
-    uselessBox() {
-        this.type = 4;
-        this.sX = 3 * this.width;
-    }
+    // powerUpBox() {
+    //     this.type = 3;
+    // }
 
-    flagPole() {
-        this.type = 5;
-        this.sX = 4 * this.width;
-    }
+    // uselessBox() {
+    //     this.type = 4;
+    // }
 
-    flag() {
-        this.type = 6;
-        this.sX = 5 * this.width;
-    }
+    // flagPole() {
+    //     this.type = 5;
+    // }
 
-    pipeLeft() {
-        this.type = 7;
-        this.sX = 6 * this.width;
-    }
+    // flag() {
+    //     this.type = 6;
+    // }
 
-    pipeRight() {
-        this.type = 8;
-        this.sX = 7 * this.width;
-    }
+    // pipeLeft() {
+    //     this.type = 7;
+    // }
 
-    pipeTopLeft() {
-        this.type = 9;
-        this.sX = 8 * this.width;
-    }
+    // pipeRight() {
+    //     this.type = 8;
+    // }
 
-    pipeTopRight() {
-        this.type = 10;
-        this.sX = 9 * this.width;
-    }
+    // pipeTopLeft() {
+    //     this.type = 9;
+    // }
+
+    // pipeTopRight() {
+    //     this.type = 10;
+    // }
 
     draw() {
         this.gameUI.draw(

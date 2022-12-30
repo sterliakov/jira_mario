@@ -7,8 +7,8 @@ export default class Bullet {
     width = 16;
     height = 16;
 
-    constructor() {
-        this.gameUI = GameUI.getInstance();
+    constructor(canvas) {
+        this.gameUI = new GameUI(canvas);
 
         this.element = new Image();
         this.element.src = './images/bullet.png';

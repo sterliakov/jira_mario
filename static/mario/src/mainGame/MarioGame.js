@@ -7,13 +7,9 @@ import GameSound from './GameSound';
 import Mario from './Mario';
 import PowerUp from './PowerUp';
 
-// import Score from './Score';
-
 // Main Class of Mario Game
 
 export default class MarioGame {
-    gameUI = GameUI.getInstance();
-
     maxWidth = 0; //width of the game world
     tileSize = 32;
 
@@ -28,6 +24,7 @@ export default class MarioGame {
     instructionTick = 0; //showing instructions counter
 
     constructor(board) {
+        this.gameUI = new GameUI(board.canvas);
         this.board = board;
         this.height = parseInt(board.props.Height, 10);
         this.viewPort = parseInt(board.props.Width, 10); //width of canvas, viewPort this can be seen
@@ -43,7 +40,7 @@ export default class MarioGame {
 
         if (!this.mario) {
             //so this when level changes, it uses the same instance
-            this.mario = new Mario();
+            this.mario = new Mario(this.board.canvas);
             this.mario.init();
         } else {
             this.mario.x = 10;
@@ -187,140 +184,38 @@ export default class MarioGame {
     renderMap() {
         //setting false each time the this.map renders so this elements fall off a platform and not hover around
         this.mario.grounded = false;
-        let element = new Element();
 
         for (const powerUp of this.powerUps) powerUp.grounded = false;
         for (const goomba of this.goombas) goomba.grounded = false;
 
         for (let row = 0; row < this.map.length; row++) {
             for (let column = 0; column < this.map[row].length; column++) {
-                switch (this.map[row][column]) {
-                    case 1: //platform
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.platform();
-                        element.draw();
+                const type = this.map[row][column];
+                if (type === 20) {
+                    //goomba
+                    const enemy = new Enemy(this.board.canvas);
+                    enemy.x = column * this.tileSize;
+                    enemy.y = row * this.tileSize;
+                    enemy.goomba();
+                    enemy.draw();
 
+                    this.goombas.push(enemy);
+                    this.map[row][column] = 0;
+                } else if (type !== 0) {
+                    const element = new Element(
+                        this.board.canvas,
+                        type,
+                        column * this.tileSize,
+                        row * this.tileSize,
+                    );
+                    element.draw();
+                    if (type !== 6) {
                         this.checkElementMarioCollision(element, row, column);
-                        this.checkElementPowerUpCollision(element);
-                        this.checkElementEnemyCollision(element);
-                        this.checkElementBulletCollision(element);
-                        break;
-
-                    case 2: //coinBox
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.coinBox();
-                        element.draw();
-
-                        this.checkElementMarioCollision(element, row, column);
-                        this.checkElementPowerUpCollision(element);
-                        this.checkElementEnemyCollision(element);
-                        this.checkElementBulletCollision(element);
-                        break;
-
-                    case 3: //powerUp Box
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.powerUpBox();
-                        element.draw();
-
-                        this.checkElementMarioCollision(element, row, column);
-                        this.checkElementPowerUpCollision(element);
-                        this.checkElementEnemyCollision(element);
-                        this.checkElementBulletCollision(element);
-                        break;
-
-                    case 4: //uselessBox
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.uselessBox();
-                        element.draw();
-
-                        this.checkElementMarioCollision(element, row, column);
-                        this.checkElementPowerUpCollision(element);
-                        this.checkElementEnemyCollision(element);
-                        this.checkElementBulletCollision(element);
-                        break;
-
-                    case 5: //flagPole
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.flagPole();
-                        element.draw();
-
-                        this.checkElementMarioCollision(element, row, column);
-                        break;
-
-                    case 6: //flag
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.flag();
-                        element.draw();
-                        break;
-
-                    case 7: //pipeLeft
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.pipeLeft();
-                        element.draw();
-
-                        this.checkElementMarioCollision(element, row, column);
-                        this.checkElementPowerUpCollision(element);
-                        this.checkElementEnemyCollision(element);
-                        this.checkElementBulletCollision(element);
-                        break;
-
-                    case 8: //pipeRight
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.pipeRight();
-                        element.draw();
-
-                        this.checkElementMarioCollision(element, row, column);
-                        this.checkElementPowerUpCollision(element);
-                        this.checkElementEnemyCollision(element);
-                        this.checkElementBulletCollision(element);
-                        break;
-
-                    case 9: //pipeTopLeft
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.pipeTopLeft();
-                        element.draw();
-
-                        this.checkElementMarioCollision(element, row, column);
-                        this.checkElementPowerUpCollision(element);
-                        this.checkElementEnemyCollision(element);
-                        this.checkElementBulletCollision(element);
-                        break;
-
-                    case 10: //pipeTopRight
-                        element.x = column * this.tileSize;
-                        element.y = row * this.tileSize;
-                        element.pipeTopRight();
-                        element.draw();
-
-                        this.checkElementMarioCollision(element, row, column);
-                        this.checkElementPowerUpCollision(element);
-                        this.checkElementEnemyCollision(element);
-                        this.checkElementBulletCollision(element);
-                        break;
-
-                    case 20: {
-                        //goomba
-                        const enemy = new Enemy();
-                        enemy.x = column * this.tileSize;
-                        enemy.y = row * this.tileSize;
-                        enemy.goomba();
-                        enemy.draw();
-
-                        this.goombas.push(enemy);
-                        this.map[row][column] = 0;
-                        break;
-                    }
-
-                    default: {
+                        if (type !== 5) {
+                            this.checkElementPowerUpCollision(element);
+                            this.checkElementEnemyCollision(element);
+                            this.checkElementBulletCollision(element);
+                        }
                     }
                 }
             }
@@ -370,7 +265,7 @@ export default class MarioGame {
     }
 
     checkElementMarioCollision(element, row, column) {
-        let collisionDirection = this.collisionCheck(this.mario, element);
+        const collisionDirection = this.collisionCheck(this.mario, element);
 
         switch (collisionDirection) {
             case 'l':
@@ -400,7 +295,7 @@ export default class MarioGame {
                 switch (element.type) {
                     case 3: {
                         //PowerUp Box
-                        const powerUp = new PowerUp();
+                        const powerUp = new PowerUp(this.board.canvas);
 
                         //gives mushroom if this.mario is small, otherwise gives flower
                         if (this.mario.type === 'small') {
@@ -420,7 +315,7 @@ export default class MarioGame {
 
                     case 11: {
                         //Flower Box
-                        const powerUp = new PowerUp();
+                        const powerUp = new PowerUp(this.board.canvas);
                         powerUp.flower(element.x, element.y);
                         this.powerUps.push(powerUp);
 
@@ -686,12 +581,7 @@ export default class MarioGame {
 
                 if (this.tickCounter > this.maxTick / this.mario.speed) {
                     this.tickCounter = 0;
-
-                    if (this.mario.frame !== 9) {
-                        this.mario.frame = 9;
-                    } else {
-                        this.mario.frame = 8;
-                    }
+                    this.mario.frame = this.mario.frame !== 9 ? 9 : 8;
                 }
             }
         }
@@ -707,7 +597,7 @@ export default class MarioGame {
             //ctrl key
             if (!this.bulletFlag) {
                 this.bulletFlag = true;
-                const bullet = new Bullet();
+                const bullet = new Bullet(this.board.canvas);
                 const direction =
                     this.mario.frame === 9 ||
                     this.mario.frame === 8 ||

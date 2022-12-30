@@ -14,8 +14,8 @@ export default class Mario {
     sY = 4; // sprite y
     frame = 0;
 
-    constructor() {
-        this.gameUI = GameUI.getInstance();
+    constructor(canvas) {
+        this.gameUI = new GameUI(canvas);
     }
 
     init() {

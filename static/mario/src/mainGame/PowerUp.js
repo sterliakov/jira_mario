@@ -9,8 +9,8 @@ export default class PowerUp {
     width = 32;
     height = 32;
 
-    constructor() {
-        this.gameUI = GameUI.getInstance();
+    constructor(canvas) {
+        this.gameUI = new GameUI(canvas);
         this.element = new Image();
         this.element.src = './images/powerups.png';
     }

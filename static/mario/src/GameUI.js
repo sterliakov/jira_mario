@@ -1,47 +1,53 @@
 //canvas elements for the main mario game
 
-const GameUI = (function () {
-    var instance;
+export default class GameUI {
+    constructor(canvas) {
+        this._canvasRef = canvas;
+    }
 
-    function GameUI() {
-        var canvas = document.getElementsByClassName('game-screen')[0];
-        var ctx = canvas.getContext('2d');
+    get canvas() {
+        if (!this._canvas) this._canvas = this._canvasRef.current;
+        return this._canvas;
+    }
+    get ctx() {
+        if (!this._ctx) this._ctx = this.canvas.getContext('2d');
+        return this._ctx;
+    }
 
-        var that = this;
+    getWidth() {
+        return this.canvas.width;
+    }
 
-        this.getWidth = function () {
-            return canvas.width;
-        };
+    getHeight() {
+        return this.canvas.height;
+    }
 
-        this.getHeight = function () {
-            return canvas.height;
-        };
+    getCanvas() {
+        return this.canvas;
+    }
 
-        this.getCanvas = function () {
-            return canvas;
-        };
+    show() {
+        this.canvas.style.display = 'block';
+    }
 
-        this.show = function () {
-            canvas.style.display = 'block';
-        };
+    hide() {
+        this.canvas.style.display = 'none';
+    }
 
-        this.hide = function () {
-            canvas.style.display = 'none';
-        };
+    clear(x, y, width, height) {
+        this.ctx.clearRect(x, y, width, height);
+    }
 
-        this.clear = function (x, y, width, height) {
-            ctx.clearRect(x, y, width, height);
-        };
+    reset() {
+        this.ctx.reset();
+    }
 
-        this.reset = function () {
-            ctx.reset();
-        };
+    scrollWindow(x, y) {
+        this.ctx.translate(x, y);
+    }
 
-        this.scrollWindow = function (x, y) {
-            ctx.translate(x, y);
-        };
-
-        this.draw = function (
+    draw(image, sx, sy, swidth, sheight, x, y, dwidth, dheight) {
+        this.ctx.drawImage(
             image,
             sx,
             sy,
@@ -51,42 +57,18 @@ const GameUI = (function () {
             y,
             dwidth,
             dheight,
-        ) {
-            ctx.drawImage(
-                image,
-                sx,
-                sy,
-                swidth,
-                sheight,
-                x,
-                y,
-                dwidth,
-                dheight,
-            );
-        };
-
-        this.makeBox = function (x, y, width, height) {
-            ctx.rect(x, y, width, height);
-            ctx.fillStyle = 'black';
-            ctx.fill();
-        };
-
-        this.writeText = function (text, x, y) {
-            ctx.font = '20px SuperMario256';
-            ctx.fillStyle = 'white';
-            ctx.fillText(text, x, y);
-        };
+        );
     }
 
-    return {
-        getInstance: function () {
-            if (instance == null) {
-                instance = new GameUI();
-            }
+    makeBox(x, y, width, height) {
+        this.ctx.rect(x, y, width, height);
+        this.ctx.fillStyle = 'black';
+        this.ctx.fill();
+    }
 
-            return instance;
-        },
-    };
-})();
-
-export default GameUI;
+    writeText(text, x, y) {
+        this.ctx.font = '20px SuperMario256';
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillText(text, x, y);
+    }
+}

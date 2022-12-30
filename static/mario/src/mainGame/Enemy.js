@@ -13,8 +13,8 @@ export default class Enemy {
     tickCounter = 0; //for animating enemy
     maxTick = 10; //max number for ticks to show enemy sprite
 
-    constructor() {
-        this.gameUI = GameUI.getInstance();
+    constructor(canvas) {
+        this.gameUI = new GameUI(canvas);
 
         this.element = new Image();
         this.element.src = './images/enemies.png';
