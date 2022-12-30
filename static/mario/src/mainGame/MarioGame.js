@@ -1,6 +1,4 @@
 import GameUI from '../GameUI';
-import {FRICTION, GRAVITY} from '../constants';
-import Bullet from './Bullet';
 import Element from './Element';
 import Enemy from './Enemy';
 import GameSound from './GameSound';
@@ -17,7 +15,6 @@ export default class MarioGame {
     goombas = [];
     powerUps = [];
     bullets = [];
-    bulletFlag = false;
 
     tickCounter = 0; //for animating mario
     maxTick = 25; //max number for ticks to show mario sprite
@@ -57,7 +54,7 @@ export default class MarioGame {
     }
 
     bindKeyPress() {
-        const canvas = this.board.canvas.current; //for use with touch events
+        // const canvas = this.board.canvas.current; //for use with touch events
 
         //key binding
         document.body.addEventListener(
@@ -68,67 +65,67 @@ export default class MarioGame {
             'keyup',
             (e) => (this.keys[e.keyCode] = false),
         );
-
-        //key binding for touch events
-        canvas.addEventListener('touchstart', (e) => {
-            const touches = e.changedTouches;
-            e.preventDefault();
-
-            for (const touch of touches) {
-                if (touch.pageX <= 200) {
-                    this.keys[37] = true; //left arrow
-                } else if (touch.pageX > 200 && touch.pageX < 400) {
-                    this.keys[39] = true; //right arrow
-                } else if (touch.pageX > 640 && touch.pageX <= 1080) {
-                    //in touch events, same area acts as sprint and bullet key
-                    this.keys[16] = true; //shift key
-                    this.keys[17] = true; //ctrl key
-                } else if (touch.pageX > 1080 && touch.pageX < 1280) {
-                    this.keys[32] = true; //space
-                }
-            }
-        });
-
-        canvas.addEventListener('touchend', (e) => {
-            const touches = e.changedTouches;
-            e.preventDefault();
-
-            for (const touch of touches) {
-                if (touch.pageX <= 200) {
-                    this.keys[37] = false;
-                } else if (touch.pageX > 200 && touch.pageX <= 640) {
-                    this.keys[39] = false;
-                } else if (touch.pageX > 640 && touch.pageX <= 1080) {
-                    this.keys[16] = false;
-                    this.keys[17] = false;
-                } else if (touch.pageX > 1080 && touch.pageX < 1280) {
-                    this.keys[32] = false;
-                }
-            }
-        });
-
-        canvas.addEventListener('touchmove', (e) => {
-            const touches = e.changedTouches;
-            e.preventDefault();
-
-            for (const touch of touches) {
-                if (touch.pageX <= 200) {
-                    this.keys[37] = true;
-                    this.keys[39] = false;
-                } else if (touch.pageX > 200 && touch.pageX < 400) {
-                    this.keys[39] = true;
-                    this.keys[37] = false;
-                } else if (touch.pageX > 640 && touch.pageX <= 1080) {
-                    this.keys[16] = true;
-                    this.keys[32] = false;
-                } else if (touch.pageX > 1080 && touch.pageX < 1280) {
-                    this.keys[32] = true;
-                    this.keys[16] = false;
-                    this.keys[17] = false;
-                }
-            }
-        });
     }
+
+    //key binding for touch events
+    onTouchstart = (e) => {
+        const touches = e.changedTouches;
+        e.preventDefault();
+
+        for (const touch of touches) {
+            if (touch.pageX <= 200) {
+                this.keys[37] = true; //left arrow
+            } else if (touch.pageX > 200 && touch.pageX < 400) {
+                this.keys[39] = true; //right arrow
+            } else if (touch.pageX > 640 && touch.pageX <= 1080) {
+                //in touch events, same area acts as sprint and bullet key
+                this.keys[16] = true; //shift key
+                this.keys[17] = true; //ctrl key
+            } else if (touch.pageX > 1080 && touch.pageX < 1280) {
+                this.keys[32] = true; //space
+            }
+        }
+    };
+
+    onTouchend = (e) => {
+        const touches = e.changedTouches;
+        e.preventDefault();
+
+        for (const touch of touches) {
+            if (touch.pageX <= 200) {
+                this.keys[37] = false;
+            } else if (touch.pageX > 200 && touch.pageX <= 640) {
+                this.keys[39] = false;
+            } else if (touch.pageX > 640 && touch.pageX <= 1080) {
+                this.keys[16] = false;
+                this.keys[17] = false;
+            } else if (touch.pageX > 1080 && touch.pageX < 1280) {
+                this.keys[32] = false;
+            }
+        }
+    };
+
+    onTouchmove = (e) => {
+        const touches = e.changedTouches;
+        e.preventDefault();
+
+        for (const touch of touches) {
+            if (touch.pageX <= 200) {
+                this.keys[37] = true;
+                this.keys[39] = false;
+            } else if (touch.pageX > 200 && touch.pageX < 400) {
+                this.keys[39] = true;
+                this.keys[37] = false;
+            } else if (touch.pageX > 640 && touch.pageX <= 1080) {
+                this.keys[16] = true;
+                this.keys[32] = false;
+            } else if (touch.pageX > 1080 && touch.pageX < 1280) {
+                this.keys[32] = true;
+                this.keys[16] = false;
+                this.keys[17] = false;
+            }
+        }
+    };
 
     //Main Game Loop
     startGame() {
@@ -201,7 +198,7 @@ export default class MarioGame {
 
                     this.goombas.push(enemy);
                     this.map[row][column] = 0;
-                } else if (type !== 0) {
+                } else if (type !== 0 && type <= 10) {
                     const element = new Element(
                         this.board.canvas,
                         type,
@@ -421,51 +418,52 @@ export default class MarioGame {
     checkEnemyMarioCollision() {
         for (const goomba of this.goombas) {
             if (
-                !this.mario.invulnerable &&
-                goomba.state !== 'dead' &&
-                goomba.state !== 'deadFromBullet'
+                this.mario.invulnerable ||
+                goomba.state === 'dead' ||
+                goomba.state === 'deadFromBullet'
+            )
+                continue;
+            //if this.mario is invulnerable or goombas state is dead, collision doesnt occur
+
+            const collWithMario = this.collisionCheck(goomba, this.mario);
+
+            if (collWithMario === 't') {
+                //kill goombas if collision is from top
+                goomba.state = 'dead';
+
+                this.mario.velY = -this.mario.speed;
+
+                this.board.setState({
+                    totalScore: this.board.state.totalScore + 1000,
+                });
+
+                //sound when enemy dies
+                this.gameSound.play('killEnemy');
+            } else if (
+                collWithMario === 'r' ||
+                collWithMario === 'l' ||
+                collWithMario === 'b'
             ) {
-                //if this.mario is invulnerable or goombas state is dead, collision doesnt occur
-                const collWithMario = this.collisionCheck(goomba, this.mario);
+                goomba.velX *= -1;
 
-                if (collWithMario === 't') {
-                    //kill goombas if collision is from top
-                    goomba.state = 'dead';
-
-                    this.mario.velY = -this.mario.speed;
-
-                    this.board.setState({
-                        totalScore: this.board.state.totalScore + 1000,
-                    });
-
-                    //sound when enemy dies
-                    this.gameSound.play('killEnemy');
-                } else if (
-                    collWithMario === 'r' ||
-                    collWithMario === 'l' ||
-                    collWithMario === 'b'
-                ) {
-                    goomba.velX *= -1;
-
-                    if (this.mario.type === 'small') {
-                        //kill this.mario if collision occurs when he is small
-                        this.die();
-                        break;
-                    } else {
-                        if (this.mario.type === 'big') {
-                            this.mario.type = 'small';
-                        } else if (this.mario.type === 'fire') {
-                            this.mario.type = 'big';
-                        }
-                        this.mario.invulnerable = true;
-
-                        //sound when this.mario powerDowns
-                        this.gameSound.play('powerDown');
-
-                        setTimeout(() => {
-                            this.mario.invulnerable = false;
-                        }, 1000);
+                if (this.mario.type === 'small') {
+                    // kill mario if collision occurs when he is small
+                    this.die();
+                    break;
+                } else {
+                    if (this.mario.type === 'big') {
+                        this.mario.type = 'small';
+                    } else if (this.mario.type === 'fire') {
+                        this.mario.type = 'big';
                     }
+                    this.mario.invulnerable = true;
+
+                    // sound when mario powerDowns
+                    this.gameSound.play('powerDown');
+
+                    setTimeout(() => {
+                        this.mario.invulnerable = false;
+                    }, 1000);
                 }
             }
         }
@@ -511,9 +509,7 @@ export default class MarioGame {
         this.pauseGame();
         this.mario.frame = 13;
 
-        //sound when this.mario dies
         this.gameSound.play('marioDie');
-
         this.board.setState({
             lifeCount: this.board.state.lifeCount - 1,
         });
@@ -527,38 +523,26 @@ export default class MarioGame {
         }, 3000);
     }
 
-    //controlling this.mario with key events
+    // controlling mario with key events
     updateMario() {
         this.mario.checkMarioType();
 
         if (this.keys[38] || this.keys[32]) {
             //up arrow
-            if (!this.mario.jumping && this.mario.grounded) {
-                this.mario.jumping = true;
-                this.mario.grounded = false;
-                this.mario.velY = -(this.mario.speed / 2 + 5.5);
-
-                // this.mario sprite position
-                if (this.mario.frame === 0 || this.mario.frame === 1) {
-                    this.mario.frame = 3; //right jump
-                } else if (this.mario.frame === 8 || this.mario.frame === 9) {
-                    this.mario.frame = 2; //left jump
-                }
-
-                //sound when this.mario jumps
+            if (this.mario.jump()) {
                 this.gameSound.play('jump');
             }
         }
 
         if (this.keys[39]) {
-            //right arrow
-            this.checkMarioPos(); //if this.mario goes to the center of the screen, sidescroll the this.map
+            // right arrow
+            this.checkMarioPos(); // if mario goes to the center of the screen, sidescroll the map
 
             if (this.mario.velX < this.mario.speed) {
                 this.mario.velX++;
             }
 
-            //this.mario sprite position
+            // mario sprite position
             if (!this.mario.jumping) {
                 this.tickCounter++;
 
@@ -570,12 +554,12 @@ export default class MarioGame {
         }
 
         if (this.keys[37]) {
-            //left arrow
+            // left arrow
             if (this.mario.velX > -this.mario.speed) {
                 this.mario.velX--;
             }
 
-            //this.mario sprite position
+            // mario sprite position
             if (!this.mario.jumping) {
                 this.tickCounter++;
 
@@ -586,64 +570,19 @@ export default class MarioGame {
             }
         }
 
-        if (this.keys[16]) {
-            //shift key
-            this.mario.speed = 4.5;
-        } else {
-            this.mario.speed = 3;
-        }
+        this.mario.setSpeed(this.keys[16]); // Shift
 
-        if (this.keys[17] && this.mario.type === 'fire') {
-            //ctrl key
-            if (!this.bulletFlag) {
-                this.bulletFlag = true;
-                const bullet = new Bullet(this.board.canvas);
-                const direction =
-                    this.mario.frame === 9 ||
-                    this.mario.frame === 8 ||
-                    this.mario.frame === 2
-                        ? -1
-                        : 1;
-                bullet.init(this.mario.x, this.mario.y, direction);
+        if (this.keys[17]) {
+            const bullet = this.mario.shoot();
+            if (bullet) {
+                // Ctrl
                 this.bullets.push(bullet);
-
-                //bullet sound
                 this.gameSound.play('bullet');
-
-                setTimeout(() => {
-                    this.bulletFlag = false; //only lets this.mario fire bullet after 500ms
-                }, 500);
             }
         }
 
-        //velocity 0 sprite position
-        if (this.mario.velX > 0 && this.mario.velX < 1 && !this.mario.jumping) {
-            this.mario.frame = 0;
-        } else if (
-            this.mario.velX > -1 &&
-            this.mario.velX < 0 &&
-            !this.mario.jumping
-        ) {
-            this.mario.frame = 8;
-        }
-
-        if (this.mario.grounded) {
-            this.mario.velY = 0;
-
-            //grounded sprite position
-            if (this.mario.frame === 3) {
-                this.mario.frame = 0; //looking right
-            } else if (this.mario.frame === 2) {
-                this.mario.frame = 8; //looking left
-            }
-        }
-
-        //change this.mario position
-        this.mario.velX *= FRICTION;
-        this.mario.velY += GRAVITY;
-
-        this.mario.x += this.mario.velX;
-        this.mario.y += this.mario.velY;
+        this.mario.pickFrame();
+        this.mario.move();
     }
 
     get centerPos() {
@@ -735,17 +674,5 @@ export default class MarioGame {
 
     clearTimeOut() {
         clearTimeout(this.timeOutId);
-    }
-
-    removeGameScreen() {
-        this.gameUI.hide();
-
-        // if (this.board) {
-        //     this.board.hideScore();
-        // }
-    }
-
-    showGameScreen() {
-        this.gameUI.show();
     }
 }

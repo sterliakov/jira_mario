@@ -47,4 +47,9 @@ module.exports = {
         'no-unused-vars': 0,
         'react/react-in-jsx-scope': 0,
     },
+    settings: {
+        react: {
+            version: 'detect',
+        },
+    },
 };

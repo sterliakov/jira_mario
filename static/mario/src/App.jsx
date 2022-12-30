@@ -1,6 +1,5 @@
-import React, {Component, useEffect} from 'react';
+import React, {Component} from 'react';
 
-import MarioMaker from './MarioMaker';
 import MarioGame from './mainGame/MarioGame';
 import Score from './mainGame/Score';
 import './static/css/reset.css';
@@ -84,6 +83,9 @@ class GameCanvas extends Component {
                     ref={this.canvas}
                     width={this.props.Width}
                     height={this.props.Height}
+                    onTouchstart={() => this.marioGame.onTouchstart()}
+                    onTouchend={() => this.marioGame.onTouchend()}
+                    onTouchmove={() => this.marioGame.onTouchmove()}
                 ></canvas>
             </>
         );
@@ -119,7 +121,7 @@ class GameCanvas extends Component {
     }
 
     updateCoinScore() {
-        if (this.state.coinScore == 100) {
+        if (this.state.coinScore === 100) {
             this.setState({
                 coinScore: 0,
                 lifeCount: this.state.lifeCount + 1,

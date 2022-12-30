@@ -22,14 +22,14 @@ const View = (function () {
 
         this.append = function (parentElement, childElement) {
             //appends everything before the back button, score wrapper in top and everything else in between
-            if (childElement.className == 'score-wrapper') {
+            if (childElement.className === 'score-wrapper') {
                 parentElement.insertBefore(
                     childElement,
                     parentElement.firstChild,
                 );
             } else if (
                 parentElement.lastChild &&
-                parentElement.lastChild.className == 'btn-wrapper'
+                parentElement.lastChild.className === 'btn-wrapper'
             ) {
                 parentElement.insertBefore(
                     childElement,

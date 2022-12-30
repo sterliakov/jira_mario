@@ -45,14 +45,14 @@ export default class Enemy {
             this.velY = 0;
         }
 
-        if (this.state == 'dead') {
+        if (this.state === 'dead') {
             this.frame = 2; //squashed goomba
 
             this.tickCounter++;
             if (this.tickCounter >= 60) {
                 this.frame = 4;
             }
-        } else if (this.state == 'deadFromBullet') {
+        } else if (this.state === 'deadFromBullet') {
             //falling goomba
             this.frame = 3;
             this.velY += GRAVITY;

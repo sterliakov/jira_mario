@@ -4,7 +4,6 @@ import {GRAVITY} from '../constants';
 export default class PowerUp {
     velX = 2;
     velY = 0;
-    grounded = false;
     sY = 0;
     width = 32;
     height = 32;
@@ -44,7 +43,7 @@ export default class PowerUp {
     }
 
     update() {
-        if (this.type == 30) {
+        if (this.type === 30) {
             if (this.grounded) {
                 this.velY = 0;
             }

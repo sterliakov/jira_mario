@@ -7,14 +7,12 @@ export default class Bullet {
     width = 16;
     height = 16;
 
-    constructor(canvas) {
+    constructor(canvas, x, y, direction) {
         this.gameUI = new GameUI(canvas);
 
         this.element = new Image();
         this.element.src = './images/bullet.png';
-    }
 
-    init(x, y, direction) {
         this.velX = 8 * direction; //changing the direction of the bullet if mario faces another side
         this.velY = 0;
         this.x = x + this.width;
