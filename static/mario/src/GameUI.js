@@ -9,14 +9,6 @@ const GameUI = (function () {
 
         var that = this;
 
-        this.setWidth = function (width) {
-            canvas.width = width;
-        };
-
-        this.setHeight = function (height) {
-            canvas.height = height;
-        };
-
         this.getWidth = function () {
             return canvas.width;
         };
@@ -39,6 +31,10 @@ const GameUI = (function () {
 
         this.clear = function (x, y, width, height) {
             ctx.clearRect(x, y, width, height);
+        };
+
+        this.reset = function () {
+            ctx.reset();
         };
 
         this.scrollWindow = function (x, y) {

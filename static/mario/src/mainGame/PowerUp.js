@@ -1,64 +1,58 @@
 import GameUI from '../GameUI';
+import {GRAVITY} from '../constants';
 
-export default function PowerUp() {
-    var gameUI = GameUI.getInstance();
+export default class PowerUp {
+    velX = 2;
+    velY = 0;
+    grounded = false;
+    sY = 0;
+    width = 32;
+    height = 32;
 
-    var element = new Image();
-    element.src = './images/powerups.png';
+    constructor() {
+        this.gameUI = GameUI.getInstance();
+        this.element = new Image();
+        this.element.src = './images/powerups.png';
+    }
 
-    // this.type;
-    // this.x;
-    // this.y;
-    this.velX = 2;
-    this.velY = 0;
-    this.grounded = false;
-    // this.sX;
-    this.sY = 0;
-    this.width = 32;
-    this.height = 32;
+    mushroom(x, y) {
+        this.x = x;
+        this.y = y - this.height;
+        this.type = 30;
+        this.sX = 0;
+    }
 
-    var that = this;
+    flower(x, y) {
+        this.x = x;
+        this.y = y - this.height;
+        this.type = 31;
+        this.sX = 32;
+    }
 
-    this.mushroom = function (x, y) {
-        that.x = x;
-        that.y = y - that.height;
-        that.type = 30;
-        that.sX = 0;
-    };
-
-    this.flower = function (x, y) {
-        that.x = x;
-        that.y = y - that.height;
-        that.type = 31;
-        that.sX = 32;
-    };
-
-    this.draw = function () {
-        gameUI.draw(
-            element,
-            that.sX,
-            that.sY,
-            that.width,
-            that.height,
-            that.x,
-            that.y,
-            that.width,
-            that.height,
+    draw() {
+        this.gameUI.draw(
+            this.element,
+            this.sX,
+            this.sY,
+            this.width,
+            this.height,
+            this.x,
+            this.y,
+            this.width,
+            this.height,
         );
-    };
+    }
 
-    this.update = function () {
-        if (that.type == 30) {
-            var gravity = 0.2;
-
-            if (that.grounded) {
-                that.velY = 0;
+    update() {
+        if (this.type == 30) {
+            if (this.grounded) {
+                this.velY = 0;
             }
 
-            that.velY += gravity;
+            this.velY += GRAVITY;
 
-            that.x += that.velX;
-            that.y += that.velY;
+            this.x += this.velX;
+            this.y += this.velY;
         }
-    };
+    }
 }

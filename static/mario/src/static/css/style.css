@@ -3,6 +3,11 @@
   src: url('../fonts/SuperMario256.ttf');
 }
 
+.main-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
 .start-screen {
   width: 1280px;
   height: 530px;

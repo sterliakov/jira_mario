@@ -79,7 +79,12 @@ class GameCanvas extends Component {
                     lifeCount={this.state.lifeCount}
                     levelNum={this.state.levelNum}
                 />
-                <canvas className="game-screen" ref={this.canvas}></canvas>
+                <canvas
+                    className="game-screen"
+                    ref={this.canvas}
+                    width={this.props.Width}
+                    height={this.props.Height}
+                ></canvas>
             </>
         );
     }
@@ -134,7 +139,9 @@ export default class App extends Component {
     render() {
         return (
             <div className="main-wrapper">
-                {this.state.view === 'game' && <GameCanvas />}
+                {this.state.view === 'game' && (
+                    <GameCanvas Width="1280" Height="480" />
+                )}
                 {this.state.view === 'start' && (
                     <StartScreen
                         showGame={() => this.setState({view: 'game'})}

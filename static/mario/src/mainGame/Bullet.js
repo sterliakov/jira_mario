@@ -1,57 +1,52 @@
 import GameUI from '../GameUI';
 import {GRAVITY} from '../constants';
 
-export default function Bullet() {
-    var gameUI = GameUI.getInstance();
+export default class Bullet {
+    grounded = false;
+    sY = 0;
+    width = 16;
+    height = 16;
 
-    var element = new Image();
-    element.src = './images/bullet.png';
+    constructor() {
+        this.gameUI = GameUI.getInstance();
 
-    // this.x;
-    // this.y;
-    // this.velX;
-    // this.velY;
-    this.grounded = false;
-    // this.sX;
-    this.sY = 0;
-    this.width = 16;
-    this.height = 16;
+        this.element = new Image();
+        this.element.src = './images/bullet.png';
+    }
 
-    var that = this;
+    init(x, y, direction) {
+        this.velX = 8 * direction; //changing the direction of the bullet if mario faces another side
+        this.velY = 0;
+        this.x = x + this.width;
+        this.y = y + 30;
+        this.type = 30;
+        this.sX = 0;
+    }
 
-    this.init = function (x, y, direction) {
-        that.velX = 8 * direction; //changing the direction of the bullet if mario faces another side
-        that.velY = 0;
-        that.x = x + that.width;
-        that.y = y + 30;
-        that.type = 30;
-        that.sX = 0;
-    };
-
-    this.draw = function () {
-        gameUI.draw(
-            element,
-            that.sX,
-            that.sY,
-            that.width,
-            that.height,
-            that.x,
-            that.y,
-            that.width,
-            that.height,
+    draw() {
+        this.gameUI.draw(
+            this.element,
+            this.sX,
+            this.sY,
+            this.width,
+            this.height,
+            this.x,
+            this.y,
+            this.width,
+            this.height,
         );
-    };
+    }
 
-    this.update = function () {
-        if (that.grounded) {
+    update() {
+        if (this.grounded) {
             //bouncing the bullet as it touches the ground
-            that.velY = -4;
-            that.grounded = false;
+            this.velY = -4;
+            this.grounded = false;
         }
 
-        that.velY += GRAVITY;
+        this.velY += GRAVITY;
 
-        that.x += that.velX;
-        that.y += that.velY;
-    };
+        this.x += this.velX;
+        this.y += this.velY;
+    }
 }

@@ -1,79 +1,69 @@
 import GameUI from '../GameUI';
 
-export default function Mario() {
-    var gameUI = GameUI.getInstance();
+export default class Mario {
+    type = 'small';
+    width = 32;
+    height = 44;
+    speed = 3;
+    velX = 0;
+    velY = 0;
+    jumping = false;
+    grounded = false;
+    invulnerable = false;
+    sX = 0; // sprite x
+    sY = 4; // sprite y
+    frame = 0;
 
-    this.type = 'small';
-    // this.x;
-    // this.y;
-    this.width = 32;
-    this.height = 44;
-    this.speed = 3;
-    this.velX = 0;
-    this.velY = 0;
-    this.jumping = false;
-    this.grounded = false;
-    this.invulnerable = false;
-    this.sX = 0; // sprite x
-    this.sY = 4; // sprite y
-    this.frame = 0;
+    constructor() {
+        this.gameUI = GameUI.getInstance();
+    }
 
-    var that = this;
+    init() {
+        this.x = 10;
+        this.y = this.gameUI.getHeight() - 40 - 40;
 
-    this.init = function () {
-        that.x = 10;
-        that.y = gameUI.getHeight() - 40 - 40;
+        this.marioSprite = new Image();
+        this.marioSprite.src = './images/mario-sprites.png';
+        this.canvas = document.getElementsByClassName('game-screen')[0];
+    }
 
-        that.marioSprite = new Image();
-        that.marioSprite.src = './images/mario-sprites.png';
-        that.canvas = document.getElementsByClassName('game-screen')[0];
-    };
-
-    this.draw = function () {
-        that.sX = that.width * that.frame;
-        gameUI.draw(
-            that.marioSprite,
-            that.sX,
-            that.sY,
-            that.width,
-            that.height,
-            that.x,
-            that.y,
-            that.width,
-            that.height,
+    draw() {
+        this.sX = this.width * this.frame;
+        this.gameUI.draw(
+            this.marioSprite,
+            this.sX,
+            this.sY,
+            this.width,
+            this.height,
+            this.x,
+            this.y,
+            this.width,
+            this.height,
         );
-    };
+    }
 
-    this.checkMarioType = function () {
-        if (that.type === 'big') {
-            that.height = 60;
-
-            //big mario sprite position
-            if (that.invulnerable) {
-                that.sY = 276; //if invulnerable, show transparent mario
-            } else {
-                that.sY = 90;
-            }
-        } else if (that.type === 'small') {
-            that.height = 44;
-
-            //small mario sprite
-            if (that.invulnerable) {
-                that.sY = 222; //if invulnerable, show transparent mario
-            } else {
-                that.sY = 4;
-            }
-        } else if (that.type === 'fire') {
-            that.height = 60;
-
-            //fire mario sprite
-            that.sY = 150;
+    checkMarioType() {
+        switch (this.type) {
+            case 'big':
+                this.height = 60;
+                this.sY = this.invulnerable ? 276 : 90;
+                break;
+            case 'small':
+                this.height = 44;
+                this.sY = this.invulnerable ? 222 : 4;
+                break;
+            case 'fire':
+                this.height = 60;
+                this.sY = 150;
+                break;
+            default:
+                throw new Error('Unknown type');
         }
-    };
+    }
 
-    this.resetPos = function () {
-        that.x = that.canvas.width / 10;
-        that.y = that.canvas.height - 40;
-        that.frame = 0;
-    };
+    resetPos() {
+        this.x = this.canvas.width / 10;
+        this.y = this.canvas.height - 40;
+        this.frame = 0;
+    }
 }

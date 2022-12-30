@@ -1,82 +1,78 @@
 import GameUI from '../GameUI';
 
-export default function Element() {
-    var gameUI = GameUI.getInstance();
+export default class Element {
+    sY = 0;
+    width = 32;
+    height = 32;
 
-    var element = new Image();
-    element.src = './images/elements.png';
+    constructor() {
+        this.gameUI = GameUI.getInstance();
 
-    // this.type;
-    // this.sX;
-    this.sY = 0;
-    // this.x;
-    // this.y;
-    this.width = 32;
-    this.height = 32;
+        this.element = new Image();
+        this.element.src = './images/elements.png';
+    }
 
-    var that = this;
+    platform() {
+        this.type = 1;
+        this.sX = 0;
+    }
 
-    this.platform = function () {
-        that.type = 1;
-        that.sX = 0;
-    };
+    coinBox() {
+        this.type = 2;
+        this.sX = 1 * this.width;
+    }
 
-    this.coinBox = function () {
-        that.type = 2;
-        that.sX = 1 * that.width;
-    };
+    powerUpBox() {
+        this.type = 3;
+        this.sX = 2 * this.width;
+    }
 
-    this.powerUpBox = function () {
-        that.type = 3;
-        that.sX = 2 * that.width;
-    };
+    uselessBox() {
+        this.type = 4;
+        this.sX = 3 * this.width;
+    }
 
-    this.uselessBox = function () {
-        that.type = 4;
-        that.sX = 3 * that.width;
-    };
+    flagPole() {
+        this.type = 5;
+        this.sX = 4 * this.width;
+    }
 
-    this.flagPole = function () {
-        that.type = 5;
-        that.sX = 4 * that.width;
-    };
+    flag() {
+        this.type = 6;
+        this.sX = 5 * this.width;
+    }
 
-    this.flag = function () {
-        that.type = 6;
-        that.sX = 5 * that.width;
-    };
+    pipeLeft() {
+        this.type = 7;
+        this.sX = 6 * this.width;
+    }
 
-    this.pipeLeft = function () {
-        that.type = 7;
-        that.sX = 6 * that.width;
-    };
+    pipeRight() {
+        this.type = 8;
+        this.sX = 7 * this.width;
+    }
 
-    this.pipeRight = function () {
-        that.type = 8;
-        that.sX = 7 * that.width;
-    };
+    pipeTopLeft() {
+        this.type = 9;
+        this.sX = 8 * this.width;
+    }
 
-    this.pipeTopLeft = function () {
-        that.type = 9;
-        that.sX = 8 * that.width;
-    };
+    pipeTopRight() {
+        this.type = 10;
+        this.sX = 9 * this.width;
+    }
 
-    this.pipeTopRight = function () {
-        that.type = 10;
-        that.sX = 9 * that.width;
-    };
-
-    this.draw = function () {
-        gameUI.draw(
-            element,
-            that.sX,
-            that.sY,
-            that.width,
-            that.height,
-            that.x,
-            that.y,
-            that.width,
-            that.height,
+    draw() {
+        this.gameUI.draw(
+            this.element,
+            this.sX,
+            this.sY,
+            this.width,
+            this.height,
+            this.x,
+            this.y,
+            this.width,
+            this.height,
         );
-    };
+    }
 }
