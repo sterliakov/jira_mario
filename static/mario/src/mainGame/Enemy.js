@@ -1,3 +1,4 @@
+import {Types} from '../constants';
 import {collisionCheck} from '../helpers';
 import Drawable from './Drawable';
 
@@ -9,13 +10,13 @@ export default class Enemy extends Drawable {
     velX = 1;
     velY = 0;
     frame = 0;
-    type = 20;
+    type = Types.Enemy;
 
     tickCounter = 0; //for animating enemy
     maxTick = 10; //max number for ticks to show enemy sprite
 
     fromType(type) {
-        this.type = type ?? this.type ?? 20;
+        this.type = type ?? this.type ?? Types.Enemy;
         this.sX = 0;
     }
 

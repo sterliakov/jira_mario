@@ -1,3 +1,4 @@
+import {Types} from '../constants';
 import {collisionCheck} from '../helpers';
 import Drawable from './Drawable';
 
@@ -9,16 +10,16 @@ export default class Bullet extends Drawable {
     width = 16;
     height = 16;
     velY = 0;
-    type = 30;
+    type = Types.Bullet;
 
     constructor(canvas, x, y, direction) {
-        super(canvas, 30, x, y + 30);
+        super(canvas, Types.Bullet, x, y + 30);
         this.x = x + this.width;
         this.velX = 8 * direction; //changing the direction of the bullet if mario faces another side
     }
 
     fromType(type) {
-        this.type = 30;
+        this.type = Types.Bullet;
         this.sX = 0;
     }
 

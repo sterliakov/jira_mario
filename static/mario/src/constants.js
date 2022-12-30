@@ -35,3 +35,22 @@ for (const src of imageSources) {
     im.src = src;
     Images[src.split('/').at(-1)] = im;
 }
+
+export const Types = {
+    Blank: 0,
+    Platform: 1,
+    CoinBox: 2,
+    PowerUpBox: 3, // flower or mushroom depending on hero state
+    UselessBox: 4,
+    FlagPole: 5,
+    Flag: 6,
+    PipeLeft: 7,
+    PipeRight: 8,
+    PipeTopLeft: 9,
+    PipeTopRight: 10,
+    FlowerBox: 11,
+    Enemy: 20,
+    Mushroom: 30,
+    Flower: 31,
+    Bullet: 40,
+};

@@ -1,3 +1,4 @@
+import {Types} from '../constants';
 import {collisionCheck} from '../helpers';
 import Drawable from './Drawable';
 
@@ -15,13 +16,13 @@ export default class PowerUp extends Drawable {
 
     fromType(type) {
         this.type = type ?? this.type;
-        this.sX = (type - 30) * this.width;
+        this.sX = (type - Types.Mushroom) * this.width;
     }
 
     // types: 30 - mushroom, 31 - flower
 
     update() {
-        if (this.type !== 30) return;
+        if (this.type !== Types.Mushroom) return;
         if (this.grounded) this.velY = 0;
         this.move();
     }
@@ -36,9 +37,10 @@ export default class PowerUp extends Drawable {
     meetMario(mario) {
         if (collisionCheck(this, mario)) {
             //mushroom
-            if (this.type === 30 && mario.type === 'small') mario.type = 'big';
+            if (this.type === Types.Mushroom && mario.type === 'small')
+                mario.type = 'big';
             //flower
-            else if (this.type === 31) mario.type = 'fire';
+            else if (this.type === Types.Flower) mario.type = 'fire';
             return true;
         }
         return false;

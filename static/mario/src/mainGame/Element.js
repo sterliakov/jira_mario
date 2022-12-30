@@ -1,3 +1,4 @@
+import {Types} from '../constants';
 import {collisionCheck} from '../helpers';
 import Drawable from './Drawable';
 import PowerUp from './PowerUp';
@@ -9,7 +10,7 @@ export default class Element extends Drawable {
 
     fromType(type) {
         this.type = type ?? this.type;
-        this.sX = (type - 1) * this.width;
+        this.sX = (type - Types.Platform) * this.width;
     }
 
     meetMario(mario) {
@@ -21,12 +22,12 @@ export default class Element extends Drawable {
                 mario.jumping = false;
 
                 //flag pole
-                if (this.type === 5)
+                if (this.type === Types.FlagPole)
                     return {action: 'levelFinish', args: [collisionDirection]};
                 break;
             }
             case 'b': {
-                if (this.type !== 5) {
+                if (this.type !== Types.FlagPole) {
                     //only if not flag pole
                     mario.grounded = true;
                     mario.jumping = false;
@@ -34,14 +35,16 @@ export default class Element extends Drawable {
                 break;
             }
             case 't': {
-                if (this.type !== 5) mario.velY *= -1;
+                if (this.type !== Types.FlagPole) mario.velY *= -1;
 
                 switch (this.type) {
-                    case 3:
-                    case 11: {
-                        //PowerUp Box
+                    case Types.PowerUpBox:
+                    case Types.FlowerBox: {
                         const type =
-                            mario.type === 'small' && this.type === 3 ? 30 : 31;
+                            mario.type === 'small' &&
+                            this.type === Types.PowerUpBox
+                                ? 30
+                                : 31;
                         const powerUp = new PowerUp(
                             this._canvasRef,
                             type,
@@ -52,8 +55,7 @@ export default class Element extends Drawable {
                         return {action: 'powerUp', args: [powerUp]};
                     }
 
-                    //Coin Box
-                    case 2:
+                    case Types.CoinBox:
                         return {action: 'coinBox', args: []};
 
                     default: {

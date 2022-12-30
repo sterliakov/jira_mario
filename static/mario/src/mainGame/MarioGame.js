@@ -1,3 +1,4 @@
+import {Types} from '../constants';
 import CanvasCapable from './CanvasCapable';
 import Element from './Element';
 import Enemy from './Enemy';
@@ -183,7 +184,7 @@ export default class MarioGame extends CanvasCapable {
         for (let row = 0; row < this.map.length; row++) {
             for (let column = 0; column < this.map[row].length; column++) {
                 const type = this.map[row][column];
-                if (type === 20) {
+                if (type === Types.Enemy) {
                     //goomba
                     const enemy = new Enemy(
                         this.board.canvas,
@@ -195,7 +196,7 @@ export default class MarioGame extends CanvasCapable {
 
                     this.goombas.push(enemy);
                     this.map[row][column] = 0;
-                } else if (type !== 0 && type <= 10) {
+                } else if (type !== Types.Blank && type <= Types.FlowerBox) {
                     const element = new Element(
                         this.board.canvas,
                         type,
@@ -203,9 +204,9 @@ export default class MarioGame extends CanvasCapable {
                         row * this.tileSize,
                     );
                     element.draw();
-                    if (type !== 6) {
+                    if (type !== Types.Flag) {
                         this.checkElementMarioCollision(element, row, column);
-                        if (type !== 5) {
+                        if (type !== Types.FlagPole) {
                             this.checkElementPowerUpCollision(element);
                             this.checkElementEnemyCollision(element);
                             this.checkElementBulletCollision(element);
