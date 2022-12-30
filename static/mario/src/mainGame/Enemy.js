@@ -1,75 +1,46 @@
-import GameUI from '../GameUI';
-import {GRAVITY} from '../constants';
 import {collisionCheck} from '../helpers';
+import Drawable from './Drawable';
 
-export default class Enemy {
+export default class Enemy extends Drawable {
+    get IMAGE_SRC() {
+        return './images/enemies.png';
+    }
+
     velX = 1;
     velY = 0;
-    grounded = false;
-    sY = 0;
-    width = 32;
-    height = 32;
     frame = 0;
+    type = 20;
 
     tickCounter = 0; //for animating enemy
     maxTick = 10; //max number for ticks to show enemy sprite
 
-    constructor(canvas, type, x, y) {
-        this.gameUI = new GameUI(canvas);
-
-        this.element = new Image();
-        this.element.src = './images/enemies.png';
-        if (type) this.fromType(type);
-        if (typeof x !== 'undefined' && typeof y !== 'undefined')
-            [this.x, this.y] = [x, y];
-    }
-
     fromType(type) {
-        this.type = type;
-        this.sX = (type - 20) * this.width;
+        this.type = type ?? this.type ?? 20;
+        this.sX = 0;
     }
 
-    draw() {
+    setSXBeforeDraw() {
         this.sX = this.width * this.frame;
-        this.gameUI.draw(
-            this.element,
-            this.sX,
-            this.sY,
-            this.width,
-            this.height,
-            this.x,
-            this.y,
-            this.width,
-            this.height,
-        );
     }
 
     update() {
-        if (this.grounded) {
-            this.velY = 0;
-        }
+        if (this.grounded) this.velY = 0;
 
         if (this.state === 'dead') {
             this.frame = 2; //squashed goomba
-
             this.tickCounter++;
-            if (this.tickCounter >= 60) {
-                this.frame = 4;
-            }
+            if (this.tickCounter >= 60) this.frame = 4;
         } else if (this.state === 'deadFromBullet') {
             //falling goomba
             this.frame = 3;
-            this.velY += GRAVITY;
-            this.y += this.velY;
+            this.velX = 0;
+            this.move();
         } else {
             //only animate when not dead
-            this.velY += GRAVITY;
-            this.x += this.velX;
-            this.y += this.velY;
+            this.move();
 
             //for animating
             this.tickCounter++;
-
             if (this.tickCounter > this.maxTick) {
                 this.tickCounter = 0;
                 this.frame = this.frame === 0 ? 1 : 0;
@@ -82,11 +53,8 @@ export default class Enemy {
         //so this goombas fall from the map when dead from bullet
         const direction = collisionCheck(this, element);
 
-        if (direction === 'l' || direction === 'r') {
-            this.velX *= -1;
-        } else if (direction === 'b') {
-            this.grounded = true;
-        }
+        if (direction === 'l' || direction === 'r') this.velX *= -1;
+        else if (direction === 'b') this.grounded = true;
     }
 
     meetMario(mario) {
@@ -132,8 +100,8 @@ export default class Enemy {
     meetBullet(bullet) {
         // Check for collision only if goombas exist and is not dead
         if (this.state === 'dead') return false;
-        const collWithBullet = collisionCheck(this, bullet);
-        if (collWithBullet) {
+        const collision = collisionCheck(this, bullet);
+        if (collision) {
             this.state = 'deadFromBullet';
             return true;
         }

@@ -1,8 +1,12 @@
-import GameUI from '../GameUI';
 import {FRICTION, GRAVITY} from '../constants';
 import Bullet from './Bullet';
+import Drawable from './Drawable';
 
-export default class Mario {
+export default class Mario extends Drawable {
+    get IMAGE_SRC() {
+        return './images/mario-sprites.png';
+    }
+
     type = 'small';
     width = 32;
     height = 44;
@@ -18,32 +22,14 @@ export default class Mario {
     maxTick = 25; //max number for ticks to show mario sprite
 
     constructor(canvas) {
-        this.gameUI = new GameUI(canvas);
+        super(canvas, 0, 10, 40);
         this.canvasRef = canvas;
-    }
-
-    init() {
-        this.x = 10;
         this.y = this.gameUI.getHeight() - 40 - 40;
         this.tickCounter = 0;
-
-        this.marioSprite = new Image();
-        this.marioSprite.src = './images/mario-sprites.png';
     }
 
-    draw() {
+    setSXBeforeDraw() {
         this.sX = this.width * this.frame;
-        this.gameUI.draw(
-            this.marioSprite,
-            this.sX,
-            this.sY,
-            this.width,
-            this.height,
-            this.x,
-            this.y,
-            this.width,
-            this.height,
-        );
     }
 
     checkMarioType() {
@@ -74,20 +60,18 @@ export default class Mario {
     }
 
     jump() {
-        if (!this.jumping && this.grounded) {
-            this.jumping = true;
-            this.grounded = false;
-            this.velY = -(this.speed / 2 + 5.5);
+        if (this.jumping || !this.grounded) return false;
 
-            // this.sprite position
-            if (this.frame === 0 || this.frame === 1) {
-                this.frame = 3; //right jump
-            } else if (this.frame === 8 || this.frame === 9) {
-                this.frame = 2; //left jump
-            }
-            return true;
-        }
-        return false;
+        this.jumping = true;
+        this.grounded = false;
+        this.velY = -(this.speed / 2 + 5.5);
+
+        // right jump
+        if (this.frame === 0 || this.frame === 1) this.frame = 3;
+        // left jump
+        else if (this.frame === 8 || this.frame === 9) this.frame = 2;
+
+        return true;
     }
 
     setSpeed(isShift) {
@@ -95,42 +79,30 @@ export default class Mario {
     }
 
     shoot() {
-        if (this.type === 'fire' && !this.bulletFlag) {
-            this.bulletFlag = true;
-            const direction =
-                this.frame === 9 || this.frame === 8 || this.frame === 2
-                    ? -1
-                    : 1;
-            const bullet = new Bullet(
-                this.canvasRef,
-                this.x,
-                this.y,
-                direction,
-            );
+        if (this.type !== 'fire' || this.bulletFlag) return undefined;
 
-            setTimeout(() => {
-                //only let mario fire bullet after 500ms
-                this.bulletFlag = false;
-            }, 500);
+        const direction =
+            this.frame === 9 || this.frame === 8 || this.frame === 2 ? -1 : 1;
+        const bullet = new Bullet(this.canvasRef, this.x, this.y, direction);
 
-            return bullet;
-        }
+        //only let mario fire bullet after 500ms
+        this.bulletFlag = true;
+        setTimeout(() => (this.bulletFlag = false), 500);
+
+        return bullet;
     }
 
     pickFrame() {
-        if (this.velX > 0 && this.velX < 1 && !this.jumping) this.frame = 0;
-        else if (this.velX > -1 && this.velX < 0 && !this.jumping)
-            this.frame = 8;
+        if (!this.jumping) {
+            if (this.velX > 0 && this.velX < 1) this.frame = 0;
+            else if (this.velX > -1 && this.velX < 0) this.frame = 8;
+        }
 
         if (this.grounded) {
             this.velY = 0;
 
-            // grounded sprite position
-            if (this.frame === 3) {
-                this.frame = 0; //looking right
-            } else if (this.frame === 2) {
-                this.frame = 8; //looking left
-            }
+            if (this.frame === 3) this.frame = 0; // looking right
+            else if (this.frame === 2) this.frame = 8; // looking left
         }
     }
 
@@ -143,9 +115,7 @@ export default class Mario {
     }
 
     onRight() {
-        if (this.velX < this.speed) {
-            this.velX++;
-        }
+        if (this.velX < this.speed) this.velX++;
 
         // sprite position
         if (!this.jumping) {
@@ -159,9 +129,7 @@ export default class Mario {
     }
 
     onLeft() {
-        if (this.velX > -this.speed) {
-            this.velX--;
-        }
+        if (this.velX > -this.speed) this.velX--;
 
         // sprite position
         if (!this.jumping) {

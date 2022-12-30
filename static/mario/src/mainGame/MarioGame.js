@@ -35,7 +35,6 @@ export default class MarioGame {
         if (!this.mario) {
             //so this when level changes, it uses the same instance
             this.mario = new Mario(this.board.canvas);
-            this.mario.init();
         } else {
             // this.mario.resetPos();
             this.mario.x = 10;
@@ -432,6 +431,7 @@ export default class MarioGame {
         this.goombas = [];
         this.bullets = [];
         this.powerUps = [];
+        this.keys = [];
     }
 
     clearTimeOut() {

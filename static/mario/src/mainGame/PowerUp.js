@@ -1,69 +1,40 @@
-import GameUI from '../GameUI';
-import {GRAVITY} from '../constants';
 import {collisionCheck} from '../helpers';
+import Drawable from './Drawable';
 
-export default class PowerUp {
+export default class PowerUp extends Drawable {
+    get IMAGE_SRC() {
+        return './images/powerups.png';
+    }
     velX = 2;
     velY = 0;
-    sY = 0;
-    width = 32;
-    height = 32;
 
-    constructor(canvas) {
-        this.gameUI = new GameUI(canvas);
-        this.element = new Image();
-        this.element.src = './images/powerups.png';
-    }
-
-    mushroom(x, y) {
-        this.x = x;
+    constructor(canvas, type, x, y) {
+        super(canvas, type, x, y);
         this.y = y - this.height;
-        this.type = 30;
-        this.sX = 0;
     }
 
-    flower(x, y) {
-        this.x = x;
-        this.y = y - this.height;
-        this.type = 31;
-        this.sX = 32;
+    fromType(type) {
+        this.type = type ?? this.type;
+        this.sX = (type - 30) * this.width;
     }
 
-    draw() {
-        this.gameUI.draw(
-            this.element,
-            this.sX,
-            this.sY,
-            this.width,
-            this.height,
-            this.x,
-            this.y,
-            this.width,
-            this.height,
-        );
-    }
+    // types: 30 - mushroom, 31 - flower
 
     update() {
-        if (this.type === 30) {
-            if (this.grounded) this.velY = 0;
-
-            this.velY += GRAVITY;
-            this.x += this.velX;
-            this.y += this.velY;
-        }
+        if (this.type !== 30) return;
+        if (this.grounded) this.velY = 0;
+        this.move();
     }
 
     meetElement(element) {
-        const collisionDirection = collisionCheck(this, element);
+        const collision = collisionCheck(this, element);
         //change direction if collision with any element from the sidr
-        if (collisionDirection === 'l' || collisionDirection === 'r')
-            this.velX *= -1;
-        else if (collisionDirection === 'b') this.grounded = true;
+        if (collision === 'l' || collision === 'r') this.velX *= -1;
+        else if (collision === 'b') this.grounded = true;
     }
 
     meetMario(mario) {
-        const collWithMario = collisionCheck(this, mario);
-        if (collWithMario) {
+        if (collisionCheck(this, mario)) {
             //mushroom
             if (this.type === 30 && mario.type === 'small') mario.type = 'big';
             //flower

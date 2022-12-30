@@ -1,39 +1,25 @@
-import GameUI from '../GameUI';
-import {GRAVITY} from '../constants';
 import {collisionCheck} from '../helpers';
+import Drawable from './Drawable';
 
-export default class Bullet {
-    grounded = false;
-    sY = 0;
-    width = 16;
-    height = 16;
-
-    constructor(canvas, x, y, direction) {
-        this.gameUI = new GameUI(canvas);
-
-        this.element = new Image();
-        this.element.src = './images/bullet.png';
-
-        this.velX = 8 * direction; //changing the direction of the bullet if mario faces another side
-        this.velY = 0;
-        this.x = x + this.width;
-        this.y = y + 30;
-        this.type = 30;
-        this.sX = 0;
+export default class Bullet extends Drawable {
+    get IMAGE_SRC() {
+        return './images/bullet.png';
     }
 
-    draw() {
-        this.gameUI.draw(
-            this.element,
-            this.sX,
-            this.sY,
-            this.width,
-            this.height,
-            this.x,
-            this.y,
-            this.width,
-            this.height,
-        );
+    width = 16;
+    height = 16;
+    velY = 0;
+    type = 30;
+
+    constructor(canvas, x, y, direction) {
+        super(canvas, 30, x, y + 30);
+        this.x = x + this.width;
+        this.velX = 8 * direction; //changing the direction of the bullet if mario faces another side
+    }
+
+    fromType(type) {
+        this.type = 30;
+        this.sX = 0;
     }
 
     update() {
@@ -42,28 +28,24 @@ export default class Bullet {
             this.velY = -4;
             this.grounded = false;
         }
-
-        this.velY += GRAVITY;
-
-        this.x += this.velX;
-        this.y += this.velY;
+        this.move();
     }
 
     /**
      *  @returns boolean: whether the bullet should be destroyed
      */
     meetElement(element) {
-        const collisionDirection = collisionCheck(this, element);
-        if (collisionDirection === 'b') {
-            //if collision is from bottom of the bullet, it is grounded, so this it can be bounced
-            this.grounded = true;
-        } else if (
-            collisionDirection === 't' ||
-            collisionDirection === 'l' ||
-            collisionDirection === 'r'
-        ) {
-            return true;
+        switch (collisionCheck(this, element)) {
+            // bounce
+            case 'b':
+                this.grounded = true;
+                return false;
+            case 't':
+            case 'l':
+            case 'r':
+                return true;
+            default:
+                return false;
         }
-        return false;
     }
 }
