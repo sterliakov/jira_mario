@@ -4,7 +4,7 @@ import PowerUp from './PowerUp';
 
 export default class Element extends Drawable {
     get IMAGE_SRC() {
-        return './images/elements.png';
+        return 'elements.png';
     }
 
     fromType(type) {

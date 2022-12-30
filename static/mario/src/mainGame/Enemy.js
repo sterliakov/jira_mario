@@ -3,7 +3,7 @@ import Drawable from './Drawable';
 
 export default class Enemy extends Drawable {
     get IMAGE_SRC() {
-        return './images/enemies.png';
+        return 'enemies.png';
     }
 
     velX = 1;

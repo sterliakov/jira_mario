@@ -4,7 +4,7 @@ import Drawable from './Drawable';
 
 export default class Mario extends Drawable {
     get IMAGE_SRC() {
-        return './images/mario-sprites.png';
+        return 'mario-sprites.png';
     }
 
     type = 'small';

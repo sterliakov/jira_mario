@@ -3,7 +3,7 @@ import Drawable from './Drawable';
 
 export default class PowerUp extends Drawable {
     get IMAGE_SRC() {
-        return './images/powerups.png';
+        return 'powerups.png';
     }
     velX = 2;
     velY = 0;

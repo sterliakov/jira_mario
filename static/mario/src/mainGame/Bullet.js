@@ -3,7 +3,7 @@ import Drawable from './Drawable';
 
 export default class Bullet extends Drawable {
     get IMAGE_SRC() {
-        return './images/bullet.png';
+        return 'bullet.png';
     }
 
     width = 16;

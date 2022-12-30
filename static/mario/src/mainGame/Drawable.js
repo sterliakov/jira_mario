@@ -1,5 +1,5 @@
 import GameUI from '../GameUI';
-import {GRAVITY} from '../constants';
+import {GRAVITY, Images} from '../constants';
 
 export default class Drawable {
     grounded = false;
@@ -10,9 +10,7 @@ export default class Drawable {
 
     constructor(canvas, type, x, y) {
         this.gameUI = new GameUI(canvas);
-
-        this.element = new Image();
-        this.element.src = this.IMAGE_SRC;
+        this.element = Images[this.IMAGE_SRC];
 
         if (type) this.fromType(type);
         if (typeof x !== 'undefined' && typeof y !== 'undefined')
