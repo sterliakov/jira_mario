@@ -5,11 +5,12 @@ import Enemy from './Enemy';
 import GameSound from './GameSound';
 import Mario from './Mario';
 import PowerUp from './PowerUp';
-import Score from './Score';
+
+// import Score from './Score';
 
 // Main Class of Mario Game
 
-export default function MarioGame() {
+export default function MarioGame(board) {
     var gameUI = GameUI.getInstance();
 
     var maxWidth; //width of the game world
@@ -27,7 +28,6 @@ export default function MarioGame() {
     var mario;
     var element;
     var gameSound;
-    var score;
 
     var keys = [];
     var goombas;
@@ -63,13 +63,7 @@ export default function MarioGame() {
         originalMaps = levelMaps;
         map = JSON.parse(levelMaps[currentLevel]);
 
-        if (!score) {
-            //so that when level changes, it uses the same instance
-            score = new Score();
-            score.init();
-        }
-        score.displayScore();
-        score.updateLevelNum(currentLevel);
+        board.setState({levelNum: currentLevel});
 
         if (!mario) {
             //so that when level changes, it uses the same instance
@@ -470,11 +464,11 @@ export default function MarioGame() {
 
             if (element.type == 2) {
                 //Coin Box
-                score.coinScore++;
-                score.totalScore += 100;
-
-                score.updateCoinScore();
-                score.updateTotalScore();
+                board.setState({
+                    coinScore: board.state.coinScore + 1,
+                    totalScore: board.state.totalScore + 100,
+                });
+                board.updateCoinScore();
                 map[row][column] = 4; //sets to useless box after coin appears
 
                 //sound when coin block is hit
@@ -543,8 +537,9 @@ export default function MarioGame() {
                 }
                 powerUps.splice(i, 1);
 
-                score.totalScore += 1000;
-                score.updateTotalScore();
+                board.setState({
+                    totalScore: board.state.totalScore + 1000,
+                });
 
                 //sound when mushroom appears
                 gameSound.play('powerUp');
@@ -568,8 +563,9 @@ export default function MarioGame() {
 
                     mario.velY = -mario.speed;
 
-                    score.totalScore += 1000;
-                    score.updateTotalScore();
+                    board.setState({
+                        totalScore: board.state.totalScore + 1000,
+                    });
 
                     //sound when enemy dies
                     gameSound.play('killEnemy');
@@ -610,14 +606,15 @@ export default function MarioGame() {
                         mario.frame = 13;
                         collWithMario = undefined;
 
-                        score.lifeCount--;
-                        score.updateLifeCount();
+                        board.setState({
+                            lifeCount: board.state.lifeCount - 1,
+                        });
 
                         //sound when mario dies
                         gameSound.play('marioDie');
 
                         timeOutId = setTimeout(function () {
-                            if (score.lifeCount == 0) {
+                            if (board.state.lifeCount == 0) {
                                 that.gameOver();
                             } else {
                                 that.resetGame();
@@ -647,8 +644,9 @@ export default function MarioGame() {
 
                     goombas[i].state = 'deadFromBullet';
 
-                    score.totalScore += 1000;
-                    score.updateTotalScore();
+                    board.setState({
+                        totalScore: board.state.totalScore + 1000,
+                    });
 
                     //sound when enemy dies
                     gameSound.play('killEnemy');
@@ -672,11 +670,12 @@ export default function MarioGame() {
             //sound when mario dies
             gameSound.play('marioDie');
 
-            score.lifeCount--;
-            score.updateLifeCount();
+            board.setState({
+                lifeCount: board.state.lifeCount - 1,
+            });
 
             timeOutId = setTimeout(function () {
-                if (score.lifeCount == 0) {
+                if (board.state.lifeCount == 0) {
                     that.gameOver();
                 } else {
                     that.resetGame();
@@ -852,7 +851,7 @@ export default function MarioGame() {
                     currentLevel++;
                     if (originalMaps[currentLevel]) {
                         that.init(originalMaps, currentLevel);
-                        score.updateLevelNum(currentLevel);
+                        board.setState({levelNum: currentLevel});
                     } else {
                         that.gameOver();
                     }
@@ -866,7 +865,7 @@ export default function MarioGame() {
     };
 
     this.gameOver = function () {
-        score.gameOverView();
+        // board.gameOverView();
         gameUI.makeBox(0, 0, maxWidth, height);
         gameUI.writeText('Game Over', centerPos - 80, height - 300);
         gameUI.writeText('Thanks For Playing', centerPos - 122, height / 2);
@@ -894,9 +893,9 @@ export default function MarioGame() {
     this.removeGameScreen = function () {
         gameUI.hide();
 
-        if (score) {
-            score.hideScore();
-        }
+        // if (board) {
+        //     board.hideScore();
+        // }
     };
 
     this.showGameScreen = function () {

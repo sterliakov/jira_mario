@@ -20,7 +20,6 @@
   background: url('../images/bg.png');
   position: relative;
   overflow: hidden;
-  display: none;
 }
 
 .game-screen {
@@ -29,7 +28,6 @@
   border: 1px solid black;
   border-top: none;
   background: url('../images/bg.png');
-  display: none;
   margin: 0 auto;
 }
 
@@ -38,7 +36,6 @@
   width: 1240px;
   margin: 0 auto;
   height: 50px;
-  display: none;
   border: 1px solid black;
   border-bottom: none;
   line-height: 50px;
@@ -90,7 +87,6 @@
   background: #d2d2d2;
   margin: 0 auto;
   border: 1px solid black;
-  display: none;
 }
 
 .platform {
@@ -251,7 +247,6 @@
   border: 1px solid black;
   position: relative;
   overflow: hidden;
-  display: none;
   background: url('../images/bg.png');
 }
 
@@ -295,7 +290,6 @@
   color: #ffffff;
   border: 2px solid black;
   margin: 10px;
-  display: none;
 }
 
 .level-btn {
