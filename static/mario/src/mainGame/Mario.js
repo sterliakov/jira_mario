@@ -15,6 +15,7 @@ export default class Mario {
     sX = 0; // sprite x
     sY = 4; // sprite y
     frame = 0;
+    maxTick = 25; //max number for ticks to show mario sprite
 
     constructor(canvas) {
         this.gameUI = new GameUI(canvas);
@@ -24,6 +25,7 @@ export default class Mario {
     init() {
         this.x = 10;
         this.y = this.gameUI.getHeight() - 40 - 40;
+        this.tickCounter = 0;
 
         this.marioSprite = new Image();
         this.marioSprite.src = './images/mario-sprites.png';
@@ -68,6 +70,7 @@ export default class Mario {
         this.x = canvas.width / 10;
         this.y = canvas.height - 40;
         this.frame = 0;
+        this.tickCounter = 0;
     }
 
     jump() {
@@ -137,5 +140,61 @@ export default class Mario {
 
         this.x += this.velX;
         this.y += this.velY;
+    }
+
+    onRight() {
+        if (this.velX < this.speed) {
+            this.velX++;
+        }
+
+        // sprite position
+        if (!this.jumping) {
+            this.tickCounter++;
+
+            if (this.tickCounter > this.maxTick / this.speed) {
+                this.tickCounter = 0;
+                this.frame = this.frame !== 1 ? 1 : 0;
+            }
+        }
+    }
+
+    onLeft() {
+        if (this.velX > -this.speed) {
+            this.velX--;
+        }
+
+        // sprite position
+        if (!this.jumping) {
+            this.tickCounter++;
+
+            if (this.tickCounter > this.maxTick / this.speed) {
+                this.tickCounter = 0;
+                this.frame = this.frame !== 9 ? 9 : 8;
+            }
+        }
+    }
+
+    finishLevel(collisionDirection, inGround) {
+        if (collisionDirection === 'r') {
+            this.x += 10;
+            this.velY = 2;
+            this.frame = 11;
+        } else if (collisionDirection === 'l') {
+            this.x -= 32;
+            this.velY = 2;
+            this.frame = 10;
+        }
+        if (inGround) {
+            this.x += 20;
+            this.frame = 10;
+            this.tickCounter += 1;
+            if (this.tickCounter > this.maxTick) {
+                this.x += 10;
+                this.tickCounter = 0;
+                this.frame = 12;
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 import GameUI from '../GameUI';
 import {GRAVITY} from '../constants';
+import {collisionCheck} from '../helpers';
 
 export default class Bullet {
     grounded = false;
@@ -46,5 +47,23 @@ export default class Bullet {
 
         this.x += this.velX;
         this.y += this.velY;
+    }
+
+    /**
+     *  @returns boolean: whether the bullet should be destroyed
+     */
+    meetElement(element) {
+        const collisionDirection = collisionCheck(this, element);
+        if (collisionDirection === 'b') {
+            //if collision is from bottom of the bullet, it is grounded, so this it can be bounced
+            this.grounded = true;
+        } else if (
+            collisionDirection === 't' ||
+            collisionDirection === 'l' ||
+            collisionDirection === 'r'
+        ) {
+            return true;
+        }
+        return false;
     }
 }

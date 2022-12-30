@@ -1,4 +1,6 @@
 import GameUI from '../GameUI';
+import {collisionCheck} from '../helpers';
+import PowerUp from './PowerUp';
 
 export default class Element {
     sY = 0;
@@ -33,5 +35,56 @@ export default class Element {
             this.width,
             this.height,
         );
+    }
+
+    meetMario(mario) {
+        const collisionDirection = collisionCheck(mario, this);
+        switch (collisionDirection) {
+            case 'l':
+            case 'r': {
+                mario.velX = 0;
+                mario.jumping = false;
+
+                //flag pole
+                if (this.type === 5)
+                    return {action: 'levelFinish', args: [collisionDirection]};
+                break;
+            }
+            case 'b': {
+                if (this.type !== 5) {
+                    //only if not flag pole
+                    mario.grounded = true;
+                    mario.jumping = false;
+                }
+                break;
+            }
+            case 't': {
+                if (this.type !== 5) mario.velY *= -1;
+
+                switch (this.type) {
+                    case 3:
+                    case 11: {
+                        //PowerUp Box
+                        const powerUp = new PowerUp(this.gameUI._canvasRef);
+                        //gives mushroom if mario is small, otherwise gives flower
+                        if (mario.type === 'small' && this.type === 3)
+                            powerUp.mushroom(this.x, this.y);
+                        else powerUp.flower(this.x, this.y);
+                        return {action: 'powerUp', args: [powerUp]};
+                    }
+
+                    //Coin Box
+                    case 2:
+                        return {action: 'coinBox', args: []};
+
+                    default: {
+                    }
+                }
+                break;
+            }
+
+            default: {
+            }
+        }
     }
 }
