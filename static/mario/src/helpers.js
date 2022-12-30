@@ -1,3 +1,5 @@
+import {Types} from './constants';
+
 export function collisionCheck(objA, objB) {
     // get the vectors to check against
     const vX = objA.x + objA.width / 2 - (objB.x + objB.width / 2);
@@ -15,16 +17,10 @@ export function collisionCheck(objA, objB) {
 
         if (offsetX >= offsetY) {
             if (vY > 0 && vY < 37) {
-                if (objB.type !== 5) {
-                    //if flagpole then pass through it
-                    objA.y += offsetY;
-                }
+                if (objB.type !== Types.FlagPole) objA.y += offsetY;
                 return 't';
             } else if (vY < 0) {
-                if (objB.type !== 5) {
-                    //if flagpole then pass through it
-                    objA.y -= offsetY;
-                }
+                if (objB.type !== Types.FlagPole) objA.y -= offsetY;
                 return 'b';
             }
         } else {
