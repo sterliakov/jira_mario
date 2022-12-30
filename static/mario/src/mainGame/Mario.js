@@ -24,7 +24,7 @@ export default class Mario extends Drawable {
     constructor(canvas) {
         super(canvas, 0, 10, 40);
         this.canvasRef = canvas;
-        this.y = this.gameUI.getHeight() - 40 - 40;
+        this.y = this.canvas.height - 40 - 40;
         this.tickCounter = 0;
     }
 
@@ -52,9 +52,8 @@ export default class Mario extends Drawable {
     }
 
     resetPos() {
-        const canvas = this.gameUI.getCanvas();
-        this.x = canvas.width / 10;
-        this.y = canvas.height - 40;
+        this.x = this.canvas.width / 10;
+        this.y = this.canvas.height - 40;
         this.frame = 0;
         this.tickCounter = 0;
     }

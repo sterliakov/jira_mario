@@ -1,7 +1,7 @@
-import GameUI from '../GameUI';
 import {GRAVITY, Images} from '../constants';
+import CanvasCapable from './CanvasCapable';
 
-export default class Drawable {
+export default class Drawable extends CanvasCapable {
     grounded = false;
     sX = 0;
     sY = 0;
@@ -9,7 +9,7 @@ export default class Drawable {
     height = 32;
 
     constructor(canvas, type, x, y) {
-        this.gameUI = new GameUI(canvas);
+        super(canvas);
         this.element = Images[this.IMAGE_SRC];
 
         if (type) this.fromType(type);
@@ -25,7 +25,7 @@ export default class Drawable {
 
     draw() {
         this.setSXBeforeDraw();
-        this.gameUI.draw(
+        this.do_draw(
             this.element,
             this.sX,
             this.sY,

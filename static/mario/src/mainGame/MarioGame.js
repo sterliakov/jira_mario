@@ -1,4 +1,4 @@
-import GameUI from '../GameUI';
+import CanvasCapable from './CanvasCapable';
 import Element from './Element';
 import Enemy from './Enemy';
 import GameSound from './GameSound';
@@ -6,7 +6,7 @@ import Mario from './Mario';
 
 // Main Class of Mario Game
 
-export default class MarioGame {
+export default class MarioGame extends CanvasCapable {
     maxWidth = 0; //width of the game world
     tileSize = 32;
 
@@ -18,7 +18,7 @@ export default class MarioGame {
     instructionTick = 0; //showing instructions counter
 
     constructor(board) {
-        this.gameUI = new GameUI(board.canvas);
+        super(board.canvas);
         this.board = board;
         this.height = parseInt(board.props.Height, 10);
         this.viewPort = parseInt(board.props.Width, 10); //width of canvas, viewPort this can be seen
@@ -47,7 +47,7 @@ export default class MarioGame {
             this.tileSize *
             this.map.reduce((acc, row) => Math.max(acc, row.length), 0);
         this.bindKeyPress();
-        this.gameUI.reset();
+        this.reset();
         this.startGame();
     }
 
@@ -129,7 +129,7 @@ export default class MarioGame {
             this.startGame.bind(this),
         );
 
-        this.gameUI.clear(0, 0, this.maxWidth, this.height);
+        this.clear(0, 0, this.maxWidth, this.height);
 
         if (this.instructionTick < 1000) {
             this.showInstructions(); //showing control instructions
@@ -162,12 +162,12 @@ export default class MarioGame {
     }
 
     showInstructions() {
-        this.gameUI.writeText(
+        this.writeText(
             'Controls: Arrow this.keys for direction, shift to run, ctrl for bullets',
             30,
             30,
         );
-        this.gameUI.writeText(
+        this.writeText(
             'Tip: Jumping while running makes you jump higher',
             30,
             60,
@@ -377,7 +377,7 @@ export default class MarioGame {
             this.mario.x > this.centerPos &&
             this.centerPos + this.viewPort / 2 < this.maxWidth
         ) {
-            this.gameUI.scrollWindow(-this.mario.speed, 0);
+            this.scrollWindow(-this.mario.speed, 0);
             this.translatedDist += this.mario.speed;
         }
     }
@@ -406,13 +406,9 @@ export default class MarioGame {
 
     gameOver() {
         // this.board.gameOverView();
-        this.gameUI.makeBox(0, 0, this.maxWidth, this.height);
-        this.gameUI.writeText(
-            'Game Over',
-            this.centerPos - 80,
-            this.height - 300,
-        );
-        this.gameUI.writeText(
+        this.makeBox(0, 0, this.maxWidth, this.height);
+        this.writeText('Game Over', this.centerPos - 80, this.height - 300);
+        this.writeText(
             'Thanks For Playing',
             this.centerPos - 122,
             this.height / 2,

@@ -1,6 +1,4 @@
-//canvas elements for the main mario game
-
-export default class GameUI {
+export default class CanvasCapable {
     constructor(canvas) {
         this._canvasRef = canvas;
     }
@@ -12,26 +10,6 @@ export default class GameUI {
     get ctx() {
         if (!this._ctx) this._ctx = this.canvas.getContext('2d');
         return this._ctx;
-    }
-
-    getWidth() {
-        return this.canvas.width;
-    }
-
-    getHeight() {
-        return this.canvas.height;
-    }
-
-    getCanvas() {
-        return this.canvas;
-    }
-
-    show() {
-        this.canvas.style.display = 'block';
-    }
-
-    hide() {
-        this.canvas.style.display = 'none';
     }
 
     clear(x, y, width, height) {
@@ -46,7 +24,7 @@ export default class GameUI {
         this.ctx.translate(x, y);
     }
 
-    draw(image, sx, sy, swidth, sheight, x, y, dwidth, dheight) {
+    do_draw(image, sx, sy, swidth, sheight, x, y, dwidth, dheight) {
         this.ctx.drawImage(
             image,
             sx,

@@ -43,7 +43,7 @@ export default class Element extends Drawable {
                         const type =
                             mario.type === 'small' && this.type === 3 ? 30 : 31;
                         const powerUp = new PowerUp(
-                            this.gameUI._canvasRef,
+                            this._canvasRef,
                             type,
                             this.x,
                             this.y,
