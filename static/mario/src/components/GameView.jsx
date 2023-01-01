@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
+import styled from 'styled-components';
 
+import {Images} from '../constants';
 import {Types} from '../constants';
 import CanvasCapable from '../mainGame/CanvasCapable';
 import Element from '../mainGame/Element';
@@ -7,6 +9,15 @@ import Enemy from '../mainGame/Enemy';
 import GameSound from '../mainGame/GameSound';
 import Mario from '../mainGame/Mario';
 import Score from './Score';
+
+const Screen = styled.canvas`
+    width: 1280px;
+    height: 480px;
+    border: 1px solid black;
+    border-top: none;
+    background: url('${Images['bg.png'].src}');
+    margin: 0 auto;
+`;
 
 export default class GameView extends CanvasCapable(Component) {
     tileSize = 32;
@@ -33,7 +44,7 @@ export default class GameView extends CanvasCapable(Component) {
                     lifeCount={this.state.lifeCount}
                     levelNum={this.state.levelNum}
                 />
-                <canvas
+                <Screen
                     className="game-screen"
                     ref={this._canvasRef}
                     width={this.props.Width}
@@ -41,7 +52,7 @@ export default class GameView extends CanvasCapable(Component) {
                     onTouchstart={() => this.onTouchstart()}
                     onTouchend={() => this.onTouchend()}
                     onTouchmove={() => this.onTouchmove()}
-                ></canvas>
+                ></Screen>
             </>
         );
     }

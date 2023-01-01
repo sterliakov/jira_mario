@@ -1,38 +1,49 @@
+import backBtn from './static/images/back-btn.png';
+import bg from './static/images/bg.png';
+import bullet from './static/images/bullet.png';
+import coin from './static/images/coin.png';
+import elements from './static/images/elements.png';
+import enemies from './static/images/enemies.png';
+import flagPole from './static/images/flag-pole.png';
+import flag from './static/images/flag.png';
+import marioHead from './static/images/mario-head.png';
+import marioSprites from './static/images/mario-sprites.png';
+import powerUps from './static/images/powerups.png';
+import startBtn from './static/images/start-btn.png';
+import startScreen from './static/images/start-screen.png';
+import bulletSound from './static/sounds/bullet.wav';
+import coinSound from './static/sounds/coin.wav';
+import jumpSound from './static/sounds/jump.wav';
+import killEnemySound from './static/sounds/kill-enemy.wav';
+import marioDieSound from './static/sounds/mario-die.wav';
+import powerDownSound from './static/sounds/power-down.wav';
+import powerUpAppearSound from './static/sounds/power-up-appear.wav';
+import powerUpSound from './static/sounds/power-up.wav';
+import stageClearSound from './static/sounds/stage-clear.wav';
+
 export const GRAVITY = 0.2;
 export const FRICTION = 0.9;
 
-const imageSources = [
-    './images/back-btn.png',
-    './images/bg.png',
-    './images/bullet.png',
-    './images/clear-map-btn.png',
-    './images/coin.png',
-    './images/delete-all-btn.png',
-    './images/editor-btn.png',
-    './images/elements.png',
-    './images/enemies.png',
-    './images/flag-pole.png',
-    './images/flag.png',
-    './images/start-screen.png',
-    './images/grid-large-btn.png',
-    './images/grid-medium-btn.png',
-    './images/grid-small-btn.png',
-    './images/grid.png',
-    './images/lvl-size.png',
-    './images/mario-head.png',
-    './images/mario-sprites.png',
-    './images/powerups.png',
-    './images/save-map-btn.png',
-    './images/saved-btn.png',
-    './images/slider-left.png',
-    './images/slider-right.png',
-    './images/start-btn.png',
-];
+const imageSources = {
+    './static/images/back-btn.png': backBtn,
+    './static/images/bg.png': bg,
+    './static/images/bullet.png': bullet,
+    './static/images/coin.png': coin,
+    './static/images/elements.png': elements,
+    './static/images/enemies.png': enemies,
+    './static/images/flag-pole.png': flagPole,
+    './static/images/flag.png': flag,
+    './static/images/start-screen.png': startScreen,
+    './static/images/mario-head.png': marioHead,
+    './static/images/mario-sprites.png': marioSprites,
+    './static/images/powerups.png': powerUps,
+    './static/images/start-btn.png': startBtn,
+};
 
 export const Images = {};
-for (const src of imageSources) {
+for (const [src, data] of Object.entries(imageSources)) {
     const im = new Image();
-    im.src = src;
+    im.src = data;
     Images[src.split('/').at(-1)] = im;
 }
 
@@ -56,13 +67,13 @@ export const Types = {
 };
 
 export const Sounds = {
-    coin: new Audio('./sounds/coin.wav'),
-    powerUpAppear: new Audio('./sounds/power-up-appear.wav'),
-    powerUp: new Audio('./sounds/power-up.wav'),
-    marioDie: new Audio('./sounds/mario-die.wav'),
-    killEnemy: new Audio('./sounds/kill-enemy.wav'),
-    stageClear: new Audio('./sounds/stage-clear.wav'),
-    bullet: new Audio('./sounds/bullet.wav'),
-    powerDown: new Audio('./sounds/power-down.wav'),
-    jump: new Audio('./sounds/jump.wav'),
+    coin: new Audio(coinSound),
+    powerUpAppear: new Audio(powerUpAppearSound),
+    powerUp: new Audio(powerUpSound),
+    marioDie: new Audio(marioDieSound),
+    killEnemy: new Audio(killEnemySound),
+    stageClear: new Audio(stageClearSound),
+    bullet: new Audio(bulletSound),
+    powerDown: new Audio(powerDownSound),
+    jump: new Audio(jumpSound),
 };
