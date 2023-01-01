@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
 
-import {Images} from '../constants';
+import {Images, Sounds} from '../constants';
 import {Types} from '../constants';
 import CanvasCapable from '../mainGame/CanvasCapable';
 import Element from '../mainGame/Element';
 import Enemy from '../mainGame/Enemy';
-import GameSound from '../mainGame/GameSound';
 import MapLoader from '../mainGame/MapLoader';
 import Mario from '../mainGame/Mario';
 import Score from './Score';
@@ -92,7 +91,6 @@ export default class GameView extends CanvasCapable(Component) {
         //so this when level changes, it uses the same instance
         if (!this.mario) this.mario = new Mario(this._canvasRef);
         else this.mario.resetPos();
-        this.gameSound = new GameSound();
 
         this.maxWidth =
             this.tileSize *
@@ -112,6 +110,13 @@ export default class GameView extends CanvasCapable(Component) {
             'keyup',
             (e) => (this.keys[e.keyCode] = false),
         );
+    }
+
+    playSound(name) {
+        const sound = Sounds[name];
+        sound.pause();
+        sound.currentTime = 0;
+        sound.play().catch((ex) => {});
     }
 
     touchesToKeys(touches, isStart) {
@@ -255,7 +260,7 @@ export default class GameView extends CanvasCapable(Component) {
             case 'powerUp':
                 this.powerUps.push(args[0]);
                 this.map[row][column] = 4; //sets to useless box after powerUp appears
-                this.gameSound.play('powerUpAppear');
+                this.playSound('powerUpAppear');
                 break;
             case 'coinBox': {
                 this.setState({
@@ -264,7 +269,7 @@ export default class GameView extends CanvasCapable(Component) {
                 });
                 this.updateCoinScore();
                 this.map[row][column] = 4; //sets to useless box after coin appears
-                this.gameSound.play('coin');
+                this.playSound('coin');
                 break;
             }
             default: {
@@ -294,7 +299,7 @@ export default class GameView extends CanvasCapable(Component) {
                 this.setState({
                     totalScore: this.state.totalScore + 1000,
                 });
-                this.gameSound.play('powerUp');
+                this.playSound('powerUp');
                 break; // No multiple collisions possible
             }
         }
@@ -310,7 +315,7 @@ export default class GameView extends CanvasCapable(Component) {
                     this.die();
                     return;
                 case 'reduce':
-                    this.gameSound.play('powerDown');
+                    this.playSound('powerDown');
                     return;
                 default: {
                 }
@@ -332,7 +337,7 @@ export default class GameView extends CanvasCapable(Component) {
         this.setState({
             totalScore: this.state.totalScore + 1000,
         });
-        this.gameSound.play('killEnemy');
+        this.playSound('killEnemy');
     }
 
     wallCollision() {
@@ -350,7 +355,7 @@ export default class GameView extends CanvasCapable(Component) {
         this.pauseGame();
         this.mario.frame = 13;
 
-        this.gameSound.play('marioDie');
+        this.playSound('marioDie');
         this.setState({
             lifeCount: this.state.lifeCount - 1,
         });
@@ -367,7 +372,7 @@ export default class GameView extends CanvasCapable(Component) {
 
         //up arrow
         if ((this.keys[38] || this.keys[32]) && this.mario.jump())
-            this.gameSound.play('jump');
+            this.playSound('jump');
 
         // right arrow
         if (this.keys[39]) {
@@ -385,7 +390,7 @@ export default class GameView extends CanvasCapable(Component) {
             const bullet = this.mario.shoot();
             if (bullet) {
                 this.bullets.push(bullet);
-                this.gameSound.play('bullet');
+                this.playSound('bullet');
             }
         }
 
@@ -414,7 +419,7 @@ export default class GameView extends CanvasCapable(Component) {
             return;
 
         this.pauseGame();
-        this.gameSound.play('stageClear');
+        this.playSound('stageClear');
         this.timeOutId = setTimeout(() => {
             if (this.mapLoader.has(this.state.levelNum + 1))
                 this.init(this.state.levelNum + 1);
