@@ -77,3 +77,4 @@ export const Sounds = {
     powerDown: new Audio(powerDownSound),
     jump: new Audio(jumpSound),
 };
+for (const audio of Sounds.values()) audio.load();
