@@ -106,7 +106,11 @@ const App = () => {
                 <Form onSubmit={onProjectPicked} submitButtonText="Choose">
                     <Select label="Choose project" name="project">
                         {projectData.map((project) => (
-                            <Option label={project.name} value={project.key} />
+                            <Option
+                                label={project.name}
+                                value={project.key}
+                                key={project.key}
+                            />
                         ))}
                     </Select>
                 </Form>

@@ -8,15 +8,7 @@ import Mario from './Mario';
 // Main Class of Mario Game
 
 export default class MarioGame extends CanvasCapable {
-    maxWidth = 0; //width of the game world
     tileSize = 32;
-
-    keys = [];
-    goombas = [];
-    powerUps = [];
-    bullets = [];
-
-    instructionTick = 0; //showing instructions counter
 
     constructor(board) {
         super(board.canvas);
@@ -26,6 +18,11 @@ export default class MarioGame extends CanvasCapable {
     }
 
     init(levelMaps, level) {
+        this.goombas = [];
+        this.bullets = [];
+        this.powerUps = [];
+        this.keys = [];
+
         this.currentLevel = level;
         this.originalMaps = levelMaps;
         this.map = JSON.parse(levelMaps[this.currentLevel]);
@@ -33,6 +30,7 @@ export default class MarioGame extends CanvasCapable {
         this.translatedDist = 0; //distance translated(side scrolled) as mario moves to the right
         this.board.setState({levelNum: this.currentLevel});
 
+        this.instructionTick = 0; //showing instructions counter
         if (!this.mario) {
             //so this when level changes, it uses the same instance
             this.mario = new Mario(this.board.canvas);
@@ -424,11 +422,6 @@ export default class MarioGame extends CanvasCapable {
     clearInstances() {
         this.mario = null;
         this.gameSound = null;
-
-        this.goombas = [];
-        this.bullets = [];
-        this.powerUps = [];
-        this.keys = [];
     }
 
     clearTimeOut() {
