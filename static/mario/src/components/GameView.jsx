@@ -114,42 +114,30 @@ export default class GameView extends CanvasCapable(Component) {
         );
     }
 
-    //key binding for touch events
-    onTouchstart = (e) => {
-        const touches = e.changedTouches;
-        e.preventDefault();
-
+    touchesToKeys(touches, isStart) {
         for (const touch of touches) {
             if (touch.pageX <= 200) {
-                this.keys[37] = true; //left arrow
+                this.keys[37] = isStart; //left arrow
             } else if (touch.pageX > 200 && touch.pageX < 400) {
-                this.keys[39] = true; //right arrow
+                this.keys[39] = isStart; //right arrow
             } else if (touch.pageX > 640 && touch.pageX <= 1080) {
                 //in touch events, same area acts as sprint and bullet key
-                this.keys[16] = true; //shift key
-                this.keys[17] = true; //ctrl key
+                this.keys[16] = isStart; //shift key
+                this.keys[17] = isStart; //ctrl key
             } else if (touch.pageX > 1080 && touch.pageX < 1280) {
-                this.keys[32] = true; //space
+                this.keys[32] = isStart; //space
             }
         }
+    }
+    //key binding for touch events
+    onTouchstart = (e) => {
+        this.touchesToKeys(e.changedTouches, true);
+        e.preventDefault();
     };
 
     onTouchend = (e) => {
-        const touches = e.changedTouches;
+        this.touchesToKeys(e.changedTouches, false);
         e.preventDefault();
-
-        for (const touch of touches) {
-            if (touch.pageX <= 200) {
-                this.keys[37] = false;
-            } else if (touch.pageX > 200 && touch.pageX <= 640) {
-                this.keys[39] = false;
-            } else if (touch.pageX > 640 && touch.pageX <= 1080) {
-                this.keys[16] = false;
-                this.keys[17] = false;
-            } else if (touch.pageX > 1080 && touch.pageX < 1280) {
-                this.keys[32] = false;
-            }
-        }
     };
 
     onTouchmove = (e) => {
