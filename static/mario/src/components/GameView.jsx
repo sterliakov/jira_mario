@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
 
-import {Images, Sounds} from '../constants';
-import {Types} from '../constants';
+import {Images, Sounds, Types} from '../constants';
 import CanvasCapable from '../mainGame/CanvasCapable';
 import Element from '../mainGame/Element';
 import Enemy from '../mainGame/Enemy';
@@ -50,9 +49,9 @@ export default class GameView extends CanvasCapable(Component) {
                     ref={this._canvasRef}
                     width={this.props.Width}
                     height={this.props.Height}
-                    onTouchstart={() => this.onTouchstart()}
-                    onTouchend={() => this.onTouchend()}
-                    onTouchmove={() => this.onTouchmove()}
+                    onTouchstart={this.onTouchstart.bind(this)}
+                    onTouchend={this.onTouchend.bind(this)}
+                    onTouchmove={this.onTouchmove.bind(this)}
                 ></Screen>
             </>
         );
@@ -135,17 +134,17 @@ export default class GameView extends CanvasCapable(Component) {
         }
     }
     //key binding for touch events
-    onTouchstart = (e) => {
+    onTouchstart(e) {
         this.touchesToKeys(e.changedTouches, true);
         e.preventDefault();
-    };
+    }
 
-    onTouchend = (e) => {
+    onTouchend(e) {
         this.touchesToKeys(e.changedTouches, false);
         e.preventDefault();
-    };
+    }
 
-    onTouchmove = (e) => {
+    onTouchmove(e) {
         const touches = e.changedTouches;
         e.preventDefault();
 
@@ -165,7 +164,7 @@ export default class GameView extends CanvasCapable(Component) {
                 this.keys[17] = false;
             }
         }
-    };
+    }
 
     //Main Game Loop
     startGame() {
