@@ -32,7 +32,7 @@ export default class Mario extends Drawable {
         this.sX = this.width * this.frame;
     }
 
-    checkMarioType() {
+    checkType() {
         switch (this.type) {
             case 'big':
                 this.height = 60;
@@ -52,8 +52,7 @@ export default class Mario extends Drawable {
     }
 
     resetPos() {
-        this.x = this.canvas.width / 10;
-        this.y = this.canvas.height - 40;
+        this.x = 10;
         this.frame = 0;
         this.tickCounter = 0;
     }

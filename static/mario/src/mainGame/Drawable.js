@@ -36,6 +36,7 @@ export default class Drawable extends CanvasCapable {
             this.width,
             this.height,
         );
+        if (this.update) this.update();
     }
 
     move() {

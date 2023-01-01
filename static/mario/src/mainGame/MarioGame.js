@@ -31,15 +31,9 @@ export default class MarioGame extends CanvasCapable {
         this.board.setState({levelNum: this.currentLevel});
 
         this.instructionTick = 0; //showing instructions counter
-        if (!this.mario) {
-            //so this when level changes, it uses the same instance
-            this.mario = new Mario(this.board.canvas);
-        } else {
-            // this.mario.resetPos();
-            this.mario.x = 10;
-            this.mario.frame = 0;
-            this.mario.tickCounter = 0; //for animating mario
-        }
+        //so this when level changes, it uses the same instance
+        if (!this.mario) this.mario = new Mario(this.board.canvas);
+        else this.mario.resetPos();
         this.gameSound = new GameSound();
 
         this.maxWidth =
@@ -137,18 +131,9 @@ export default class MarioGame extends CanvasCapable {
 
         this.renderMap();
 
-        for (const powerUp of this.powerUps) {
-            powerUp.draw();
-            powerUp.update();
-        }
-        for (const bullet of this.bullets) {
-            bullet.draw();
-            bullet.update();
-        }
-        for (const goomba of this.goombas) {
-            goomba.draw();
-            goomba.update();
-        }
+        for (const powerUp of this.powerUps) powerUp.draw();
+        for (const bullet of this.bullets) bullet.draw();
+        for (const goomba of this.goombas) goomba.draw();
 
         this.checkPowerUpMarioCollision();
         this.checkBulletEnemyCollision();
@@ -336,7 +321,7 @@ export default class MarioGame extends CanvasCapable {
 
     // controlling mario with key events
     updateMario() {
-        this.mario.checkMarioType();
+        this.mario.checkType();
 
         //up arrow
         if ((this.keys[38] || this.keys[32]) && this.mario.jump())
