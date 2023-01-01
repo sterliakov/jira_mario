@@ -1,7 +1,7 @@
 import {GRAVITY, Images} from '../constants';
 import CanvasCapable from './CanvasCapable';
 
-export default class Drawable extends CanvasCapable {
+export default class Drawable extends CanvasCapable(Object) {
     grounded = false;
     sX = 0;
     sY = 0;

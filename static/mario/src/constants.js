@@ -54,3 +54,15 @@ export const Types = {
     Flower: 31,
     Bullet: 40,
 };
+
+export const Sounds = {
+    coin: new Audio('./sounds/coin.wav'),
+    powerUpAppear: new Audio('./sounds/power-up-appear.wav'),
+    powerUp: new Audio('./sounds/power-up.wav'),
+    marioDie: new Audio('./sounds/mario-die.wav'),
+    killEnemy: new Audio('./sounds/kill-enemy.wav'),
+    stageClear: new Audio('./sounds/stage-clear.wav'),
+    bullet: new Audio('./sounds/bullet.wav'),
+    powerDown: new Audio('./sounds/power-down.wav'),
+    jump: new Audio('./sounds/jump.wav'),
+};

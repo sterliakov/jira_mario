@@ -8,14 +8,6 @@ export default class StartScreen extends Component {
                     class="start-btn"
                     onClick={() => this.props.showGame()}
                 ></button>
-                <button
-                    class="editor-btn"
-                    onClick={() => this.props.showEditor()}
-                ></button>
-                <button
-                    class="created-btn"
-                    onClick={() => this.props.showCreatedLevels()}
-                ></button>
             </div>
         );
     }

@@ -1,12 +1,21 @@
 import React, {Component} from 'react';
 
-import MarioGame from '../mainGame/MarioGame';
+import {Types} from '../constants';
+import CanvasCapable from '../mainGame/CanvasCapable';
+import Element from '../mainGame/Element';
+import Enemy from '../mainGame/Enemy';
+import GameSound from '../mainGame/GameSound';
+import Mario from '../mainGame/Mario';
 import Score from './Score';
 
-export default class GameView extends Component {
+export default class GameView extends CanvasCapable(Component) {
+    tileSize = 32;
+
     constructor(props) {
-        super(props);
-        this.canvas = React.createRef();
+        const canvas = React.createRef();
+        super(canvas, props);
+        this.height = parseInt(this.props.Height, 10);
+        this.viewPort = parseInt(this.props.Width, 10); //width of canvas, viewPort this can be seen
         this.state = {
             coinScore: 0,
             totalScore: 0,
@@ -26,20 +35,15 @@ export default class GameView extends Component {
                 />
                 <canvas
                     className="game-screen"
-                    ref={this.canvas}
+                    ref={this._canvasRef}
                     width={this.props.Width}
                     height={this.props.Height}
-                    onTouchstart={() => this.marioGame.onTouchstart()}
-                    onTouchend={() => this.marioGame.onTouchend()}
-                    onTouchmove={() => this.marioGame.onTouchmove()}
+                    onTouchstart={() => this.onTouchstart()}
+                    onTouchend={() => this.onTouchend()}
+                    onTouchmove={() => this.onTouchmove()}
                 ></canvas>
             </>
         );
-    }
-
-    get marioGame() {
-        if (!this._marioGame) this._marioGame = new MarioGame(this);
-        return this._marioGame;
     }
 
     loadMainGameMap() {
@@ -52,18 +56,14 @@ export default class GameView extends Component {
         };
     }
 
-    startGame(levelMap) {
-        this.marioGame.clearInstances();
-        this.marioGame.init(levelMap, 1); //initiate level 1 of map
-    }
-
-    startMainGame() {
-        this.setState({view: 'game'});
-        this.startGame(this.loadMainGameMap());
-    }
-
     componentDidMount() {
-        this.startMainGame();
+        this.setState({view: 'game'});
+        const levelMap = this.loadMainGameMap();
+        this.init(levelMap, 1); //initiate level 1 of map
+    }
+
+    componentWillUnmount() {
+        this.pauseGame();
     }
 
     updateCoinScore() {
@@ -75,5 +75,388 @@ export default class GameView extends Component {
         }
     }
 
-    // FIXME: when destroyed, stop the game
+    init(levelMaps, level) {
+        this.goombas = [];
+        this.bullets = [];
+        this.powerUps = [];
+        this.keys = [];
+
+        this.currentLevel = level;
+        this.originalMaps = levelMaps;
+        this.map = JSON.parse(levelMaps[this.currentLevel]);
+
+        this.translatedDist = 0; //distance translated(side scrolled) as mario moves to the right
+        this.setState({levelNum: this.currentLevel});
+
+        this.instructionTick = 0; //showing instructions counter
+        //so this when level changes, it uses the same instance
+        if (!this.mario) this.mario = new Mario(this._canvasRef);
+        else this.mario.resetPos();
+        this.gameSound = new GameSound();
+
+        this.maxWidth =
+            this.tileSize *
+            this.map.reduce((acc, row) => Math.max(acc, row.length), 0);
+        this.bindKeyPress();
+        this.reset();
+        this.startGame();
+    }
+
+    bindKeyPress() {
+        //key binding
+        document.body.addEventListener(
+            'keydown',
+            (e) => (this.keys[e.keyCode] = true),
+        );
+        document.body.addEventListener(
+            'keyup',
+            (e) => (this.keys[e.keyCode] = false),
+        );
+    }
+
+    //key binding for touch events
+    onTouchstart = (e) => {
+        const touches = e.changedTouches;
+        e.preventDefault();
+
+        for (const touch of touches) {
+            if (touch.pageX <= 200) {
+                this.keys[37] = true; //left arrow
+            } else if (touch.pageX > 200 && touch.pageX < 400) {
+                this.keys[39] = true; //right arrow
+            } else if (touch.pageX > 640 && touch.pageX <= 1080) {
+                //in touch events, same area acts as sprint and bullet key
+                this.keys[16] = true; //shift key
+                this.keys[17] = true; //ctrl key
+            } else if (touch.pageX > 1080 && touch.pageX < 1280) {
+                this.keys[32] = true; //space
+            }
+        }
+    };
+
+    onTouchend = (e) => {
+        const touches = e.changedTouches;
+        e.preventDefault();
+
+        for (const touch of touches) {
+            if (touch.pageX <= 200) {
+                this.keys[37] = false;
+            } else if (touch.pageX > 200 && touch.pageX <= 640) {
+                this.keys[39] = false;
+            } else if (touch.pageX > 640 && touch.pageX <= 1080) {
+                this.keys[16] = false;
+                this.keys[17] = false;
+            } else if (touch.pageX > 1080 && touch.pageX < 1280) {
+                this.keys[32] = false;
+            }
+        }
+    };
+
+    onTouchmove = (e) => {
+        const touches = e.changedTouches;
+        e.preventDefault();
+
+        for (const touch of touches) {
+            if (touch.pageX <= 200) {
+                this.keys[37] = true;
+                this.keys[39] = false;
+            } else if (touch.pageX > 200 && touch.pageX < 400) {
+                this.keys[39] = true;
+                this.keys[37] = false;
+            } else if (touch.pageX > 640 && touch.pageX <= 1080) {
+                this.keys[16] = true;
+                this.keys[32] = false;
+            } else if (touch.pageX > 1080 && touch.pageX < 1280) {
+                this.keys[32] = true;
+                this.keys[16] = false;
+                this.keys[17] = false;
+            }
+        }
+    };
+
+    //Main Game Loop
+    startGame() {
+        this.animationID = window.requestAnimationFrame(
+            this.startGame.bind(this),
+        );
+
+        this.clear(0, 0, this.maxWidth, this.height);
+
+        if (this.instructionTick < 1000) {
+            this.showInstructions(); //showing control instructions
+            this.instructionTick++;
+        }
+
+        this.renderMap();
+
+        for (const powerUp of this.powerUps) powerUp.draw();
+        for (const bullet of this.bullets) bullet.draw();
+        for (const goomba of this.goombas) goomba.draw();
+
+        this.checkPowerUpMarioCollision();
+        this.checkBulletEnemyCollision();
+        this.checkEnemyMarioCollision();
+
+        this.mario.draw();
+        this.updateMario();
+        this.wallCollision();
+        this.marioInGround = this.mario.grounded; //for use with flag sliding
+    }
+
+    showInstructions() {
+        this.writeText(
+            'Controls: Arrow this.keys for direction, shift to run, ctrl for bullets',
+            30,
+            30,
+        );
+        this.writeText(
+            'Tip: Jumping while running makes you jump higher',
+            30,
+            60,
+        );
+    }
+
+    renderMap() {
+        //setting false each time the this.map renders so this elements fall off a platform and not hover around
+        this.mario.grounded = false;
+        for (const powerUp of this.powerUps) powerUp.grounded = false;
+        for (const goomba of this.goombas) goomba.grounded = false;
+
+        for (let row = 0; row < this.map.length; row++) {
+            for (let column = 0; column < this.map[row].length; column++) {
+                const type = this.map[row][column];
+                if (type === Types.Enemy) {
+                    //goomba
+                    const enemy = new Enemy(
+                        this._canvasRef,
+                        type,
+                        column * this.tileSize,
+                        row * this.tileSize,
+                    );
+                    enemy.draw();
+
+                    this.goombas.push(enemy);
+                    this.map[row][column] = 0;
+                } else if (type !== Types.Blank && type <= Types.FlowerBox) {
+                    const element = new Element(
+                        this._canvasRef,
+                        type,
+                        column * this.tileSize,
+                        row * this.tileSize,
+                    );
+                    element.draw();
+                    if (type !== Types.Flag) {
+                        this.checkElementMarioCollision(element, row, column);
+                        if (type !== Types.FlagPole) {
+                            this.checkElementPowerUpCollision(element);
+                            this.checkElementEnemyCollision(element);
+                            this.checkElementBulletCollision(element);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    checkElementMarioCollision(element, row, column) {
+        const {action, args} = element.meetMario(this.mario) ?? {};
+
+        switch (action) {
+            case 'levelFinish':
+                this.levelFinish(args[0]);
+                break;
+            case 'powerUp':
+                this.powerUps.push(args[0]);
+                this.map[row][column] = 4; //sets to useless box after powerUp appears
+                this.gameSound.play('powerUpAppear');
+                break;
+            case 'coinBox': {
+                this.setState({
+                    coinScore: this.state.coinScore + 1,
+                    totalScore: this.state.totalScore + 100,
+                });
+                this.updateCoinScore();
+                this.map[row][column] = 4; //sets to useless box after coin appears
+                this.gameSound.play('coin');
+                break;
+            }
+
+            default: {
+            }
+        }
+    }
+
+    checkElementPowerUpCollision(element) {
+        for (const powerUp of this.powerUps) powerUp.meetElement(element);
+    }
+
+    checkElementEnemyCollision(element) {
+        for (const goomba of this.goombas) goomba.meetElement(element);
+    }
+
+    checkElementBulletCollision(element) {
+        for (const [i, bullet] of this.bullets.entries())
+            if (bullet.meetElement(element)) this.bullets.splice(i, 1);
+    }
+
+    checkPowerUpMarioCollision() {
+        for (const [i, powerUp] of this.powerUps.entries()) {
+            if (powerUp.meetMario(this.mario)) {
+                this.powerUps.splice(i, 1);
+
+                this.setState({
+                    totalScore: this.state.totalScore + 1000,
+                });
+                this.gameSound.play('powerUp');
+                break; // No multiple collisions possible
+            }
+        }
+    }
+
+    checkEnemyMarioCollision() {
+        for (const goomba of this.goombas) {
+            switch (goomba.meetMario(this.mario)) {
+                case 'kill':
+                    this.setState({
+                        totalScore: this.state.totalScore + 1000,
+                    });
+                    this.gameSound.play('killEnemy');
+                    return;
+                case 'die':
+                    this.die();
+                    return;
+                case 'reduce':
+                    this.gameSound.play('powerDown');
+                    return;
+                default: {
+                }
+            }
+        }
+    }
+
+    checkBulletEnemyCollision() {
+        for (const goomba of this.goombas) {
+            this.bullets = this.bullets.filter((bullet, j) => {
+                if (!goomba.meetBullet(bullet)) return true;
+                this.bullets.splice(j, 1);
+                this.setState({
+                    totalScore: this.state.totalScore + 1000,
+                });
+                this.gameSound.play('killEnemy');
+                return false;
+            });
+        }
+    }
+
+    wallCollision() {
+        //for ground (viewport ground)
+        if (this.mario.y >= this.height) this.die();
+
+        //for walls (viewport walls)
+        this.mario.x = Math.min(
+            this.maxWidth - this.mario.width,
+            Math.max(this.mario.x, this.translatedDist + 1),
+        );
+    }
+
+    die() {
+        this.pauseGame();
+        this.mario.frame = 13;
+
+        this.gameSound.play('marioDie');
+        this.setState({
+            lifeCount: this.state.lifeCount - 1,
+        });
+
+        this.timeOutId = setTimeout(() => {
+            if (this.state.lifeCount === 0) this.gameOver();
+            else this.resetGame();
+        }, 3000);
+    }
+
+    // controlling mario with key events
+    updateMario() {
+        this.mario.checkType();
+
+        //up arrow
+        if ((this.keys[38] || this.keys[32]) && this.mario.jump())
+            this.gameSound.play('jump');
+
+        // right arrow
+        if (this.keys[39]) {
+            this.checkMarioPos(); // if mario goes to the center of the screen, sidescroll the map
+            this.mario.onRight();
+        }
+
+        // left arrow
+        if (this.keys[37]) this.mario.onLeft();
+
+        this.mario.setSpeed(this.keys[16]); // Shift
+
+        // Ctrl
+        if (this.keys[17]) {
+            const bullet = this.mario.shoot();
+            if (bullet) {
+                this.bullets.push(bullet);
+                this.gameSound.play('bullet');
+            }
+        }
+
+        this.mario.pickFrame();
+        this.mario.move();
+    }
+
+    get centerPos() {
+        return this.translatedDist + this.viewPort / 2;
+    }
+
+    checkMarioPos() {
+        //side scrolling as mario reaches center of the viewPort
+        if (
+            this.mario.x > this.centerPos &&
+            this.centerPos + this.viewPort / 2 < this.maxWidth
+        ) {
+            this.scrollWindow(-this.mario.speed, 0);
+            this.translatedDist += this.mario.speed;
+        }
+    }
+
+    levelFinish(collisionDirection) {
+        //game finishes when mario slides the flagPole and collides with the ground
+        if (this.mario.finishLevel(collisionDirection, this.marioInGround)) {
+            this.pauseGame();
+            this.gameSound.play('stageClear');
+
+            this.timeOutId = setTimeout(() => {
+                this.currentLevel++;
+                if (this.originalMaps[this.currentLevel])
+                    this.init(this.originalMaps, this.currentLevel);
+                else this.gameOver();
+            }, 5000);
+        }
+    }
+
+    pauseGame() {
+        window.cancelAnimationFrame(this.animationID);
+    }
+
+    gameOver() {
+        // this.gameOverView();
+        this.makeBox(0, 0, this.maxWidth, this.height);
+        this.writeText('Game Over', this.centerPos - 80, this.height - 300);
+        this.writeText(
+            'Thanks For Playing',
+            this.centerPos - 122,
+            this.height / 2,
+        );
+    }
+
+    resetGame() {
+        this.mario = null;
+        this.init(this.originalMaps, this.currentLevel);
+    }
+
+    clearTimeOut() {
+        clearTimeout(this.timeOutId);
+    }
 }
