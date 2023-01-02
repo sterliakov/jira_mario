@@ -2,14 +2,24 @@ import {FRICTION, GRAVITY} from '../constants';
 import Bullet from './Bullet';
 import Drawable from './Drawable';
 
+class MarioHat extends Drawable {
+    sX = 66;
+    sY = 811;
+    height = 15;
+
+    get IMAGE_SRC() {
+        return 'redraw.png';
+    }
+}
+
 export default class Mario extends Drawable {
     get IMAGE_SRC() {
-        return 'mario-sprites.png';
+        return 'redraw.png';
     }
 
     type = 'small';
     width = 32;
-    height = 44;
+    height = 45;
     speed = 3;
     velX = 0;
     velY = 0;
@@ -18,43 +28,91 @@ export default class Mario extends Drawable {
     invulnerable = false;
     sX = 0; // sprite x
     sY = 4; // sprite y
-    frame = 0;
+    _frame = 0;
     maxTick = 25; //max number for ticks to show mario sprite
+
+    get frame() {
+        return this._frame;
+    }
+    set frame(f) {
+        // console.log(this._frame, f);
+        switch (f) {
+            case 'start':
+                this._frame = 0;
+                break;
+            case 'jump0':
+                this._frame = 6;
+                break;
+            case 'left0':
+                this._frame = 5;
+                break;
+            case 'right0':
+                this._frame = 5;
+                break;
+            case 'jumpNext':
+                this._frame = Math.min(36, this._frame + 6);
+                break;
+            case 'jumpPrev':
+                this._frame = Math.max(0, this._frame - 6);
+                break;
+            case 'leftNext':
+                this._frame =
+                    this._frame === 0 ? 5 : Math.min(5, this._frame - 1);
+                break;
+            case 'rightNext':
+                this._frame = this._frame >= 5 ? 0 : this._frame + 1;
+                break;
+            case 'dead':
+                this._frame = 11;
+                break;
+            case 'win':
+                this._frame = 17;
+                break;
+            default:
+                throw new Error('Unknown frame');
+        }
+    }
 
     constructor(canvas) {
         super(canvas, 0, 10, 40);
         this.canvasRef = canvas;
         this.y = 40;
         this.tickCounter = 0;
+        this.hat = new MarioHat(this.canvasRef);
+    }
+
+    draw() {
+        if (this.invulnerable) this.ctx.globalAlpha = 0.6;
+        super.draw();
+        if (this.type === 'big') {
+            this.hat.x = this.x;
+            this.hat.y = this.y;
+            this.hat.draw();
+        }
+        this.ctx.globalAlpha = 1;
     }
 
     setSXBeforeDraw() {
-        this.sX = this.width * this.frame;
+        this.sX = 65 + 45 * (this.frame % 6);
+        this.sY = 27 + 45 * Math.floor(this.frame / 6);
+        if (this.type === 'big') this.sY -= 15;
+        else if (this.type === 'fire' && this.frame !== 11 && this.frame !== 17)
+            this.sY += 410;
+        // FIXME: align images instead
+        if (!this.jumping) this.sX -= 3;
     }
 
     checkType() {
-        switch (this.type) {
-            case 'big':
-                this.height = 60;
-                this.sY = this.invulnerable ? 276 : 90;
-                break;
-            case 'small':
-                this.height = 44;
-                this.sY = this.invulnerable ? 222 : 4;
-                break;
-            case 'fire':
-                this.height = 60;
-                this.sY = 150;
-                break;
-            default:
-                throw new Error('Unknown type');
-        }
+        this.height = this.type === 'big' ? 60 : 45;
     }
 
     resetPos() {
         this.x = 10;
-        this.frame = 0;
+        this.y = 40;
+        this.frame = 'start';
         this.tickCounter = 0;
+        this.jumpTickCounter = 0;
+        this.rotateCounter = 0;
     }
 
     jump() {
@@ -63,12 +121,7 @@ export default class Mario extends Drawable {
         this.jumping = true;
         this.grounded = false;
         this.velY = -(this.speed / 2 + 5.5);
-
-        // right jump
-        if (this.frame === 0 || this.frame === 1) this.frame = 3;
-        // left jump
-        else if (this.frame === 8 || this.frame === 9) this.frame = 2;
-
+        this.frame = 'start';
         return true;
     }
 
@@ -79,8 +132,7 @@ export default class Mario extends Drawable {
     shoot() {
         if (this.type !== 'fire' || this.bulletFlag) return undefined;
 
-        const direction =
-            this.frame === 9 || this.frame === 8 || this.frame === 2 ? -1 : 1;
+        const direction = this.velX < 0 ? -1 : 1;
         const bullet = new Bullet(this.canvasRef, this.x, this.y, direction);
 
         //only let mario fire bullet after 500ms
@@ -91,16 +143,20 @@ export default class Mario extends Drawable {
     }
 
     pickFrame() {
-        if (!this.jumping) {
-            if (this.velX > 0 && this.velX < 1) this.frame = 0;
-            else if (this.velX > -1 && this.velX < 0) this.frame = 8;
+        if (this.jumping) {
+            if (this.jumpTickCounter++ === 5) {
+                if (this.velY < 0) this.frame = 'jumpNext';
+                else if (this.velY > 0) this.frame = 'jumpPrev';
+                this.jumpTickCounter = 0;
+            }
+            this.rotateCounter = 0;
+        } else {
+            this.jumpTickCounter = 0;
         }
 
         if (this.grounded) {
             this.velY = 0;
-
-            if (this.frame === 3) this.frame = 0; // looking right
-            else if (this.frame === 2) this.frame = 8; // looking left
+            this.jumpTickCounter = 0;
         }
     }
 
@@ -114,50 +170,32 @@ export default class Mario extends Drawable {
 
     onRight() {
         if (this.velX < this.speed) this.velX++;
-
-        // sprite position
-        if (!this.jumping) {
-            this.tickCounter++;
-
-            if (this.tickCounter > this.maxTick / this.speed) {
-                this.tickCounter = 0;
-                this.frame = this.frame !== 1 ? 1 : 0;
-            }
+        if (!this.jumping && ++this.tickCounter > this.maxTick / this.speed) {
+            this.tickCounter = 0;
+            this.frame = 'rightNext';
         }
     }
 
     onLeft() {
         if (this.velX > -this.speed) this.velX--;
-
-        // sprite position
-        if (!this.jumping) {
-            this.tickCounter++;
-
-            if (this.tickCounter > this.maxTick / this.speed) {
-                this.tickCounter = 0;
-                this.frame = this.frame !== 9 ? 9 : 8;
-            }
+        if (!this.jumping && ++this.tickCounter > this.maxTick / this.speed) {
+            this.tickCounter = 0;
+            this.frame = 'leftNext';
         }
     }
 
     finishLevel(collisionDirection, inGround) {
-        if (collisionDirection === 'r') {
-            this.x += 10;
+        if (collisionDirection === 'r' || collisionDirection === 'l') {
             this.velY = 2;
-            this.frame = 11;
-        } else if (collisionDirection === 'l') {
-            this.x -= 32;
-            this.velY = 2;
-            this.frame = 10;
+            this.frame = 'win';
+            this.x += collisionDirection === 'r' ? 10 : -32;
         }
+
         if (inGround) {
             this.x += 20;
-            this.frame = 10;
-            this.tickCounter += 1;
-            if (this.tickCounter > this.maxTick) {
+            if (++this.tickCounter > this.maxTick) {
                 this.x += 10;
                 this.tickCounter = 0;
-                this.frame = 12;
                 return true;
             }
         }

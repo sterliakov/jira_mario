@@ -240,7 +240,7 @@ export default class LevelGenerator {
                     x,
                     floor - 6,
                     this.random.nextInt(6) === 0
-                        ? Types.PowerUpBox
+                        ? Types.PowerUpBox // FIXME: max 1 per row
                         : Types.Coin,
                 );
         }

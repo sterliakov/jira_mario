@@ -352,7 +352,7 @@ export default class GameView extends CanvasCapable(Component) {
 
     die() {
         this.pauseGame();
-        this.mario.frame = 13;
+        this.mario.frame = 'dead';
 
         this.playSound('marioDie');
         this.setState({
