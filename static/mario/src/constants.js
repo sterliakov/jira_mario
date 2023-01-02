@@ -48,22 +48,34 @@ for (const [src, data] of Object.entries(imageSources)) {
 }
 
 export const Types = {
+    // FIXME: clean repeats
     Blank: 0,
+    Ground: 1,
     Platform: 1,
+    PlatformBackground: 1,
+    NormalBrick: 1,
     CoinBox: 2,
+    Coin: 2,
     PowerUpBox: 3, // flower or mushroom depending on hero state
     UselessBox: 4,
     FlagPole: 5,
     Flag: 6,
     PipeLeft: 7,
     PipeRight: 8,
+    Pipe: 9,
     PipeTopLeft: 9,
     PipeTopRight: 10,
+    PipeFlower: 10,
     FlowerBox: 11,
     Enemy: 20,
+    Goomba: 20,
+    GreenKoopa: 20,
+    RedKoopa: 20,
+    Spiky: 20,
     Mushroom: 30,
     Flower: 31,
     Bullet: 40,
+    BulletBill: 50, // FIXME: not used at all
 };
 
 export const Sounds = {

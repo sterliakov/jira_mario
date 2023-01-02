@@ -24,7 +24,7 @@ export default class Mario extends Drawable {
     constructor(canvas) {
         super(canvas, 0, 10, 40);
         this.canvasRef = canvas;
-        this.y = this.canvas.height - 40 - 40;
+        this.y = 40;
         this.tickCounter = 0;
     }
 
