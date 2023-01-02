@@ -6,7 +6,6 @@ export default class LevelGenerator {
     ODDS_HILL_STRAIGHT = 1;
     ODDS_TUBES = 2;
     ODDS_JUMP = 3;
-    ODDS_CANNONS = 4;
 
     totalOdds = 0;
 
@@ -18,7 +17,7 @@ export default class LevelGenerator {
     }
 
     clearMap() {
-        this.odds = [0, 0, 0, 0, 0];
+        this.odds = [0, 0, 0, 0];
         this.map = new Array(this.width)
             .fill()
             .map(() => new Array(this.height).fill(Types.Blank));
@@ -45,7 +44,7 @@ export default class LevelGenerator {
 
     buildZone(x, maxLength) {
         const t = this.random.nextInt(this.totalOdds);
-        let type = 0;
+        let type = 0; // indexMin(odds)
         for (let i = 0; i < this.odds.length; i++)
             if (this.odds[i] <= t) type = i;
 
@@ -58,8 +57,6 @@ export default class LevelGenerator {
                 return this.buildTubes(x, maxLength);
             case this.ODDS_JUMP:
                 return this.buildJump(x, maxLength);
-            case this.ODDS_CANNONS:
-                return this.buildCannons(x, maxLength);
             default:
                 return 0;
         }
@@ -74,41 +71,16 @@ export default class LevelGenerator {
 
         const floor = this.height - 1 - this.random.nextInt(4);
         for (let x = xo; x < xo + length; x++) {
-            if (!(x < xo + js || x > xo + length - js - 1)) continue;
+            if (x >= xo + js && x <= xo + length - js - 1) continue;
 
-            for (let y = 0; y < this.height; y++) {
-                if (y >= floor) {
+            for (let y = 0; y < this.height; y++)
+                if (
+                    y >= floor ||
+                    (hasStairs &&
+                        ((x < xo + js && y >= floor - (x - xo) + 1) ||
+                            y >= floor - (xo + length - x) + 2))
+                )
                     this.setBlock(x, y, Types.Ground);
-                } else if (hasStairs) {
-                    if (x < xo + js) {
-                        if (y >= floor - (x - xo) + 1)
-                            this.setBlock(x, y, Types.Ground);
-                    } else if (y >= floor - (xo + length - x) + 2) {
-                        this.setBlock(x, y, Types.Ground);
-                    }
-                }
-            }
-        }
-
-        return length;
-    }
-
-    buildCannons(xo, maxLength) {
-        const length = Math.min(this.random.nextInt(10) + 2, maxLength);
-
-        const floor = this.height - 1 - this.random.nextInt(4);
-        let xCannon = xo + 1 + this.random.nextInt(4);
-        for (let x = xo; x < xo + length; x++) {
-            if (x > xCannon) xCannon += 2 + this.random.nextInt(4);
-
-            if (xCannon === xo + length - 1) xCannon += 10;
-            const cannonHeight = floor - this.random.nextInt(4) - 1;
-
-            for (let y = 0; y < this.height; y++) {
-                if (y >= floor) this.setBlock(x, y, Types.Ground);
-                else if (x === xCannon && y >= cannonHeight)
-                    this.setBlock(x, y, Types.BulletBill);
-            }
         }
 
         return length;
@@ -152,11 +124,10 @@ export default class LevelGenerator {
             }
             for (let x = xxo; x < xxo + l; x++) {
                 for (let y = h; y < floor; y++) {
+                    if (this.getBlock(x, y) !== Types.Empty) continue;
                     let yy = y === h ? 8 : 9;
-                    if (this.getBlock(x, y) === Types.Empty) {
-                        if (yy === 8) this.setBlock(x, y, Types.Platform);
-                        else this.setBlock(x, y, Types.PlatformBackground);
-                    }
+                    if (yy === 8) this.setBlock(x, y, Types.Platform);
+                    else this.setBlock(x, y, Types.PlatformBackground);
                 }
             }
         }
@@ -170,26 +141,27 @@ export default class LevelGenerator {
     }
 
     addEnemyLine(x0, x1, y) {
-        const enemies = [
-            Types.Goomba,
-            Types.GreenKoopa,
-            Types.RedKoopa,
-            Types.Spiky,
-        ];
+        let numSkipped = 0;
         for (let x = x0; x < x1; x++) {
-            if (this.random.nextInt(35) < this.difficulty + 1) {
-                let type = this.random.nextInt(4);
-                if (this.difficulty < 1) type = 0;
-                else if (this.difficulty < 3) type = 1 + this.random.nextInt(3);
-                this.setBlock(
-                    x,
-                    y,
-                    this.getWingedEnemyVersion(
-                        enemies[type],
-                        this.random.nextInt(35) < this.difficulty,
-                    ),
-                );
+            if (this.random.nextInt(35) >= this.difficulty + numSkipped) {
+                numSkipped++;
+                continue;
             }
+
+            let type =
+                this.difficulty < 1
+                    ? 0
+                    : this.difficulty < 3
+                    ? 1 + this.random.nextInt(Types.AllEnemies.length - 1)
+                    : this.random.nextInt(Types.AllEnemies.length);
+            this.setBlock(
+                x,
+                y,
+                this.getWingedEnemyVersion(
+                    Types.AllEnemies[type],
+                    this.random.nextInt(35) < this.difficulty,
+                ),
+            );
         }
     }
 
@@ -200,7 +172,7 @@ export default class LevelGenerator {
         let xTube = xo + 1 + this.random.nextInt(4);
         let tubeHeight = floor - this.random.nextInt(2) - 2;
         for (let x = xo; x < xo + length; x++) {
-            if (x > xTube + 1) {
+            if (x >= xTube) {
                 xTube += 3 + this.random.nextInt(4);
                 tubeHeight = floor - this.random.nextInt(2) - 2;
             }
@@ -246,54 +218,44 @@ export default class LevelGenerator {
 
         if (floor - 3 > 0 && x1 - 1 - e - (x0 + 1 + s) > 1)
             for (let x = x0 + 1 + s; x < x1 - 1 - e; x++)
-                this.setBlock(x, floor - 3, Types.Coin);
+                this.setBlock(
+                    x,
+                    floor - 3,
+                    this.random.nextInt(3) === 0
+                        ? Types.NormalBrick
+                        : Types.Coin,
+                );
 
         s = this.random.nextInt(4);
         e = this.random.nextInt(4);
 
-        if (floor - 4 > 0) {
-            if (x1 - 1 - e - (x0 + 1 + s) > 2) {
-                for (let x = x0 + 1 + s; x < x1 - 1 - e; x++) {
-                    if (rocks) {
-                        if (
-                            x !== x0 + 1 &&
-                            x !== x1 - 2 &&
-                            this.random.nextInt(3) === 0
-                        ) {
-                            if (this.random.nextInt(4) === 0) {
-                                // FIXME: wtf, why are they same?
-                                this.setBlock(x, floor - 6, Types.NormalBrick);
-                            } else {
-                                this.setBlock(x, floor - 6, Types.NormalBrick);
-                            }
-                        } else if (this.random.nextInt(4) === 0) {
-                            if (this.random.nextInt(4) === 0) {
-                                this.setBlock(x, floor - 6, Types.Coin);
-                            } else {
-                                this.setBlock(x, floor - 6, Types.Coin);
-                            }
-                        } else {
-                            this.setBlock(x, floor - 6, Types.Coin);
-                        }
-                    }
-                }
-            }
+        if (floor - 4 <= 0 || x1 - 1 - e - (x0 + 1 + s) <= 2) return;
+
+        for (let x = x0 + 1 + s; x < x1 - 1 - e; x++) {
+            if (!rocks) continue;
+            if (x !== x0 + 1 && x !== x1 - 2 && this.random.nextInt(3) <= 1)
+                this.setBlock(x, floor - 6, Types.NormalBrick);
+            else
+                this.setBlock(
+                    x,
+                    floor - 6,
+                    this.random.nextInt(6) === 0
+                        ? Types.PowerUpBox
+                        : Types.Coin,
+                );
         }
     }
 
     addFlag() {
         const col = this.map.at(-2);
-        let len = 0;
-        for (let i = col.length - 1; i >= 0; i--) {
-            if (len !== 0 || col[i] === Types.Blank) {
+        let found = false;
+        for (let i = col.length - 1; i >= 3; i--) {
+            if (found || col[i] === Types.Blank) {
                 col[i] = Types.FlagPole;
-                len++;
-            }
-            if (len === 5) {
-                this.map.at(-3)[i] = Types.Flag;
-                break;
+                found = true;
             }
         }
+        this.map.at(-3)[3] = Types.Flag;
     }
 
     generateLevel() {
@@ -303,11 +265,8 @@ export default class LevelGenerator {
         this.odds[this.ODDS_HILL_STRAIGHT] = 10;
         this.odds[this.ODDS_TUBES] = 2 + 1 * this.difficulty;
         this.odds[this.ODDS_JUMP] = 2 * this.difficulty;
-        this.odds[this.ODDS_CANNONS] = -10 + 5 * this.difficulty;
 
         if (this.type > 0) this.odds[this.ODDS_HILL_STRAIGHT] = 0;
-
-        console.log(this);
 
         for (let i = 0; i < this.odds.length; i++) {
             if (this.odds[i] < 0) this.odds[i] = 0;
@@ -316,9 +275,8 @@ export default class LevelGenerator {
         }
 
         let length = this.buildStraight(0, this.width, true);
-        while (length < this.width) {
+        while (length < this.width)
             length += this.buildZone(length, this.width - length);
-        }
 
         const floor = this.height - 1 - this.random.nextInt(4);
         for (let x = length; x < this.width; x++)

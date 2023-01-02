@@ -216,7 +216,7 @@ export default class GameView extends CanvasCapable(Component) {
         for (let row = 0; row < this.map.length; row++) {
             for (let column = 0; column < this.map[row].length; column++) {
                 const type = this.map[row][column];
-                if (type === Types.Enemy) {
+                if (Types.isEnemy(type)) {
                     //goomba
                     const enemy = new Enemy(
                         this._canvasRef,
@@ -228,7 +228,7 @@ export default class GameView extends CanvasCapable(Component) {
 
                     this.goombas.push(enemy);
                     this.map[row][column] = 0;
-                } else if (type !== Types.Blank && type <= Types.FlowerBox) {
+                } else if (Types.isElement(type)) {
                     const element = new Element(
                         this._canvasRef,
                         type,
