@@ -241,9 +241,9 @@ export default class LevelGenerator {
                 this.setBlock(
                     x,
                     floor - 6,
-                    this.random.nextInt(9) === 0
-                        ? // FIXME: check that there's enough space above
-                          Types.PowerUpBox // FIXME: max 1 per row
+                    this.random.nextInt(9) === 0 &&
+                        this.getBlock(x, floor - 8) === Types.Blank
+                        ? Types.PowerUpBox // FIXME: max 1 per row
                         : Types.Coin,
                 );
         }
