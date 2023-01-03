@@ -233,19 +233,21 @@ export default class LevelGenerator {
 
         if (floor - 4 <= 0 || x1 - 1 - e - (x0 + 1 + s) <= 2) return;
 
+        let hasPowerUp = 0;
         for (let x = x0 + 1 + s; x < x1 - 1 - e; x++) {
             if (!rocks) continue;
+
+            let type = Types.Coin;
             if (x !== x0 + 1 && x !== x1 - 2 && this.random.nextInt(3) <= 1)
-                this.setBlock(x, floor - 6, Types.NormalBrick);
-            else
-                this.setBlock(
-                    x,
-                    floor - 6,
-                    this.random.nextInt(9) === 0 &&
-                        this.getBlock(x, floor - 8) === Types.Blank
-                        ? Types.PowerUpBox // FIXME: max 1 per row
-                        : Types.Coin,
-                );
+                type = Types.NormalBrick;
+            else if (
+                this.random.nextInt(9) === 0 &&
+                !hasPowerUp++ &&
+                this.getBlock(x, floor - 8) === Types.Blank
+            )
+                type = Types.PowerUpBox;
+
+            this.setBlock(x, floor - 6, type);
         }
     }
 
