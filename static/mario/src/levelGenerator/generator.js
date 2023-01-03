@@ -9,6 +9,9 @@ export default class LevelGenerator {
 
     totalOdds = 0;
 
+    height = 15;
+    width = 150;
+
     constructor(seed, type, difficulty) {
         this.random = new Random(seed);
         this.type = type ?? this.random.nextInt(3);
@@ -23,22 +26,14 @@ export default class LevelGenerator {
             .map(() => new Array(this.height).fill(Types.Blank));
     }
 
-    get height() {
-        return 15;
-    }
-    get width() {
-        return 150;
-    }
-
     setBlock(x, y, val) {
-        if (x < 0 || y < 0 || x >= this.map.length || y >= this.map[0].length)
-            return;
+        if (x < 0 || y < 0 || x >= this.width || y >= this.height) return;
         this.map[x][y] = val;
     }
 
     getBlock(x, y) {
-        return this.map[Math.max(Math.min(x, this.map.length - 1), 0)][
-            Math.max(Math.min(y, this.map[0].length - 1), 0)
+        return this.map[Math.max(Math.min(x, this.width - 1), 0)][
+            Math.max(Math.min(y, this.height - 1), 0)
         ];
     }
 
