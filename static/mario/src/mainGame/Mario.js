@@ -73,9 +73,8 @@ export default class Mario extends Drawable {
         }
     }
 
-    constructor(canvas) {
-        super(canvas, 0, 10, 40);
-        this.canvasRef = canvas;
+    constructor() {
+        super(0, 10, 40);
         this.y = 40;
         this.tickCounter = 0;
         this.hat = new MarioHat(this.canvasRef);
@@ -133,7 +132,7 @@ export default class Mario extends Drawable {
         if (this.type !== 'fire' || this.bulletFlag) return undefined;
 
         const direction = this.velX < 0 ? -1 : 1;
-        const bullet = new Bullet(this.canvasRef, this.x, this.y, direction);
+        const bullet = new Bullet(this.x, this.y, direction);
 
         //only let mario fire bullet after 500ms
         this.bulletFlag = true;

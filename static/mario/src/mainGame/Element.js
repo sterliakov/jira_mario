@@ -45,12 +45,7 @@ export default class Element extends Drawable {
                             this.type === Types.PowerUpBox
                                 ? Types.Mushroom
                                 : Types.Flower;
-                        const powerUp = new PowerUp(
-                            this._canvasRef,
-                            type,
-                            this.x,
-                            this.y,
-                        );
+                        const powerUp = new PowerUp(type, this.x, this.y);
                         //gives mushroom if mario is small, otherwise gives flower
                         return {action: 'powerUp', args: [powerUp]};
                     }

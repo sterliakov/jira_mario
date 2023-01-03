@@ -12,8 +12,8 @@ export default class Bullet extends Drawable {
     velY = 0;
     type = Types.Bullet;
 
-    constructor(canvas, x, y, direction) {
-        super(canvas, Types.Bullet, x, y + 30);
+    constructor(x, y, direction) {
+        super(Types.Bullet, x, y + 30);
         this.x = x + this.width;
         this.velX = 8 * direction; //changing the direction of the bullet if mario faces another side
     }

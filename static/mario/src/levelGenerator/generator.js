@@ -178,15 +178,17 @@ export default class LevelGenerator {
             }
             if (xTube >= xo + length - 2) xTube += 10;
 
-            let tubeType = Types.Pipe;
-            if (x === xTube && this.random.nextInt(11) < this.difficulty + 1)
-                tubeType = Types.PipeFlower;
+            let tubeType =
+                x === xTube && this.random.nextInt(11) < this.difficulty + 1
+                    ? Types.PipeFlower
+                    : Types.Pipe;
 
-            for (let y = 0; y < this.height; y++) {
-                if (y >= floor) this.setBlock(x, y, Types.Ground);
-                else if ((x === xTube || x === xTube + 1) && y >= tubeHeight)
+            if (x === xTube || x === xTube + 1)
+                for (let y = tubeHeight; y < floor; y++)
                     this.setBlock(x, y, tubeType);
-            }
+
+            for (let y = floor; y < this.height; y++)
+                this.setBlock(x, y, Types.Ground);
         }
 
         return length;
@@ -240,7 +242,8 @@ export default class LevelGenerator {
                     x,
                     floor - 6,
                     this.random.nextInt(6) === 0
-                        ? Types.PowerUpBox // FIXME: max 1 per row
+                        ? // FIXME: check that there's enough space above
+                          Types.PowerUpBox // FIXME: max 1 per row
                         : Types.Coin,
                 );
         }

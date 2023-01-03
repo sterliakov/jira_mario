@@ -1,0 +1,18 @@
+{
+	"assumptions": {
+		"constantSuper": true,
+		"noClassCalls": true,
+		"superIsCallableConstructor": true
+	},
+	"presets": [
+        [
+            "@babel/preset-env",
+            {
+                "loose": true,
+                "useBuiltIns": false,
+                "shippedProposals": true,
+                "debug": false
+            }
+        ]
+    ]
+}

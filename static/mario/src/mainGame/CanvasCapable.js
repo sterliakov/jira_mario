@@ -1,55 +1,60 @@
-export default function CanvasCapable(base) {
-    return class CanvasCapable extends base {
-        constructor(canvas, props) {
-            super(props);
-            this._canvasRef = canvas;
-        }
+import {Component} from 'react';
 
-        get canvas() {
-            if (!this._canvas) this._canvas = this._canvasRef.current;
-            return this._canvas;
-        }
-        get ctx() {
-            if (!this._ctx) this._ctx = this.canvas.getContext('2d');
-            return this._ctx;
-        }
+let _canvas = null;
+let _ctx = null;
 
-        clear(x, y, width, height) {
-            this.ctx.clearRect(x, y, width, height);
-        }
+export function initCanvas(canvasRef) {
+    _canvas = canvasRef.current;
+    _ctx = _canvas.getContext('2d');
+}
 
-        reset() {
-            this.ctx.reset();
-        }
+/**
+ * We inherit from Component, but don't have to use it always.
+ * This just helps to avoid super() chains and babel death.
+ **/
+export default class CanvasCapable extends Component {
+    get ctx() {
+        return _ctx;
+    }
+    get canvas() {
+        return _canvas;
+    }
 
-        scrollWindow(x, y) {
-            this.ctx.translate(x, y);
-        }
+    clear(x, y, width, height) {
+        this.ctx.clearRect(x, y, width, height);
+    }
 
-        do_draw(image, sx, sy, swidth, sheight, x, y, dwidth, dheight) {
-            this.ctx.drawImage(
-                image,
-                sx,
-                sy,
-                swidth,
-                sheight,
-                x,
-                y,
-                dwidth,
-                dheight,
-            );
-        }
+    reset() {
+        this.ctx.reset();
+    }
 
-        makeBox(x, y, width, height) {
-            this.ctx.rect(x, y, width, height);
-            this.ctx.fillStyle = 'black';
-            this.ctx.fill();
-        }
+    scrollWindow(x, y) {
+        this.ctx.translate(x, y);
+    }
 
-        writeText(text, x, y) {
-            this.ctx.font = '20px SuperMario256';
-            this.ctx.fillStyle = 'white';
-            this.ctx.fillText(text, x, y);
-        }
-    };
+    do_draw(image, sx, sy, swidth, sheight, x, y, dwidth, dheight) {
+        this.ctx.drawImage(
+            image,
+            sx,
+            sy,
+            swidth,
+            sheight,
+            x,
+            y,
+            dwidth,
+            dheight,
+        );
+    }
+
+    makeBox(x, y, width, height) {
+        this.ctx.rect(x, y, width, height);
+        this.ctx.fillStyle = 'black';
+        this.ctx.fill();
+    }
+
+    writeText(text, x, y) {
+        this.ctx.font = '20px SuperMario256';
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillText(text, x, y);
+    }
 }

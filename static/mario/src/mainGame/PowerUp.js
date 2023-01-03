@@ -9,8 +9,8 @@ export default class PowerUp extends Drawable {
     velX = 2;
     velY = 0;
 
-    constructor(canvas, type, x, y) {
-        super(canvas, type, x, y);
+    constructor(type, x, y) {
+        super(type, x, y);
         this.y = y - this.height;
     }
 

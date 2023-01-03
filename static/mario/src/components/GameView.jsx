@@ -1,8 +1,8 @@
-import React, {Component} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Images, Sounds, Types} from '../constants';
-import CanvasCapable from '../mainGame/CanvasCapable';
+import CanvasCapable, {initCanvas} from '../mainGame/CanvasCapable';
 import Element from '../mainGame/Element';
 import Enemy from '../mainGame/Enemy';
 import MapLoader from '../mainGame/MapLoader';
@@ -18,12 +18,13 @@ const Screen = styled.canvas`
     margin: 0 auto;
 `;
 
-export default class GameView extends CanvasCapable(Component) {
+export default class GameView extends CanvasCapable {
     tileSize = 32;
 
     constructor(props) {
         const canvas = React.createRef();
-        super(canvas, props);
+        super(props);
+        this._canvasRef = canvas;
         this.height = parseInt(this.props.Height, 10);
         this.viewPort = parseInt(this.props.Width, 10); //width of canvas, viewPort this can be seen
         this.state = {
@@ -58,6 +59,7 @@ export default class GameView extends CanvasCapable(Component) {
     }
 
     componentDidMount() {
+        initCanvas(this._canvasRef);
         this.setState({view: 'game'});
         this.init(1);
     }
@@ -88,7 +90,7 @@ export default class GameView extends CanvasCapable(Component) {
 
         this.instructionTick = 0; //showing instructions counter
         //so this when level changes, it uses the same instance
-        if (!this.mario) this.mario = new Mario(this._canvasRef);
+        if (!this.mario) this.mario = new Mario();
         else this.mario.resetPos();
 
         this.maxWidth =
@@ -219,7 +221,6 @@ export default class GameView extends CanvasCapable(Component) {
                 if (Types.isEnemy(type)) {
                     //goomba
                     const enemy = new Enemy(
-                        this._canvasRef,
                         type,
                         column * this.tileSize,
                         row * this.tileSize,
@@ -230,7 +231,6 @@ export default class GameView extends CanvasCapable(Component) {
                     this.map[row][column] = 0;
                 } else if (Types.isElement(type)) {
                     const element = new Element(
-                        this._canvasRef,
                         type,
                         column * this.tileSize,
                         row * this.tileSize,
