@@ -1,19 +1,21 @@
 modules:
     jira:issuePanel:
         - key: jira-mario-panel
-          resource: main
-          resolver:
-            function: resolver
-          title: Mario
+          resource: runGame
+          # resolver:
+          #   function: resolver
+          title: Jirio
           icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
-    function:
-        - key: resolver
-          handler: index.handler
+    # function:
+    #     - key: resolver
+    #       handler: index.handler
 app:
     id: ari:cloud:ecosystem::app/e067347f-97c9-494e-a0a2-561f9f0f5212
 resources:
-    - key: main
+    - key: game
       path: static/mario/build
+    - key: runGame
+      path: static/panel_wrapper/build
 permissions:
     scopes:
         - storage:app
@@ -38,3 +40,6 @@ permissions:
         - read:status:jira
         - read:field-configuration:jira
         - read:field:jira
+    content:
+        styles:
+            - 'unsafe-inline'
