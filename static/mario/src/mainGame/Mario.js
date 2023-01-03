@@ -132,13 +132,10 @@ export default class Mario extends Drawable {
         if (this.type !== 'fire' || this.bulletFlag) return undefined;
 
         const direction = this.velX < 0 ? -1 : 1;
-        const bullet = new Bullet(this.x, this.y, direction);
-
         //only let mario fire bullet after 500ms
         this.bulletFlag = true;
         setTimeout(() => (this.bulletFlag = false), 500);
-
-        return bullet;
+        return new Bullet(this.x, this.y, direction);
     }
 
     pickFrame() {
