@@ -1,18 +1,39 @@
-import {Modal} from '@forge/bridge';
-import React, {useState} from 'react';
+import {Modal, invoke} from '@forge/bridge';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom/client';
 
-function App() {
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    const runGame = () => {
-        setModalIsOpen(true);
+class App extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            modalOpen: false,
+            canPlay: false,
+        };
+    }
+
+    openGame() {
+        this.setState({modalOpen: true});
         new Modal({
             resource: 'game',
-            onClose: () => setModalIsOpen(false),
+            onClose: () => this.setState({modalOpen: false}),
             size: 'max',
         }).open();
-    };
-    return <button onClick={runGame}>Play Jirio!</button>;
+    }
+
+    async componentDidMount() {
+        this.setState({
+            canPlay: await invoke('canPlay'),
+        });
+    }
+
+    render() {
+        // TODO: need styling here
+        if (this.state.canPlay)
+            return (
+                <button onClick={this.openGame.bind(this)}>Play Jirio!</button>
+            );
+        else return <p>Cannot play:(</p>;
+    }
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

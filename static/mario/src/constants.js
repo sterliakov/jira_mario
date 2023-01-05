@@ -21,9 +21,11 @@ import powerDownSound from './static/sounds/power-down.wav';
 import powerUpAppearSound from './static/sounds/power-up-appear.wav';
 import powerUpSound from './static/sounds/power-up.wav';
 import stageClearSound from './static/sounds/stage-clear.wav';
+import Types from './types';
 
 export const GRAVITY = 0.2;
 export const FRICTION = 0.9;
+export {Types};
 
 const imageSources = {
     './static/images/back-btn.png': backBtn,
@@ -47,52 +49,6 @@ for (const [src, data] of Object.entries(imageSources)) {
     const im = new Image();
     im.src = data;
     Images[src.split('/').at(-1)] = im;
-}
-
-export class Types {
-    // FIXME: clean repeats
-    static Blank = 0;
-    static Ground = 1;
-    static Platform = 1;
-    static PlatformBackground = 1;
-    static NormalBrick = 1;
-    static CoinBox = 2;
-    static Coin = 2;
-    static PowerUpBox = 3; // flower or mushroom depending on hero state
-    static UselessBox = 4;
-    static FlagPole = 5;
-    static Flag = 6;
-    static PipeLeft = 7;
-    static PipeRight = 8;
-    static Pipe = 9;
-    static PipeTopLeft = 9;
-    static PipeTopRight = 10;
-    static PipeFlower = 10;
-    static FlowerBox = 11;
-    static Enemy = 20;
-    static Goomba = 20;
-    static GreenKoopa = 20;
-    static RedKoopa = 20;
-    static Spiky = 20;
-    static Mushroom = 30;
-    static Flower = 31;
-    static Bullet = 40;
-    static BulletBill = 50; // FIXME: not used at all
-
-    static isElement(type) {
-        return 1 <= type && type <= 11;
-    }
-
-    static isEnemy(type) {
-        return type === Types.Enemy;
-    }
-
-    static AllEnemies = [
-        Types.Goomba,
-        Types.GreenKoopa,
-        Types.RedKoopa,
-        Types.Spiky,
-    ];
 }
 
 export const Sounds = {

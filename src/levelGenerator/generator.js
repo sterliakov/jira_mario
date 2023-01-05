@@ -1,6 +1,8 @@
-import {Types} from '../constants';
+import Types from '../../static/mario/src/types';
 import Random from './random';
 
+// FIXME: refactor to fit complexity limits
+/* eslint-disable sonarjs/cognitive-complexity */
 export default class LevelGenerator {
     ODDS_STRAIGHT = 0;
     ODDS_HILL_STRAIGHT = 1;
@@ -117,14 +119,13 @@ export default class LevelGenerator {
                 this.decorate(xxo - 1, xxo + l + 1, h);
                 keepGoing = false;
             }
-            for (let x = xxo; x < xxo + l; x++) {
+            for (let x = xxo; x < xxo + l; x++)
                 for (let y = h; y < floor; y++) {
                     if (this.getBlock(x, y) !== Types.Empty) continue;
                     let yy = y === h ? 8 : 9;
                     if (yy === 8) this.setBlock(x, y, Types.Platform);
                     else this.setBlock(x, y, Types.PlatformBackground);
                 }
-            }
         }
 
         return length;
@@ -249,12 +250,11 @@ export default class LevelGenerator {
     addFlag() {
         const col = this.map.at(-2);
         let found = false;
-        for (let i = col.length - 1; i >= 3; i--) {
+        for (let i = col.length - 1; i >= 3; i--)
             if (found || col[i] === Types.Blank) {
                 col[i] = Types.FlagPole;
                 found = true;
             }
-        }
         this.map.at(-3)[3] = Types.Flag;
     }
 
@@ -298,11 +298,10 @@ export default class LevelGenerator {
         }
 
         this.addFlag();
-        const map = this.map.reduce(
+        return this.map.reduce(
             (prev, next) =>
                 next.map((item, i) => (prev[i] || []).concat(next[i])),
             [],
         );
-        return map;
     }
 }

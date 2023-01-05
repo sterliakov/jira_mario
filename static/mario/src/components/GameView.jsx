@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {Images, Sounds, Types} from '../constants';
+import {getLevel} from '../helpers';
 import CanvasCapable, {initCanvas} from '../mainGame/CanvasCapable';
 import Element from '../mainGame/Element';
 import Enemy from '../mainGame/Enemy';
-import MapLoader from '../mainGame/MapLoader';
 import Mario from '../mainGame/Mario';
 import Score from './Score';
 
@@ -33,7 +33,6 @@ export default class GameView extends CanvasCapable {
             lifeCount: 5,
             levelNum: 1,
         };
-        this.mapLoader = new MapLoader();
     }
 
     render() {
@@ -58,10 +57,10 @@ export default class GameView extends CanvasCapable {
         );
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         initCanvas(this._canvasRef);
         this.setState({view: 'game'});
-        this.init(1);
+        await this.init(1);
     }
 
     componentWillUnmount() {
@@ -77,13 +76,14 @@ export default class GameView extends CanvasCapable {
         }
     }
 
-    init(level) {
+    async init(level) {
         this.goombas = [];
         this.bullets = [];
         this.powerUps = [];
         this.keys = [];
 
-        this.map = this.mapLoader.get(level);
+        this.map = await getLevel(level);
+        if (!this.map) this.gameOver();
 
         this.translatedDist = 0; //distance translated(side scrolled) as mario moves to the right
         this.setState({levelNum: level});
@@ -419,11 +419,10 @@ export default class GameView extends CanvasCapable {
 
         this.pauseGame();
         this.playSound('stageClear');
-        this.timeOutId = setTimeout(() => {
-            if (this.mapLoader.has(this.state.levelNum + 1))
-                this.init(this.state.levelNum + 1);
-            else this.gameOver();
-        }, 5000);
+        this.timeOutId = setTimeout(
+            () => this.init(this.state.levelNum + 1),
+            5000,
+        );
     }
 
     pauseGame() {
@@ -440,9 +439,9 @@ export default class GameView extends CanvasCapable {
         );
     }
 
-    resetGame() {
+    async resetGame() {
         this.mario = null;
-        this.init(this.state.levelNum);
+        await this.init(this.state.levelNum);
     }
 
     clearTimeOut() {
