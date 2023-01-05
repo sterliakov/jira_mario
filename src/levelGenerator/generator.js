@@ -68,16 +68,18 @@ export default class LevelGenerator {
 
         const floor = this.height - 1 - this.random.nextInt(4);
         for (let x = xo; x < xo + length; x++) {
-            if (x >= xo + js && x <= xo + length - js - 1) continue;
+            if (xo + js <= x && x <= xo + length - js - 1) continue;
 
-            for (let y = 0; y < this.height; y++)
-                if (
-                    y >= floor ||
-                    (hasStairs &&
-                        ((x < xo + js && y >= floor - (x - xo) + 1) ||
-                            y >= floor - (xo + length - x) + 2))
-                )
-                    this.setBlock(x, y, Types.Ground);
+            if (hasStairs)
+                for (let y = 0; y < floor; y++)
+                    if (x < xo + js) {
+                        if (y >= floor - (x - xo) + 1)
+                            this.setBlock(x, y, Types.Ground);
+                    } else if (y >= floor - (xo + length - x) + 2) {
+                        this.setBlock(x, y, Types.Ground);
+                    }
+            for (let y = floor; y < this.height; y++)
+                this.setBlock(x, y, Types.Ground);
         }
 
         return length;
@@ -95,10 +97,9 @@ export default class LevelGenerator {
 
         let h = floor;
         let keepGoing = true;
-
         let occupied = new Array(length).fill(false);
         while (keepGoing) {
-            h = h - 2 - this.random.nextInt(3);
+            h -= 2 + this.random.nextInt(3);
             if (h <= 0) break;
 
             const l = this.random.nextInt(5) + 3;
@@ -120,12 +121,13 @@ export default class LevelGenerator {
                 keepGoing = false;
             }
             for (let x = xxo; x < xxo + l; x++)
-                for (let y = h; y < floor; y++) {
-                    if (this.getBlock(x, y) !== Types.Empty) continue;
-                    let yy = y === h ? 8 : 9;
-                    if (yy === 8) this.setBlock(x, y, Types.Platform);
-                    else this.setBlock(x, y, Types.PlatformBackground);
-                }
+                for (let y = h; y < floor; y++)
+                    if (this.getBlock(x, y) === Types.Empty)
+                        this.setBlock(
+                            x,
+                            y,
+                            y === h ? Types.Platform : Types.PlatformBackground,
+                        );
         }
 
         return length;
@@ -262,11 +264,9 @@ export default class LevelGenerator {
         this.clearMap();
 
         this.odds[this.ODDS_STRAIGHT] = 20;
-        this.odds[this.ODDS_HILL_STRAIGHT] = 10;
+        this.odds[this.ODDS_HILL_STRAIGHT] = this.type === 0 ? 10 : 0;
         this.odds[this.ODDS_TUBES] = 2 + 1 * this.difficulty;
         this.odds[this.ODDS_JUMP] = 2 * this.difficulty;
-
-        if (this.type > 0) this.odds[this.ODDS_HILL_STRAIGHT] = 0;
 
         for (let i = 0; i < this.odds.length; i++) {
             if (this.odds[i] < 0) this.odds[i] = 0;
