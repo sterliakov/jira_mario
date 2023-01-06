@@ -59,7 +59,6 @@ export default class GameView extends CanvasCapable {
 
     async componentDidMount() {
         initCanvas(this._canvasRef);
-        this.setState({view: 'game'});
         await this.init(1);
     }
 
@@ -67,13 +66,18 @@ export default class GameView extends CanvasCapable {
         this.pauseGame();
     }
 
-    updateCoinScore() {
-        if (this.state.coinScore === 100) {
+    addCoin() {
+        if (this.state.coinScore === 99)
             this.setState({
                 coinScore: 0,
                 lifeCount: this.state.lifeCount + 1,
+                totalScore: this.state.totalScore + 100,
             });
-        }
+        else
+            this.setState({
+                coinScore: this.state.coinScore + 1,
+                totalScore: this.state.totalScore + 100,
+            });
     }
 
     async init(level) {
@@ -85,13 +89,13 @@ export default class GameView extends CanvasCapable {
         this.map = await getLevel(level);
         if (!this.map) this.gameOver();
 
-        this.translatedDist = 0; //distance translated(side scrolled) as mario moves to the right
+        this.translatedDist = 0; // distance translated(side scrolled) as mario moves to the right
         this.setState({levelNum: level});
 
-        this.instructionTick = 0; //showing instructions counter
-        //so this when level changes, it uses the same instance
-        if (!this.mario) this.mario = new Mario();
-        else this.mario.resetPos();
+        this.instructionTick = 0; // showing instructions counter
+        // so this when level changes, it uses the same instance
+        this.mario ??= new Mario();
+        this.mario.resetPos();
 
         this.maxWidth =
             this.tileSize *
@@ -102,7 +106,7 @@ export default class GameView extends CanvasCapable {
     }
 
     bindKeyPress() {
-        //key binding
+        // key binding
         document.body.addEventListener(
             'keydown',
             (e) => (this.keys[e.keyCode] = true),
@@ -191,7 +195,7 @@ export default class GameView extends CanvasCapable {
         this.marioInGround = this.mario.grounded; //for use with flag sliding
 
         if (this.instructionTick < 1000) {
-            this.showInstructions(); //showing control instructions
+            this.showInstructions();
             this.instructionTick++;
         }
     }
@@ -219,14 +223,12 @@ export default class GameView extends CanvasCapable {
             for (let column = 0; column < this.map[row].length; column++) {
                 const type = this.map[row][column];
                 if (Types.isEnemy(type)) {
-                    //goomba
                     const enemy = new Enemy(
                         type,
                         column * this.tileSize,
                         row * this.tileSize,
                     );
                     enemy.draw();
-
                     this.goombas.push(enemy);
                     this.map[row][column] = 0;
                 } else if (Types.isElement(type)) {
@@ -262,11 +264,7 @@ export default class GameView extends CanvasCapable {
                 this.playSound('powerUpAppear');
                 break;
             case 'coinBox': {
-                this.setState({
-                    coinScore: this.state.coinScore + 1,
-                    totalScore: this.state.totalScore + 100,
-                });
-                this.updateCoinScore();
+                this.addCoin();
                 this.map[row][column] = 4; //sets to useless box after coin appears
                 this.playSound('coin');
                 break;
@@ -324,7 +322,7 @@ export default class GameView extends CanvasCapable {
 
     checkBulletEnemyCollision() {
         for (const goomba of this.goombas) {
-            this.bullets = this.bullets.filter((bullet, j) => {
+            this.bullets = this.bullets.filter((bullet) => {
                 if (!goomba.meetBullet(bullet)) return true;
                 this.killEnemy();
                 return false;
@@ -369,7 +367,7 @@ export default class GameView extends CanvasCapable {
     updateMario() {
         this.mario.checkType();
 
-        //up arrow
+        // up arrow
         if ((this.keys[38] || this.keys[32]) && this.mario.jump())
             this.playSound('jump');
 
@@ -402,7 +400,7 @@ export default class GameView extends CanvasCapable {
     }
 
     checkMarioPos() {
-        //side scrolling as mario reaches center of the viewPort
+        // side scrolling as mario reaches center of the viewPort
         if (
             this.mario.x > this.centerPos &&
             this.centerPos + this.viewPort / 2 < this.maxWidth
@@ -413,7 +411,7 @@ export default class GameView extends CanvasCapable {
     }
 
     levelFinish(collisionDirection) {
-        //game finishes when mario slides the flagPole and collides with the ground
+        // game finishes when mario slides the flagPole and collides with the ground
         if (!this.mario.finishLevel(collisionDirection, this.marioInGround))
             return;
 
@@ -427,6 +425,7 @@ export default class GameView extends CanvasCapable {
 
     pauseGame() {
         window.cancelAnimationFrame(this.animationID);
+        clearTimeout(this.timeOutId);
     }
 
     gameOver() {
@@ -442,9 +441,5 @@ export default class GameView extends CanvasCapable {
     async resetGame() {
         this.mario = null;
         await this.init(this.state.levelNum);
-    }
-
-    clearTimeOut() {
-        clearTimeout(this.timeOutId);
     }
 }

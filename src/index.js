@@ -124,6 +124,8 @@ resolver.define('getLevel', async (req) => {
 
     return new LevelGenerator(
         `level_${ctx.extension.project.key}_${payload.levelNum}`,
+        3,
+        4,
     ).generateLevel();
 });
 

@@ -102,25 +102,25 @@ export default class LevelGenerator {
             h -= 2 + this.random.nextInt(3);
             if (h <= 0) break;
 
-            const l = this.random.nextInt(5) + 3;
-            const xxo = this.random.nextInt(length - l - 2) + xo + 1;
+            const groupLen = this.random.nextInt(5) + 3;
+            const xxo = this.random.nextInt(length - groupLen - 2) + xo + 1;
 
             if (
                 occupied[xxo - xo] ||
-                occupied[xxo - xo + l] ||
+                occupied[xxo - xo + groupLen] ||
                 occupied[xxo - xo - 1] ||
-                occupied[xxo - xo + l + 1]
+                occupied[xxo - xo + groupLen + 1]
             )
                 break;
 
             occupied[xxo - xo] = true;
-            occupied[xxo - xo + l] = true;
-            this.addEnemyLine(xxo, xxo + l, h - 1);
+            occupied[xxo - xo + groupLen] = true;
+            this.addEnemyLine(xxo, xxo + groupLen, h - 1);
             if (this.random.nextInt(4) === 0) {
-                this.decorate(xxo - 1, xxo + l + 1, h);
+                this.decorate(xxo - 1, xxo + groupLen + 1, h);
                 keepGoing = false;
             }
-            for (let x = xxo; x < xxo + l; x++)
+            for (let x = xxo; x < xxo + groupLen; x++)
                 for (let y = h; y < floor; y++)
                     if (this.getBlock(x, y) === Types.Empty)
                         this.setBlock(
@@ -141,7 +141,10 @@ export default class LevelGenerator {
     addEnemyLine(x0, x1, y) {
         let numSkipped = 0;
         for (let x = x0; x < x1; x++) {
-            if (this.random.nextInt(35) >= this.difficulty + numSkipped) {
+            if (
+                this.random.nextInt(35) >=
+                this.difficulty + (numSkipped * 3) / (x1 - x0 + 1)
+            ) {
                 numSkipped++;
                 continue;
             }
@@ -260,6 +263,21 @@ export default class LevelGenerator {
         this.map.at(-3)[3] = Types.Flag;
     }
 
+    addCeiling() {
+        let ceiling = 0;
+        let run = -1;
+        for (let y = 0; y < this.height; y++)
+            this.setBlock(0, y, Types.NormalBrick);
+        for (let x = 5; x < this.width; x++) {
+            if (run-- <= 0) {
+                ceiling = this.random.nextInt(4);
+                run = this.random.nextInt(4) + 4;
+            }
+            for (let y = 0; y <= ceiling; y++)
+                this.setBlock(x, y, Types.NormalBrick);
+        }
+    }
+
     generateLevel() {
         this.clearMap();
 
@@ -267,6 +285,8 @@ export default class LevelGenerator {
         this.odds[this.ODDS_HILL_STRAIGHT] = this.type === 0 ? 10 : 0;
         this.odds[this.ODDS_TUBES] = 2 + 1 * this.difficulty;
         this.odds[this.ODDS_JUMP] = 2 * this.difficulty;
+
+        if (this.type > 0) this.addCeiling();
 
         for (let i = 0; i < this.odds.length; i++) {
             if (this.odds[i] < 0) this.odds[i] = 0;
@@ -282,20 +302,6 @@ export default class LevelGenerator {
         for (let x = length; x < this.width; x++)
             for (let y = floor; y < this.height; y++)
                 this.setBlock(x, y, Types.Ground);
-
-        if (this.type > 0) {
-            let ceiling = 0;
-            let run = 0;
-            for (let x = 0; x < this.width; x++) {
-                if (run-- <= 0 && x > 4) {
-                    ceiling = this.random.nextInt(4);
-                    run = this.random.nextInt(4) + 4;
-                }
-                for (let y = 0; y < this.height; y++)
-                    if ((x > 4 && y <= ceiling) || x < 1)
-                        this.setBlock(x, y, Types.NormalBrick);
-            }
-        }
 
         this.addFlag();
         return this.map.reduce(

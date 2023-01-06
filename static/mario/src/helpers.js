@@ -22,7 +22,6 @@ export async function getLevel(levelNum) {
     const lvl = TESTMODE
         ? JSON.parse(DEFAULT[levelNum - 1])
         : await fetchLevel(levelNum);
-    console.log(lvl);
     _levelCache[levelNum] = lvl;
     return deepClone(lvl);
 }
@@ -39,11 +38,11 @@ export function collisionCheck(objA, objB) {
     // if the x and y vector are less than the half width or half height, then we must be inside the object, causing a collision
     if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
         // figures out on which side we are colliding (top, bottom, left, or right)
-        var offsetX = hWidths - Math.abs(vX);
-        var offsetY = hHeights - Math.abs(vY);
+        const offsetX = hWidths - Math.abs(vX);
+        const offsetY = hHeights - Math.abs(vY);
 
         if (offsetX >= offsetY) {
-            if (vY > 0 && vY < 37) {
+            if (0 < vY && vY < 37) {
                 if (objB.type !== Types.FlagPole) objA.y += offsetY;
                 return 't';
             } else if (vY < 0) {
@@ -51,13 +50,8 @@ export function collisionCheck(objA, objB) {
                 return 'b';
             }
         } else {
-            if (vX > 0) {
-                objA.x += offsetX;
-                return 'l';
-            } else {
-                objA.x -= offsetX;
-                return 'r';
-            }
+            objA.x += offsetX * Math.sign(vX);
+            return vX > 0 ? 'l' : 'r';
         }
     }
     return null;
