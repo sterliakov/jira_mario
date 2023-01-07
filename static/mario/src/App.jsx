@@ -4,6 +4,7 @@ import styled, {createGlobalStyle} from 'styled-components';
 
 import BottomBtnWrapper from './components/BottomBtnWrapper';
 import GameView from './components/GameView';
+import PreferencesScreen from './components/PreferencesScreen';
 import StartScreen from './components/StartScreen';
 import {getCanPlay} from './helpers';
 import './static/css/reset.css';
@@ -46,10 +47,13 @@ export default class App extends Component {
             <>
                 <Style />
                 <MainWrapper>
-                    {(this.state.view === 'start' || !this.state.canPlay) && (
+                    {this.state.view === 'start' && (
                         <StartScreen
                             canPlay={this.state.canPlay}
                             showGame={() => this.setState({view: 'game'})}
+                            showPreferences={() =>
+                                this.setState({view: 'preferences'})
+                            }
                         />
                     )}
                     {this.state.view === 'game' && this.state.canPlay && (
@@ -59,6 +63,14 @@ export default class App extends Component {
                                 Height="480"
                                 quitAction={this.destroyModal.bind(this)}
                             />
+                            <BottomBtnWrapper
+                                showStart={() => this.setState({view: 'start'})}
+                            />
+                        </>
+                    )}
+                    {this.state.view === 'preferences' && (
+                        <>
+                            <PreferencesScreen />
                             <BottomBtnWrapper
                                 showStart={() => this.setState({view: 'start'})}
                             />

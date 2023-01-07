@@ -76,7 +76,6 @@ export default class Mario extends Drawable {
 
     constructor() {
         super(0, 10, 40);
-        this.y = 40;
         this.tickCounter = 0;
         this.hat = new MarioHat(this.canvasRef);
         return (async () => {

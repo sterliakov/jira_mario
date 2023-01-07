@@ -19,13 +19,28 @@ const StartBtn = styled(BaseButton)`
     bottom: 100px;
     left: 530px;
 `;
+// FIXME: need style
+const PreferencesBtn = styled(BaseButton)`
+    background-image: url('${Images['start-btn.png'].src}');
+    position: absolute;
+    bottom: 100px;
+    left: 230px;
+`;
 
 export default class StartScreen extends Component {
     render() {
-        // FIXME: don't show btn if !canPlay
         return (
             <Screen>
-                <StartBtn onClick={() => this.props.showGame()}></StartBtn>
+                {this.props.canPlay && (
+                    <StartBtn
+                        title="Start"
+                        onClick={() => this.props.showGame()}
+                    ></StartBtn>
+                )}
+                <PreferencesBtn
+                    title="Preferences"
+                    onClick={() => this.props.showPreferences()}
+                ></PreferencesBtn>
             </Screen>
         );
     }

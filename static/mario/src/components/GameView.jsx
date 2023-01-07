@@ -32,6 +32,7 @@ export default class GameView extends CanvasCapable {
             totalScore: 0,
             lifeCount: 5,
             levelNum: 1,
+            soundEnabled: true,
         };
     }
 
@@ -122,6 +123,7 @@ export default class GameView extends CanvasCapable {
     }
 
     playSound(name) {
+        if (!this.state.soundEnabled) return;
         const sound = Sounds[name];
         sound.pause();
         sound.currentTime = 0;
