@@ -22,6 +22,7 @@ const StartBtn = styled(BaseButton)`
 
 export default class StartScreen extends Component {
     render() {
+        // FIXME: don't show btn if !canPlay
         return (
             <Screen>
                 <StartBtn onClick={() => this.props.showGame()}></StartBtn>

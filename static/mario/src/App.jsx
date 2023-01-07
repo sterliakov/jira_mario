@@ -1,15 +1,18 @@
+import {view} from '@forge/bridge';
 import React, {Component} from 'react';
 import styled, {createGlobalStyle} from 'styled-components';
 
 import BottomBtnWrapper from './components/BottomBtnWrapper';
 import GameView from './components/GameView';
 import StartScreen from './components/StartScreen';
+import {getCanPlay} from './helpers';
 import './static/css/reset.css';
 import font from './static/fonts/SuperMario256.ttf';
 
 const MainWrapper = styled.div`
     display: flex;
     flex-direction: column;
+    justify-content: center;
 `;
 const Style = createGlobalStyle`
     @font-face {
@@ -29,19 +32,33 @@ export default class App extends Component {
         };
     }
 
+    async componentDidMount() {
+        this.setState({canPlay: await getCanPlay()});
+    }
+
+    destroyModal(levelFinished = false) {
+        this.props.root.unmount();
+        view.close({levelFinished});
+    }
+
     render() {
         return (
             <>
                 <Style />
                 <MainWrapper>
-                    {this.state.view === 'start' && (
+                    {(this.state.view === 'start' || !this.state.canPlay) && (
                         <StartScreen
+                            canPlay={this.state.canPlay}
                             showGame={() => this.setState({view: 'game'})}
                         />
                     )}
-                    {this.state.view === 'game' && (
+                    {this.state.view === 'game' && this.state.canPlay && (
                         <>
-                            <GameView Width="1280" Height="480" />
+                            <GameView
+                                Width="1280"
+                                Height="480"
+                                quitAction={this.destroyModal.bind(this)}
+                            />
                             <BottomBtnWrapper
                                 showStart={() => this.setState({view: 'start'})}
                             />

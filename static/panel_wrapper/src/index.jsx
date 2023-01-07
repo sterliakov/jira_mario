@@ -15,7 +15,11 @@ class App extends Component {
         this.setState({modalOpen: true});
         new Modal({
             resource: 'game',
-            onClose: () => this.setState({modalOpen: false}),
+            onClose: async (payload) =>
+                this.setState({
+                    modalOpen: false,
+                    canPlay: !(payload && payload.levelFinished),
+                }),
             size: 'max',
         }).open();
     }

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {Images, Sounds, Types} from '../constants';
-import {getLevel} from '../helpers';
+import {getGameState, getLevel, saveGameState, saveMario} from '../helpers';
 import CanvasCapable, {initCanvas} from '../mainGame/CanvasCapable';
 import Element from '../mainGame/Element';
 import Enemy from '../mainGame/Enemy';
@@ -26,7 +26,7 @@ export default class GameView extends CanvasCapable {
         super(props);
         this._canvasRef = canvas;
         this.height = parseInt(this.props.Height, 10);
-        this.viewPort = parseInt(this.props.Width, 10); //width of canvas, viewPort this can be seen
+        this.viewPort = parseInt(this.props.Width, 10); // width of canvas, viewPort this can be seen
         this.state = {
             coinScore: 0,
             totalScore: 0,
@@ -59,7 +59,13 @@ export default class GameView extends CanvasCapable {
 
     async componentDidMount() {
         initCanvas(this._canvasRef);
-        await this.init(1);
+        const gameState = await getGameState();
+        this.setState(gameState, () => this.init());
+    }
+
+    async updateState(newState) {
+        this.setState(newState);
+        return saveGameState(newState);
     }
 
     componentWillUnmount() {
@@ -68,33 +74,31 @@ export default class GameView extends CanvasCapable {
 
     addCoin() {
         if (this.state.coinScore === 99)
-            this.setState({
+            this.updateState({
                 coinScore: 0,
                 lifeCount: this.state.lifeCount + 1,
                 totalScore: this.state.totalScore + 100,
             });
         else
-            this.setState({
+            this.updateState({
                 coinScore: this.state.coinScore + 1,
                 totalScore: this.state.totalScore + 100,
             });
     }
 
-    async init(level) {
+    async init() {
         this.goombas = [];
         this.bullets = [];
         this.powerUps = [];
         this.keys = [];
 
-        this.map = await getLevel(level);
+        this.map = await getLevel(this.state.levelNum);
         if (!this.map) this.gameOver();
 
         this.translatedDist = 0; // distance translated(side scrolled) as mario moves to the right
-        this.setState({levelNum: level});
-
         this.instructionTick = 0; // showing instructions counter
-        // so this when level changes, it uses the same instance
-        this.mario ??= new Mario();
+        // so that it uses the same instance when reloading
+        this.mario ??= await new Mario();
         this.mario.resetPos();
 
         this.maxWidth =
@@ -194,10 +198,7 @@ export default class GameView extends CanvasCapable {
         this.wallCollision();
         this.marioInGround = this.mario.grounded; //for use with flag sliding
 
-        if (this.instructionTick < 1000) {
-            this.showInstructions();
-            this.instructionTick++;
-        }
+        if (this.instructionTick++ < 1000) this.showInstructions();
     }
 
     showInstructions() {
@@ -293,7 +294,7 @@ export default class GameView extends CanvasCapable {
             if (powerUp.meetMario(this.mario)) {
                 this.powerUps.splice(i, 1);
 
-                this.setState({
+                this.updateState({
                     totalScore: this.state.totalScore + 1000,
                 });
                 this.playSound('powerUp');
@@ -331,7 +332,7 @@ export default class GameView extends CanvasCapable {
     }
 
     killEnemy() {
-        this.setState({
+        this.updateState({
             totalScore: this.state.totalScore + 1000,
         });
         this.playSound('killEnemy');
@@ -353,7 +354,7 @@ export default class GameView extends CanvasCapable {
         this.mario.frame = 'dead';
 
         this.playSound('marioDie');
-        this.setState({
+        this.updateState({
             lifeCount: this.state.lifeCount - 1,
         });
 
@@ -414,13 +415,11 @@ export default class GameView extends CanvasCapable {
         // game finishes when mario slides the flagPole and collides with the ground
         if (!this.mario.finishLevel(collisionDirection, this.marioInGround))
             return;
-
+        saveMario(this.mario);
+        saveGameState({levelNum: this.state.levelNum + 1}, true);
         this.pauseGame();
         this.playSound('stageClear');
-        this.timeOutId = setTimeout(
-            () => this.init(this.state.levelNum + 1),
-            5000,
-        );
+        this.timeOutId = setTimeout(() => this.props.quitAction(true), 5000);
     }
 
     pauseGame() {
@@ -440,6 +439,6 @@ export default class GameView extends CanvasCapable {
 
     async resetGame() {
         this.mario = null;
-        await this.init(this.state.levelNum);
+        await this.init();
     }
 }

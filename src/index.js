@@ -47,7 +47,7 @@ resolver.define('getMario', async (req) => {
     console.log(user);
     const key = `mario_${user.accountId}_${ctx.extension.project.key}`;
     let mario = await storage.get(key);
-    if (mario == null) {
+    if (!mario) {
         mario = DEFAULT_MARIO_CONF;
         await storage.set(key, mario);
     }
@@ -71,7 +71,7 @@ resolver.define('getGame', async (req) => {
     const user = await fetchUser();
     const key = `game_${user.accountId}_${ctx.extension.project.key}`;
     let game = await storage.get(key);
-    if (game == null) {
+    if (!game || game.lifeCount === 0) {
         game = DEFAULT_GAME_CONF;
         await storage.set(key, game);
     }
