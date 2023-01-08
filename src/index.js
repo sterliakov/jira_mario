@@ -20,10 +20,10 @@ const fetchIssue = async (key) => {
         .requestJira(route`/rest/api/3/issue/${key}`, _useJson);
     return rsp.json();
 };
-const fetchUser = async () => {
+const fetchUser = async (userId) => {
     const rsp = await api
         .asUser()
-        .requestJira(route`/rest/api/3/myself`, _useJson);
+        .requestJira(route`/rest/api/3/user?accountId=${userId}`, _useJson);
     return rsp.json();
 };
 
@@ -37,9 +37,7 @@ resolver.define('getIssue', async (req) => {
 
 resolver.define('getMario', async (req) => {
     const {context: ctx} = req;
-    const user = await fetchUser();
-    console.log(user);
-    const key = `mario_${ctx.extension.project.key}_${user.accountId}`;
+    const key = `mario_${ctx.extension.project.key}_${ctx.accountId}`;
     let mario = await storage.get(key);
     if (!mario) {
         mario = DEFAULT_MARIO_CONF;
@@ -49,8 +47,7 @@ resolver.define('getMario', async (req) => {
 });
 resolver.define('setMario', async (req) => {
     const {context: ctx, payload} = req;
-    const user = await fetchUser();
-    const key = `mario_${ctx.extension.project.key}_${user.accountId}`;
+    const key = `mario_${ctx.extension.project.key}_${ctx.accountId}`;
     const oldMario = (await storage.get(key)) ?? DEFAULT_MARIO_CONF;
     // TODO: add validation
     await storage.set(key, {
@@ -62,8 +59,7 @@ resolver.define('setMario', async (req) => {
 
 resolver.define('getGame', async (req) => {
     const {context: ctx} = req;
-    const user = await fetchUser();
-    const key = `game_${ctx.extension.project.key}_${user.accountId}`;
+    const key = `game_${ctx.extension.project.key}_${ctx.accountId}`;
     let game = await storage.get(key);
     if (!game || game.lifeCount === 0) {
         game = DEFAULT_GAME_CONF;
@@ -73,8 +69,7 @@ resolver.define('getGame', async (req) => {
 });
 resolver.define('setGame', async (req) => {
     const {context: ctx, payload} = req;
-    const user = await fetchUser();
-    const key = `game_${ctx.extension.project.key}_${user.accountId}`;
+    const key = `game_${ctx.extension.project.key}_${ctx.accountId}`;
     const oldGame = (await storage.get(key)) ?? DEFAULT_GAME_CONF;
     // TODO: add validation
     await storage.set(key, {
@@ -83,7 +78,7 @@ resolver.define('setGame', async (req) => {
     });
 
     if (payload.levelFinished) {
-        const key = `issues_played_${ctx.extension.project.key}_${user.accountId}`;
+        const key = `issues_played_${ctx.extension.project.key}_${ctx.accountId}`;
         const played = (await storage.get(key)) ?? [];
         played.push(ctx.extension.issue.key);
         await storage.set(key, played);
@@ -93,13 +88,10 @@ resolver.define('setGame', async (req) => {
 
 resolver.define('canPlay', async (req) => {
     const {context: ctx} = req;
-    const [user, issue] = await Promise.all([
-        fetchUser(),
-        fetchIssue(ctx.extension.issue.key),
-    ]);
-    if (issue.fields.assignee?.accountId !== user.accountId) return 'NOT_OWNER';
+    const issue = await fetchIssue(ctx.extension.issue.key);
+    if (issue.fields.assignee?.accountId !== ctx.accountId) return 'NOT_OWNER';
     if (issue.fields.status.name !== 'Done') return 'NOT_COMPLETED';
-    const key = `issues_played_${ctx.extension.project.key}_${user.accountId}`;
+    const key = `issues_played_${ctx.extension.project.key}_${ctx.accountId}`;
     const played = (await storage.get(key)) ?? [];
     if (played.includes(ctx.extension.issue.key)) return 'ALREADY_PLAYED';
     return 'OK';
@@ -107,12 +99,9 @@ resolver.define('canPlay', async (req) => {
 
 resolver.define('getLevel', async (req) => {
     const {context: ctx, payload} = req;
-    const [user, issue] = await Promise.all([
-        fetchUser(),
-        fetchIssue(ctx.extension.issue.key),
-    ]);
+    const issue = await fetchIssue(ctx.extension.issue.key);
     if (
-        issue.fields.assignee?.accountId !== user.accountId ||
+        issue.fields.assignee?.accountId !== ctx.accountId ||
         issue.fields.status.name !== 'Done'
     )
         return null;
@@ -147,14 +136,7 @@ resolver.define('getLeaderboard', async (req) => {
     return await Promise.all(
         users.map(async (u) => ({
             game: u.game,
-            user: await (
-                await api
-                    .asUser()
-                    .requestJira(
-                        route`/rest/api/3/user?accountId=${u.user}`,
-                        _useJson,
-                    )
-            ).json(),
+            user: await fetchUser(u.user),
         })),
     );
 });
