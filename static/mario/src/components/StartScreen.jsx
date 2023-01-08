@@ -13,34 +13,36 @@ const Screen = styled.div`
     position: relative;
 `;
 
-const StartBtn = styled(BaseButton)`
-    background-image: url('${Images['start-btn.png'].src}');
-    position: absolute;
+const ScreenBtn = styled(BaseButton)`
+    position: absolute !important;
     bottom: 100px;
-    left: 530px;
 `;
-// FIXME: need style
-const PreferencesBtn = styled(BaseButton)`
-    background-image: url('${Images['start-btn.png'].src}');
-    position: absolute;
-    bottom: 100px;
-    left: 230px;
+const StartBtn = styled(ScreenBtn)`
+    background-color: #e63f2b !important;
+    left: 528px;
+`;
+const PreferencesBtn = styled(ScreenBtn)`
+    background-color: #0a0aee !important;
+    left: 250px;
 `;
 
 export default class StartScreen extends Component {
     render() {
         return (
             <Screen>
-                {this.props.canPlay && (
-                    <StartBtn
-                        title="Start"
-                        onClick={() => this.props.showGame()}
-                    ></StartBtn>
-                )}
+                <StartBtn
+                    title={this.props.canPlay ? 'Start' : 'Cannot play'}
+                    onClick={() => this.props.showGame()}
+                    isDisabled={!this.props.canPlay}
+                >
+                    Start
+                </StartBtn>
                 <PreferencesBtn
                     title="Preferences"
                     onClick={() => this.props.showPreferences()}
-                ></PreferencesBtn>
+                >
+                    Settings
+                </PreferencesBtn>
             </Screen>
         );
     }

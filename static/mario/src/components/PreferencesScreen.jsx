@@ -5,8 +5,6 @@ import styled from 'styled-components';
 import {Images} from '../constants';
 import {getGameState, getMario, saveGameState, saveMario} from '../helpers';
 
-// import BaseButton from './BaseButton';
-
 const Screen = styled.div`
     width: 1280px;
     height: 530px;

@@ -1,4 +1,3 @@
-import backBtn from './static/images/back-btn.png';
 import bg from './static/images/bg.png';
 import bullet from './static/images/bullet.png';
 import coin from './static/images/coin.png';
@@ -10,7 +9,6 @@ import marioHead from './static/images/mario-head.png';
 import marioSprites from './static/images/mario-sprites.png';
 import powerUps from './static/images/powerups.png';
 import redraw from './static/images/redraw.png';
-import startBtn from './static/images/start-btn.png';
 import startScreen from './static/images/start-screen.png';
 import bulletSound from './static/sounds/bullet.wav';
 import coinSound from './static/sounds/coin.wav';
@@ -28,7 +26,6 @@ export const FRICTION = 0.9;
 export {Types};
 
 const imageSources = {
-    './static/images/back-btn.png': backBtn,
     './static/images/bg.png': bg,
     './static/images/bullet.png': bullet,
     './static/images/coin.png': coin,
@@ -41,7 +38,6 @@ const imageSources = {
     './static/images/mario-sprites.png': marioSprites,
     './static/images/powerups.png': powerUps,
     './static/images/redraw.png': redraw,
-    './static/images/start-btn.png': startBtn,
 };
 
 export const Images = {};

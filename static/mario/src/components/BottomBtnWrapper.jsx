@@ -1,7 +1,6 @@
 import {Component} from 'react';
 import styled from 'styled-components';
 
-import {Images} from '../constants';
 import BaseButton from './BaseButton';
 
 const Wrapper = styled.div`
@@ -11,7 +10,7 @@ const Wrapper = styled.div`
 `;
 
 const BackBtn = styled(BaseButton)`
-    background: url('${Images['back-btn.png'].src}');
+    background-color: #e63f2b !important;
     margin: 10px;
 `;
 
@@ -19,7 +18,9 @@ export default class BottomBtnWrapper extends Component {
     render() {
         return (
             <Wrapper>
-                <BackBtn onClick={() => this.props.showStart()}></BackBtn>
+                <BackBtn onClick={() => this.props.showStart()}>
+                    Back to menu
+                </BackBtn>
             </Wrapper>
         );
     }
