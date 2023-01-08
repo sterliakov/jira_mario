@@ -1,10 +1,13 @@
-import api, {route, storage} from '@forge/api';
+import api, {route, startsWith, storage} from '@forge/api';
 import Resolver from '@forge/resolver';
 
 import {DEFAULT_GAME_CONF, DEFAULT_MARIO_CONF} from './constants';
 import LevelGenerator from './levelGenerator';
 
 const resolver = new Resolver();
+const _useJson = {
+    headers: {Accept: 'application/json'},
+};
 
 resolver.define('testUp', (req) => {
     console.log(req);
@@ -14,22 +17,13 @@ resolver.define('testUp', (req) => {
 const fetchIssue = async (key) => {
     const rsp = await api
         .asUser()
-        .requestJira(route`/rest/api/3/issue/${key}`, {
-            headers: {Accept: 'application/json'},
-        });
+        .requestJira(route`/rest/api/3/issue/${key}`, _useJson);
     return rsp.json();
 };
-// const fetchProject = async (key) => {
-//     const rsp = await api.asUser().requestJira(
-//         route`/rest/api/3/project/${key}`,
-//         {headers: {'Accept': 'application/json'}}
-//     );
-//     return rsp.json()
-// }
 const fetchUser = async () => {
-    const rsp = await api.asUser().requestJira(route`/rest/api/3/myself`, {
-        headers: {Accept: 'application/json'},
-    });
+    const rsp = await api
+        .asUser()
+        .requestJira(route`/rest/api/3/myself`, _useJson);
     return rsp.json();
 };
 
@@ -45,7 +39,7 @@ resolver.define('getMario', async (req) => {
     const {context: ctx} = req;
     const user = await fetchUser();
     console.log(user);
-    const key = `mario_${user.accountId}_${ctx.extension.project.key}`;
+    const key = `mario_${ctx.extension.project.key}_${user.accountId}`;
     let mario = await storage.get(key);
     if (!mario) {
         mario = DEFAULT_MARIO_CONF;
@@ -56,7 +50,7 @@ resolver.define('getMario', async (req) => {
 resolver.define('setMario', async (req) => {
     const {context: ctx, payload} = req;
     const user = await fetchUser();
-    const key = `mario_${user.accountId}_${ctx.extension.project.key}`;
+    const key = `mario_${ctx.extension.project.key}_${user.accountId}`;
     const oldMario = (await storage.get(key)) ?? DEFAULT_MARIO_CONF;
     // TODO: add validation
     await storage.set(key, {
@@ -69,7 +63,7 @@ resolver.define('setMario', async (req) => {
 resolver.define('getGame', async (req) => {
     const {context: ctx} = req;
     const user = await fetchUser();
-    const key = `game_${user.accountId}_${ctx.extension.project.key}`;
+    const key = `game_${ctx.extension.project.key}_${user.accountId}`;
     let game = await storage.get(key);
     if (!game || game.lifeCount === 0) {
         game = DEFAULT_GAME_CONF;
@@ -80,7 +74,7 @@ resolver.define('getGame', async (req) => {
 resolver.define('setGame', async (req) => {
     const {context: ctx, payload} = req;
     const user = await fetchUser();
-    const key = `game_${user.accountId}_${ctx.extension.project.key}`;
+    const key = `game_${ctx.extension.project.key}_${user.accountId}`;
     const oldGame = (await storage.get(key)) ?? DEFAULT_GAME_CONF;
     // TODO: add validation
     await storage.set(key, {
@@ -89,7 +83,7 @@ resolver.define('setGame', async (req) => {
     });
 
     if (payload.levelFinished) {
-        const key = `issues_played_${user.accountId}_${ctx.extension.project.key}`;
+        const key = `issues_played_${ctx.extension.project.key}_${user.accountId}`;
         const played = (await storage.get(key)) ?? [];
         played.push(ctx.extension.issue.key);
         await storage.set(key, played);
@@ -103,11 +97,12 @@ resolver.define('canPlay', async (req) => {
         fetchUser(),
         fetchIssue(ctx.extension.issue.key),
     ]);
-    if (issue.fields.assignee.accountId !== user.accountId) return false;
-    if (issue.fields.status.name !== 'Done') return false;
-    const key = `issues_played_${user.accountId}_${ctx.extension.project.key}`;
+    if (issue.fields.assignee?.accountId !== user.accountId) return 'NOT_OWNER';
+    if (issue.fields.status.name !== 'Done') return 'NOT_COMPLETED';
+    const key = `issues_played_${ctx.extension.project.key}_${user.accountId}`;
     const played = (await storage.get(key)) ?? [];
-    return !played.includes(ctx.extension.issue.key);
+    if (played.includes(ctx.extension.issue.key)) return 'ALREADY_PLAYED';
+    return 'OK';
 });
 
 resolver.define('getLevel', async (req) => {
@@ -117,7 +112,7 @@ resolver.define('getLevel', async (req) => {
         fetchIssue(ctx.extension.issue.key),
     ]);
     if (
-        issue.fields.assignee.accountId !== user.accountId ||
+        issue.fields.assignee?.accountId !== user.accountId ||
         issue.fields.status.name !== 'Done'
     )
         return null;
@@ -127,6 +122,41 @@ resolver.define('getLevel', async (req) => {
         3,
         4,
     ).generateLevel();
+});
+resolver.define('getLeaderboard', async (req) => {
+    const {context: ctx} = req;
+    const users = [];
+    let cursor;
+    while (true) {
+        let q = storage
+            .query()
+            .where('key', startsWith(`game_${ctx.extension.project.key}`))
+            .limit(20);
+        if (cursor) q = q.cursor(cursor);
+        const {results, nextCursor} = await q.getMany();
+        console.log(results, cursor);
+        if (!results.length) break;
+        cursor = nextCursor;
+        users.push(
+            ...results.map((r) => ({
+                user: r.key.split('_').at(-1),
+                game: r.value,
+            })),
+        );
+    }
+    return await Promise.all(
+        users.map(async (u) => ({
+            game: u.game,
+            user: await (
+                await api
+                    .asUser()
+                    .requestJira(
+                        route`/rest/api/3/user?accountId=${u.user}`,
+                        _useJson,
+                    )
+            ).json(),
+        })),
+    );
 });
 
 export const handler = resolver.getDefinitions();

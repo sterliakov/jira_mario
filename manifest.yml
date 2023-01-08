@@ -44,3 +44,8 @@ permissions:
     content:
         styles:
             - 'unsafe-inline'
+    external:
+        images:
+            - 'https://*.atlassian.net/'
+            - 'https://*.atl-paas.net/'
+            - 'https://i1.wp.com/'

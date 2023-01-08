@@ -27,7 +27,7 @@ export async function saveMario(newStatePart) {
     return invoke('setMario', {mario: newStatePart});
 }
 export async function getCanPlay() {
-    return invoke('canPlay');
+    return (await invoke('canPlay')) === 'OK';
 }
 
 export function collisionCheck(objA, objB) {
