@@ -3,7 +3,7 @@ import Switch from 'react-switch';
 import styled from 'styled-components';
 
 import {Images} from '../constants';
-import {getGameState, getMario, saveGameState, saveMario} from '../helpers';
+import {saveGameState, saveMario} from '../helpers';
 
 const Screen = styled.div`
     width: 1280px;
@@ -27,18 +27,10 @@ const SwitchLabelName = styled.span`
 export default class PreferencesScreen extends Component {
     constructor(props) {
         super(props);
-        this.state = {sexSwitch: false, soundSwitch: false};
-    }
-
-    async componentDidMount() {
-        const [{sex}, {soundEnabled}] = await Promise.all([
-            getMario(),
-            getGameState(),
-        ]);
-        this.setState({
-            sexSwitch: sex === 'f',
-            soundSwitch: soundEnabled,
-        });
+        this.state = {
+            sexSwitch: props.mario.sex === 'f',
+            soundSwitch: props.game.soundEnabled,
+        };
     }
 
     render() {
@@ -77,17 +69,23 @@ export default class PreferencesScreen extends Component {
         if (
             newState.sexSwitch != null &&
             newState.sexSwitch !== this.state.sexSwitch
-        )
-            saveMario({
+        ) {
+            const m = {
                 sex: newState.sexSwitch ? 'f' : 'm',
-            });
+            };
+            saveMario(m);
+            this.props.storeMario(m);
+        }
         if (
             newState.soundSwitch != null &&
             newState.soundSwitch !== this.state.soundSwitch
-        )
-            saveGameState({
+        ) {
+            const g = {
                 soundEnabled: !!newState.soundSwitch,
-            });
+            };
+            saveGameState(g);
+            this.props.storeGame(g);
+        }
         this.setState(newState);
     }
 }

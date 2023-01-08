@@ -6,7 +6,7 @@ import BottomBtnWrapper from './components/BottomBtnWrapper';
 import GameView from './components/GameView';
 import PreferencesScreen from './components/PreferencesScreen';
 import StartScreen from './components/StartScreen';
-import {getCanPlay} from './helpers';
+import {getCanPlay, getGameState, getLevel, getMario} from './helpers';
 import './static/css/reset.css';
 import font from './static/fonts/SuperMario256.ttf';
 
@@ -30,16 +30,51 @@ export default class App extends Component {
         super(props);
         this.state = {
             view: 'start',
+            gameLoaded: false,
+            prefsLoaded: false,
+            canPlay: false,
+            game: null,
+            mario: null,
         };
     }
 
     async componentDidMount() {
-        this.setState({canPlay: await getCanPlay()});
+        await this.fetchAll();
+    }
+
+    async fetchAll() {
+        (async () => this.setState({canPlay: await getCanPlay()}))();
+        (async () => {
+            const [game, mario] = await Promise.all([
+                getGameState(),
+                getMario(),
+            ]);
+            this.setState(
+                {
+                    game,
+                    mario,
+                    prefsLoaded: true,
+                },
+                async () => {
+                    await getLevel(game.levelNum);
+                    this.setState({gameLoaded: true});
+                },
+            );
+        })();
     }
 
     destroyModal(levelFinished = false) {
         this.props.root.unmount();
         view.close({levelFinished});
+    }
+
+    async showStart() {
+        this.setState({
+            view: 'start',
+            gameLoaded: false,
+            prefsLoaded: false,
+        });
+        await this.fetchAll();
     }
 
     render() {
@@ -50,6 +85,8 @@ export default class App extends Component {
                     {this.state.view === 'start' && (
                         <StartScreen
                             canPlay={this.state.canPlay}
+                            gameLoaded={this.state.gameLoaded}
+                            prefsLoaded={this.state.prefsLoaded}
                             showGame={() => this.setState({view: 'game'})}
                             showPreferences={() =>
                                 this.setState({view: 'preferences'})
@@ -62,17 +99,32 @@ export default class App extends Component {
                                 Width="1280"
                                 Height="480"
                                 quitAction={this.destroyModal.bind(this)}
+                                game={this.state.game}
+                                mario={this.state.mario}
                             />
                             <BottomBtnWrapper
-                                showStart={() => this.setState({view: 'start'})}
+                                showStart={this.showStart.bind(this)}
                             />
                         </>
                     )}
                     {this.state.view === 'preferences' && (
                         <>
-                            <PreferencesScreen />
+                            <PreferencesScreen
+                                game={this.state.game}
+                                mario={this.state.mario}
+                                storeGame={(g) =>
+                                    this.setState({
+                                        game: {...this.state.game, ...g},
+                                    })
+                                }
+                                storeMario={(m) =>
+                                    this.setState({
+                                        mario: {...this.state.mario, ...m},
+                                    })
+                                }
+                            />
                             <BottomBtnWrapper
-                                showStart={() => this.setState({view: 'start'})}
+                                showStart={this.showStart.bind(this)}
                             />
                         </>
                     )}

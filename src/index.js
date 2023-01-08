@@ -9,11 +9,6 @@ const _useJson = {
     headers: {Accept: 'application/json'},
 };
 
-resolver.define('testUp', (req) => {
-    console.log(req);
-    return 'Hello, world!';
-});
-
 const fetchIssue = async (key) => {
     const rsp = await api
         .asUser()
@@ -29,10 +24,7 @@ const fetchUser = async (userId) => {
 
 resolver.define('getIssue', async (req) => {
     const {context: ctx} = req;
-    console.log(ctx.extension);
-    const issue = await fetchIssue(ctx.extension.issue.key);
-    console.log(issue);
-    return issue;
+    return fetchIssue(ctx.extension.issue.key);
 });
 
 resolver.define('getMario', async (req) => {
@@ -123,7 +115,6 @@ resolver.define('getLeaderboard', async (req) => {
             .limit(20);
         if (cursor) q = q.cursor(cursor);
         const {results, nextCursor} = await q.getMany();
-        console.log(results, cursor);
         if (!results.length) break;
         cursor = nextCursor;
         users.push(

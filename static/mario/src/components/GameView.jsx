@@ -25,15 +25,9 @@ export default class GameView extends CanvasCapable {
         const canvas = React.createRef();
         super(props);
         this._canvasRef = canvas;
-        this.height = parseInt(this.props.Height, 10);
-        this.viewPort = parseInt(this.props.Width, 10); // width of canvas, viewPort this can be seen
-        this.state = {
-            coinScore: 0,
-            totalScore: 0,
-            lifeCount: 5,
-            levelNum: 1,
-            soundEnabled: true,
-        };
+        this.height = parseInt(props.Height, 10);
+        this.viewPort = parseInt(props.Width, 10); // width of canvas, viewPort this can be seen
+        this.state = {...props.game};
     }
 
     render() {
@@ -60,8 +54,7 @@ export default class GameView extends CanvasCapable {
 
     async componentDidMount() {
         initCanvas(this._canvasRef);
-        const gameState = await getGameState();
-        this.setState(gameState, () => this.init());
+        await this.init();
     }
 
     async updateState(newState) {
@@ -94,12 +87,15 @@ export default class GameView extends CanvasCapable {
         this.keys = [];
 
         this.map = await getLevel(this.state.levelNum);
-        if (!this.map) this.gameOver();
+        if (!this.map) {
+            await this.gameOver();
+            return;
+        }
 
         this.translatedDist = 0; // distance translated(side scrolled) as mario moves to the right
         this.instructionTick = 0; // showing instructions counter
         // so that it uses the same instance when reloading
-        this.mario ??= await new Mario();
+        this.mario ??= await new Mario(this.props.mario);
         this.mario.resetPos();
 
         this.maxWidth =
@@ -429,7 +425,8 @@ export default class GameView extends CanvasCapable {
         clearTimeout(this.timeOutId);
     }
 
-    gameOver() {
+    async gameOver() {
+        this.setState(await getGameState());
         this.makeBox(0, 0, this.maxWidth, this.height);
         this.writeText('Game Over', this.centerPos - 80, this.height - 300);
         this.writeText(

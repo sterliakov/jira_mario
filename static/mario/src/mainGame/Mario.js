@@ -36,7 +36,6 @@ export default class Mario extends Drawable {
         return this._frame;
     }
     set frame(f) {
-        // console.log(this._frame, f);
         switch (f) {
             case 'start':
                 this._frame = 0;
@@ -74,12 +73,12 @@ export default class Mario extends Drawable {
         }
     }
 
-    constructor() {
+    constructor(props) {
         super(0, 10, 40);
         this.tickCounter = 0;
         this.hat = new MarioHat(this.canvasRef);
         return (async () => {
-            const {type, sex} = await getMario();
+            const {type, sex} = props ?? (await getMario());
             this._type = type;
             this.sex = sex;
             return this;

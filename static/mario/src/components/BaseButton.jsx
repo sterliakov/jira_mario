@@ -1,7 +1,7 @@
-import Button from '@atlaskit/button';
+import {LoadingButton} from '@atlaskit/button';
 import styled from 'styled-components';
 
-const BaseButton = styled(Button)`
+const BaseButton = styled(LoadingButton)`
     --ds-text: #fff;
     width: 200px !important;
     height: 50px !important;

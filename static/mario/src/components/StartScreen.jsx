@@ -31,15 +31,21 @@ export default class StartScreen extends Component {
         return (
             <Screen>
                 <StartBtn
-                    title={this.props.canPlay ? 'Start' : 'Cannot play'}
+                    title={
+                        this.props.canPlay || !this.props.gameLoaded
+                            ? 'Start'
+                            : 'Cannot play'
+                    }
                     onClick={() => this.props.showGame()}
                     isDisabled={!this.props.canPlay}
+                    isLoading={!this.props.gameLoaded}
                 >
                     Start
                 </StartBtn>
                 <PreferencesBtn
                     title="Preferences"
                     onClick={() => this.props.showPreferences()}
+                    isLoading={!this.props.prefsLoaded}
                 >
                     Settings
                 </PreferencesBtn>
