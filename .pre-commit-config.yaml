@@ -14,6 +14,7 @@ repos:
           - id: eslint
             types: [file]
             files: \.jsx?$
+            args: [--fix]
             additional_dependencies:
                 - eslint
                 - eslint-config-prettier

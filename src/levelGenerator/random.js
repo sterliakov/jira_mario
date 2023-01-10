@@ -1,3 +1,5 @@
+const MAX = 0xffffffff;
+
 export default class Random {
     constructor(seed) {
         this.seed = seed;
@@ -19,8 +21,12 @@ export default class Random {
         return t >>> 0;
     }
 
+    nextFloat() {
+        return this.rand() / (MAX + 1);
+    }
+
     nextInt(max) {
-        return this.rand() % max;
+        return Math.floor(max * (this.rand() / (MAX + 1)));
     }
 
     static cyrb128(str) {

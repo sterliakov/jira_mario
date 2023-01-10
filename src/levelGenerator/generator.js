@@ -1,28 +1,100 @@
 import Types from '../../static/mario/src/types';
 import Random from './random';
 
-// FIXME: refactor to fit complexity limits
-/* eslint-disable sonarjs/cognitive-complexity */
+// Check out: https://www.researchgate.net/publication/220437182_The_2010_Mario_AI_Championship_Level_Generation_Track/download
+
 export default class LevelGenerator {
-    ODDS_STRAIGHT = 0;
-    ODDS_HILL_STRAIGHT = 1;
-    ODDS_TUBES = 2;
-    ODDS_JUMP = 3;
-
-    totalOdds = 0;
-
     height = 15;
     width = 150;
+    minX = 5;
+    maxX = 147;
 
-    constructor(seed, type, difficulty) {
+    // TODO: some chances should depend on issue state
+    CHANCE_BLOCK_POWER_UP = 0.05;
+    CHANCE_BLOCK_COIN = 0.3;
+    CHANCE_BLOCK_ENEMY = 0.2;
+    CHANCE_WINGED = 0.5;
+    CHANCE_COIN = 0.2;
+    COIN_HEIGHT = 5;
+    CHANCE_PLATFORM = 0.1;
+    CHANCE_END_PLATFORM = 0.1;
+    PLATFORM_HEIGHT = 4;
+    CHANCE_ENEMY = 0.15;
+    CHANCE_PIPE = 0.1;
+    PIPE_MIN_HEIGHT = 2;
+    PIPE_HEIGHT = 3.0;
+    CHANCE_HILL = 0.1;
+    CHANCE_END_HILL = 0.3;
+    CHANCE_HILL_ENEMY = 0.3;
+    HILL_HEIGHT = 4;
+    GAP_LENGTH = 5;
+    CHANGE_GAP = 0.1;
+    CHANGE_HILL_CHANGE = 0.1;
+    GAP_OFFSET = -5;
+    GAP_RANGE = 10;
+    GROUND_MAX_HEIGHT = 5;
+
+    // constraints
+    gapCount = 0;
+    turtleCount = 0;
+    coinBlockCount = 0;
+
+    constructor(seed, maxGaps = 10, maxTurtles = 7, maxCoinBlocks = 10) {
         this.random = new Random(seed);
-        this.type = type ?? this.random.nextInt(3);
-        this.difficulty = difficulty ?? this.random.nextInt(5);
-        this.clearMap();
+        this.maxGaps = maxGaps;
+        this.maxTurtles = maxTurtles;
+        this.maxCoinBlocks = maxCoinBlocks;
+    }
+
+    _addOneEnemy(x, y) {
+        let t = Types.AllEnemies[this.random.nextInt(Types.AllEnemies.length)];
+        // turtle constraint
+        if (t === Types.GreenKoopa || t === Types.RedKoopa)
+            if (this.turtleCount < this.maxTurtles) this.turtleCount++;
+            else t = Types.Goomba;
+
+        const winged = this.random.nextFloat() < this.CHANCE_WINGED;
+        this.setBlock(x, y, this.getWingedEnemyVersion(t, winged));
+    }
+
+    placeBlock(x, y) {
+        // choose block type
+        if (this.random.nextFloat() < this.CHANCE_BLOCK_POWER_UP) {
+            this.setBlock(x, y, Types.PowerUpBox);
+        } else if (
+            this.random.nextFloat() < this.CHANCE_BLOCK_COIN &&
+            this.coinBlockCount < this.maxCoinBlocks
+        ) {
+            this.setBlock(x, y, Types.CoinBox);
+            this.coinBlockCount++;
+        } else {
+            this.setBlock(x, y, Types.NormalBrick);
+        }
+
+        // place enemies
+        if (this.random.nextFloat() < this.CHANCE_BLOCK_ENEMY)
+            this._addOneEnemy(x, y - 1);
+    }
+
+    placePipe(x, y, height) {
+        this.setRectangle(x, y - height, 1, height, Types.PipeLeft);
+        this.setRectangle(x + 1, y - height, 1, height, Types.PipeRight);
+    }
+
+    setGroundHeight(x, y, lastY, nextY) {
+        if (x >= this.maxX) y = Math.min(this.height - 2, y);
+        this.setRectangle(x, y + 1, 1, this.height - 1 - y, Types.Ground);
+
+        this.setBlock(x, y, Types.Ground);
+        if (y < lastY)
+            for (let i = y + 1; i <= lastY; i++)
+                this.setBlock(x, i, Types.Ground);
+        else if (y < nextY)
+            for (let i = y + 1; i <= nextY; i++)
+                this.setBlock(x, i, Types.Ground);
     }
 
     clearMap() {
-        this.odds = [0, 0, 0, 0];
         this.map = new Array(this.width)
             .fill()
             .map(() => new Array(this.height).fill(Types.Blank));
@@ -33,223 +105,21 @@ export default class LevelGenerator {
         this.map[x][y] = val;
     }
 
+    setRectangle(startX, startY, width, height, val) {
+        for (let x = 0; x < width; x++)
+            for (let y = 0; y < height; y++)
+                this.setBlock(startX + x, startY + y, val);
+    }
+
     getBlock(x, y) {
         return this.map[Math.max(Math.min(x, this.width - 1), 0)][
             Math.max(Math.min(y, this.height - 1), 0)
         ];
     }
 
-    buildZone(x, maxLength) {
-        const t = this.random.nextInt(this.totalOdds);
-        let type = 0; // indexMin(odds)
-        for (let i = 0; i < this.odds.length; i++)
-            if (this.odds[i] <= t) type = i;
-
-        switch (type) {
-            case this.ODDS_STRAIGHT:
-                return this.buildStraight(x, maxLength, false);
-            case this.ODDS_HILL_STRAIGHT:
-                return this.buildHillStraight(x, maxLength);
-            case this.ODDS_TUBES:
-                return this.buildTubes(x, maxLength);
-            case this.ODDS_JUMP:
-                return this.buildJump(x, maxLength);
-            default:
-                return 0;
-        }
-    }
-
-    buildJump(xo, maxLength) {
-        const js = this.random.nextInt(4) + 2;
-        const jl = this.random.nextInt(2) + 2;
-        const length = js * 2 + jl;
-
-        let hasStairs = this.random.nextInt(3) === 0;
-
-        const floor = this.height - 1 - this.random.nextInt(4);
-        for (let x = xo; x < xo + length; x++) {
-            if (xo + js <= x && x <= xo + length - js - 1) continue;
-
-            if (hasStairs)
-                for (let y = 0; y < floor; y++)
-                    if (x < xo + js) {
-                        if (y >= floor - (x - xo) + 1)
-                            this.setBlock(x, y, Types.Ground);
-                    } else if (y >= floor - (xo + length - x) + 2) {
-                        this.setBlock(x, y, Types.Ground);
-                    }
-            for (let y = floor; y < this.height; y++)
-                this.setBlock(x, y, Types.Ground);
-        }
-
-        return length;
-    }
-
-    buildHillStraight(xo, maxLength) {
-        const length = Math.min(this.random.nextInt(10) + 10, maxLength);
-
-        const floor = this.height - 1 - this.random.nextInt(4);
-        for (let x = xo; x < xo + length; x++)
-            for (let y = floor; y < this.height; y++)
-                this.setBlock(x, y, Types.Ground);
-
-        this.addEnemyLine(xo + 1, xo + length - 1, floor - 1);
-
-        let h = floor;
-        let keepGoing = true;
-        let occupied = new Array(length).fill(false);
-        while (keepGoing) {
-            h -= 2 + this.random.nextInt(3);
-            if (h <= 0) break;
-
-            const groupLen = this.random.nextInt(5) + 3;
-            const xxo = this.random.nextInt(length - groupLen - 2) + xo + 1;
-
-            if (
-                occupied[xxo - xo] ||
-                occupied[xxo - xo + groupLen] ||
-                occupied[xxo - xo - 1] ||
-                occupied[xxo - xo + groupLen + 1]
-            )
-                break;
-
-            occupied[xxo - xo] = true;
-            occupied[xxo - xo + groupLen] = true;
-            this.addEnemyLine(xxo, xxo + groupLen, h - 1);
-            if (this.random.nextInt(4) === 0) {
-                this.decorate(xxo - 1, xxo + groupLen + 1, h);
-                keepGoing = false;
-            }
-            for (let x = xxo; x < xxo + groupLen; x++)
-                for (let y = h; y < floor; y++)
-                    if (this.getBlock(x, y) === Types.Empty)
-                        this.setBlock(
-                            x,
-                            y,
-                            y === h ? Types.Platform : Types.PlatformBackground,
-                        );
-        }
-
-        return length;
-    }
-
     getWingedEnemyVersion(enemy, winged) {
         // No-op for now
         return enemy;
-    }
-
-    addEnemyLine(x0, x1, y) {
-        let numSkipped = 0;
-        for (let x = x0; x < x1; x++) {
-            if (
-                this.random.nextInt(35) >=
-                this.difficulty + (numSkipped * 3) / (x1 - x0 + 1)
-            ) {
-                numSkipped++;
-                continue;
-            }
-
-            let type =
-                this.difficulty < 1
-                    ? 0
-                    : this.difficulty < 3
-                    ? 1 + this.random.nextInt(Types.AllEnemies.length - 1)
-                    : this.random.nextInt(Types.AllEnemies.length);
-            this.setBlock(
-                x,
-                y,
-                this.getWingedEnemyVersion(
-                    Types.AllEnemies[type],
-                    this.random.nextInt(35) < this.difficulty,
-                ),
-            );
-        }
-    }
-
-    buildTubes(xo, maxLength) {
-        const length = Math.min(this.random.nextInt(10) + 5, maxLength);
-
-        let floor = this.height - 1 - this.random.nextInt(4);
-        let xTube = xo + 1 + this.random.nextInt(4);
-        let tubeHeight = floor - this.random.nextInt(2) - 2;
-        for (let x = xo; x < xo + length; x++) {
-            if (x >= xTube) {
-                xTube += 3 + this.random.nextInt(4);
-                tubeHeight = floor - this.random.nextInt(2) - 2;
-            }
-            if (xTube >= xo + length - 2) xTube += 10;
-
-            let tubeType =
-                x === xTube && this.random.nextInt(11) < this.difficulty + 1
-                    ? Types.PipeFlower
-                    : Types.Pipe;
-
-            if (x === xTube || x === xTube + 1)
-                for (let y = tubeHeight; y < floor; y++)
-                    this.setBlock(x, y, tubeType);
-
-            for (let y = floor; y < this.height; y++)
-                this.setBlock(x, y, Types.Ground);
-        }
-
-        return length;
-    }
-
-    buildStraight(xo, maxLength, safe) {
-        let length = Math.min(
-            safe ? 10 + this.random.nextInt(5) : this.random.nextInt(10) + 2,
-            maxLength,
-        );
-
-        const floor = this.height - 1 - this.random.nextInt(4);
-        for (let x = xo; x < xo + length; x++)
-            for (let y = floor; y < this.height; y++)
-                this.setBlock(x, y, Types.Ground);
-
-        if (!safe && length > 5) this.decorate(xo, xo + length, floor);
-        return length;
-    }
-
-    decorate(x0, x1, floor) {
-        if (floor < 1) return;
-
-        let rocks = true;
-        this.addEnemyLine(x0 + 1, x1 - 1, floor - 1);
-
-        let s = this.random.nextInt(4);
-        let e = this.random.nextInt(4);
-
-        if (floor - 3 > 0 && x1 - 1 - e - (x0 + 1 + s) > 1)
-            for (let x = x0 + 1 + s; x < x1 - 1 - e; x++)
-                this.setBlock(
-                    x,
-                    floor - 3,
-                    this.random.nextInt(3) === 0
-                        ? Types.NormalBrick
-                        : Types.Coin,
-                );
-
-        s = this.random.nextInt(4);
-        e = this.random.nextInt(4);
-
-        if (floor - 4 <= 0 || x1 - 1 - e - (x0 + 1 + s) <= 2) return;
-
-        let hasPowerUp = 0;
-        for (let x = x0 + 1 + s; x < x1 - 1 - e; x++) {
-            if (!rocks) continue;
-
-            let type = Types.Coin;
-            if (x !== x0 + 1 && x !== x1 - 2 && this.random.nextInt(3) <= 1)
-                type = Types.NormalBrick;
-            else if (
-                this.random.nextInt(9) === 0 &&
-                !hasPowerUp++ &&
-                this.getBlock(x, floor - 8) === Types.Blank
-            )
-                type = Types.PowerUpBox;
-
-            this.setBlock(x, floor - 6, type);
-        }
     }
 
     addFlag() {
@@ -263,47 +133,219 @@ export default class LevelGenerator {
         this.map.at(-3)[3] = Types.Flag;
     }
 
-    addCeiling() {
-        let ceiling = 0;
-        let run = -1;
-        for (let y = 0; y < this.height; y++)
-            this.setBlock(0, y, Types.NormalBrick);
-        for (let x = 5; x < this.width; x++) {
-            if (run-- <= 0) {
-                ceiling = this.random.nextInt(4);
-                run = this.random.nextInt(4) + 4;
+    addGround() {
+        const ground = [];
+
+        // used to place the ground
+        let lastY =
+            this.GROUND_MAX_HEIGHT +
+            Math.floor(
+                this.random.nextFloat() *
+                    (this.height - 1 - this.GROUND_MAX_HEIGHT),
+            );
+        let [y, nextY] = [lastY, lastY];
+        let justChanged = false;
+        let length = 0;
+        let landHeight = this.height - 1;
+
+        // place the ground
+        for (let x = 0; x < this.width; x++) {
+            if (x >= this.maxX) {
+                y = this.height - 3;
+            } else if (length > this.GAP_LENGTH && y >= this.height) {
+                // need more ground
+                nextY = landHeight;
+                justChanged = true;
+                length = 1;
+            } else if (
+                x > this.minX &&
+                this.random.nextFloat() < this.CHANGE_HILL_CHANGE &&
+                !justChanged
+            ) {
+                // adjust ground level
+                nextY += Math.floor(
+                    this.GAP_OFFSET + this.GAP_RANGE * this.random.nextFloat(),
+                );
+                nextY = Math.max(Math.min(this.height - 2, nextY), 5);
+                justChanged = true;
+                length = 1;
+            } else if (
+                x > this.minX &&
+                y < this.height &&
+                this.random.nextFloat() < this.CHANGE_GAP &&
+                !justChanged &&
+                this.gapCount < this.maxGaps
+            ) {
+                // add a gap
+                landHeight = Math.min(this.height - 1, lastY);
+                nextY = this.height;
+                justChanged = true;
+                length = 1;
+                this.gapCount++;
+            } else {
+                length++;
+                justChanged = false;
             }
-            for (let y = 0; y <= ceiling; y++)
-                this.setBlock(x, y, Types.NormalBrick);
+
+            this.setGroundHeight(x, y, lastY, nextY);
+            ground.push(y);
+            [lastY, y] = [y, nextY];
+        }
+
+        return ground;
+    }
+
+    _putPlatformPiece(x, y, h, lastY) {
+        if (y === this.height) {
+            if (x > 10 && this.random.nextFloat() < this.CHANCE_HILL) {
+                y = Math.floor(
+                    this.HILL_HEIGHT +
+                        this.random.nextFloat() * (h - this.HILL_HEIGHT),
+                );
+                if (y === lastY - 5) y++;
+                this.setBlock(x, y, Types.Platform);
+                // for (let i = y + 1; i < h; i++)
+                //     this.setBlock(x, i, Types.PlatformBackground);
+            }
+        } else if (y >= h) {
+            // end if hitting a wall
+            y = this.height;
+        } else if (this.random.nextFloat() < this.CHANCE_END_HILL) {
+            this.setBlock(x, y, Types.Platform);
+            // for (let i = y + 1; i < h; i++)
+            //     this.setBlock(x, i, Types.PlatformBackground);
+            y = this.height;
+        } else {
+            this.setBlock(x, y, Types.Platform);
+            // for (let i = y + 1; i < h; i++)
+            //     this.setBlock(x, i, Types.PlatformBackground);
+
+            if (this.random.nextFloat() < this.CHANCE_HILL_ENEMY)
+                this._addOneEnemy(x, y - 1);
+        }
+        return y;
+    }
+
+    addHills(ground) {
+        // non colliding hills
+        let y = this.height;
+        let lastY = ground[0];
+        for (let x = 0, h = ground[x]; x < this.maxX; x++, h = ground[x]) {
+            if (h !== this.height) lastY = h;
+            else if (y === lastY - 5) y++;
+            y = this._putPlatformPiece(x, y, h, lastY);
+        }
+    }
+
+    addPipes(ground) {
+        // pipes
+        let lastY = ground[this.minX];
+        let lastlastY = ground[this.minX - 1];
+        let lastX = 0;
+        for (
+            let x = this.minX + 1, h = ground[x];
+            x < this.maxX;
+            x++, h = ground[x]
+        ) {
+            if (
+                this.random.nextFloat() < this.CHANCE_PIPE &&
+                h === lastY &&
+                lastlastY <= lastY &&
+                x > lastX + 1
+            ) {
+                const height =
+                    this.PIPE_MIN_HEIGHT +
+                    Math.floor(this.random.nextFloat() * this.PIPE_HEIGHT);
+                this.placePipe(x - 1, h, height);
+                lastX = x;
+            }
+
+            [lastlastY, lastY] = [lastY, h];
+        }
+    }
+
+    addEnemies(ground) {
+        // place enemies
+        for (
+            let x = this.minX + 1, h = ground[x];
+            x < this.maxX;
+            x++, h = ground[x]
+        )
+            if (
+                this.random.nextFloat() < this.CHANCE_ENEMY &&
+                this.getBlock(x, h - 1) === Types.Blank
+            )
+                this._addOneEnemy(x, h - 1);
+    }
+
+    _firstNonEmpty(ground, col) {
+        // find the highest object
+        for (let max = 0; max < ground[col]; max++)
+            if (this.getBlock(col, max) !== Types.Blank) return max;
+        return ground[col];
+    }
+
+    // eslint-disable-next-line sonarjs/cognitive-complexity
+    addPlatforms(ground) {
+        // platforms
+        let y = this.height;
+        for (let x = 0, h = ground[x]; x < this.maxX; x++, h = ground[x]) {
+            const max = this._firstNonEmpty(ground, x);
+            if (y === this.height) {
+                if (
+                    x > this.minX &&
+                    this.random.nextFloat() < this.CHANCE_PLATFORM
+                ) {
+                    y = max - this.PLATFORM_HEIGHT;
+                    if (y >= 1) this.placeBlock(x, y);
+                    else y = this.height;
+                }
+            } else if (y > max) {
+                // end if hitting a wall
+                y = this.height;
+            } else if (this.random.nextFloat() < this.CHANCE_END_PLATFORM) {
+                this.placeBlock(x, y);
+                y = this.height;
+            } else {
+                this.placeBlock(x, y);
+            }
+        }
+    }
+
+    addCoins(ground) {
+        // coins
+        let y = this.height;
+        for (
+            let x = this.minX + 1, h = ground[x];
+            x < this.maxX;
+            x++, h = ground[x]
+        ) {
+            if (this.random.nextFloat() >= this.CHANCE_COIN) continue;
+            y = h - 1 - Math.floor(this.random.nextFloat() * this.COIN_HEIGHT);
+            for (
+                ;
+                y > 1 &&
+                this.getBlock(x, y + 1) === Types.Blank &&
+                this.getBlock(x, y + 2) === Types.Blank;
+                y--
+            ) {}
+            if (this.getBlock(x, y) === Types.Blank)
+                this.setBlock(x, y, Types.Coin);
         }
     }
 
     generateLevel() {
         this.clearMap();
 
-        this.odds[this.ODDS_STRAIGHT] = 20;
-        this.odds[this.ODDS_HILL_STRAIGHT] = this.type === 0 ? 10 : 0;
-        this.odds[this.ODDS_TUBES] = 2 + 1 * this.difficulty;
-        this.odds[this.ODDS_JUMP] = 2 * this.difficulty;
-
-        if (this.type > 0) this.addCeiling();
-
-        for (let i = 0; i < this.odds.length; i++) {
-            if (this.odds[i] < 0) this.odds[i] = 0;
-            this.totalOdds += this.odds[i];
-            this.odds[i] = this.totalOdds - this.odds[i];
-        }
-
-        let length = this.buildStraight(0, this.width, true);
-        while (length < this.width)
-            length += this.buildZone(length, this.width - length);
-
-        const floor = this.height - 1 - this.random.nextInt(4);
-        for (let x = length; x < this.width; x++)
-            for (let y = floor; y < this.height; y++)
-                this.setBlock(x, y, Types.Ground);
-
+        const ground = this.addGround();
+        this.addHills(ground);
+        this.addPipes(ground);
+        this.addEnemies(ground);
+        this.addPlatforms(ground);
+        this.addCoins(ground);
         this.addFlag();
+
+        // transpose
         return this.map.reduce(
             (prev, next) =>
                 next.map((item, i) => (prev[i] || []).concat(next[i])),

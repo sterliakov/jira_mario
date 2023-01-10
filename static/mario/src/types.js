@@ -3,7 +3,7 @@ export default class Types {
     static Blank = 0;
     static Ground = 1;
     static Platform = 1;
-    static PlatformBackground = 1;
+    static PlatformBackground = 50; // FIXME: remove it?
     static NormalBrick = 1;
     static CoinBox = 2;
     static Coin = 2;
