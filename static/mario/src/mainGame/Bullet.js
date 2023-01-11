@@ -36,6 +36,8 @@ export default class Bullet extends Drawable {
      *  @returns boolean: whether the bullet should be destroyed
      */
     meetElement(element) {
+        if (element.type === Types.Coin) return false;
+
         switch (collisionCheck(this, element)) {
             // bounce
             case 'b':

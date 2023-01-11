@@ -28,6 +28,7 @@ export default class PowerUp extends Drawable {
     }
 
     meetElement(element) {
+        if (element.type === Types.Coin) return;
         const collision = collisionCheck(this, element);
         //change direction if collision with any element from the sidr
         if (collision === 'l' || collision === 'r') this.velX *= -1;

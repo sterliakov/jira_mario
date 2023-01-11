@@ -259,12 +259,18 @@ export default class GameView extends CanvasCapable {
                 break;
             case 'powerUp':
                 this.powerUps.push(args[0]);
-                this.map[row][column] = 4; //sets to useless box after powerUp appears
+                this.map[row][column] = Types.UselessBox;
                 this.playSound('powerUpAppear');
                 break;
             case 'coinBox': {
                 this.addCoin();
-                this.map[row][column] = 4; //sets to useless box after coin appears
+                this.map[row][column] = Types.UselessBox;
+                this.playSound('coin');
+                break;
+            }
+            case 'coin': {
+                this.addCoin();
+                this.map[row][column] = Types.Blank;
                 this.playSound('coin');
                 break;
             }

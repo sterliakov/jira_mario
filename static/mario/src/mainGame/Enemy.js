@@ -51,6 +51,7 @@ export default class Enemy extends Drawable {
 
     meetElement(element) {
         if (this.state === 'deadFromBullet') return;
+        if (element.type === Types.Coin) return;
         //so this goombas fall from the map when dead from bullet
         const direction = collisionCheck(this, element);
 
