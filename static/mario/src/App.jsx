@@ -112,6 +112,7 @@ export default class App extends Component {
                             <PreferencesScreen
                                 game={this.state.game}
                                 mario={this.state.mario}
+                                showStart={this.showStart.bind(this)}
                                 storeGame={(g) =>
                                     this.setState({
                                         game: {...this.state.game, ...g},

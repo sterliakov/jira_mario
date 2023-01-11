@@ -14,7 +14,9 @@ const Screen = styled.canvas`
     height: 480px;
     border: 1px solid black;
     border-top: none;
-    background: url('${Images['bg.png'].src}');
+    background-image: url('${Images['bg.png'].src}');
+    background-size: auto 480px;
+    background-repeat: repeat;
     margin: 0 auto;
 `;
 

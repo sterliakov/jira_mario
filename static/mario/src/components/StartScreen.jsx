@@ -3,33 +3,36 @@ import styled from 'styled-components';
 
 import {Images} from '../constants';
 import BaseButton from './BaseButton';
+import BaseScreen from './BaseScreen';
 
-const Screen = styled.div`
-    width: 1280px;
-    height: 530px;
-    margin: 0 auto;
-    border: 1px solid black;
+const Screen = styled(BaseScreen)`
     background-image: url('${Images['start-screen.png'].src}');
-    position: relative;
 `;
 
 const ScreenBtn = styled(BaseButton)`
     position: absolute !important;
-    bottom: 100px;
+    bottom: 300px;
 `;
 const StartBtn = styled(ScreenBtn)`
     background-color: #e63f2b !important;
-    left: 528px;
+    left: 700px;
 `;
 const PreferencesBtn = styled(ScreenBtn)`
     background-color: #0a0aee !important;
-    left: 250px;
+    right: 700px;
 `;
 
 export default class StartScreen extends Component {
     render() {
         return (
             <Screen>
+                <PreferencesBtn
+                    title="Preferences"
+                    onClick={() => this.props.showPreferences()}
+                    isLoading={!this.props.prefsLoaded}
+                >
+                    Settings
+                </PreferencesBtn>
                 <StartBtn
                     title={
                         this.props.canPlay || !this.props.gameLoaded
@@ -42,13 +45,6 @@ export default class StartScreen extends Component {
                 >
                     Start
                 </StartBtn>
-                <PreferencesBtn
-                    title="Preferences"
-                    onClick={() => this.props.showPreferences()}
-                    isLoading={!this.props.prefsLoaded}
-                >
-                    Settings
-                </PreferencesBtn>
             </Screen>
         );
     }

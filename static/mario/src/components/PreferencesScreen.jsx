@@ -4,24 +4,31 @@ import styled from 'styled-components';
 
 import {Images} from '../constants';
 import {saveGameState, saveMario} from '../helpers';
+import BaseButton from './BaseButton';
+import BaseScreen from './BaseScreen';
 
-const Screen = styled.div`
-    width: 1280px;
-    height: 530px;
-    margin: 0 auto;
-    border: 1px solid black;
+const Screen = styled(BaseScreen)`
     background-image: url('${Images['start-screen.png'].src}');
-    position: relative;
 `;
+
 const SwitchLabel = styled.label`
     display: flex;
     align-items: stretch;
+    position: absolute;
 `;
 const SwitchLabelSpan = styled.span`
     padding: 9px 6px 0 6px;
 `;
 const SwitchLabelName = styled.span`
     padding: 9px 6px 0 16px;
+`;
+
+const BackBtn = styled(BaseButton)`
+    background-color: #080 !important;
+    margin: 10px;
+    position: absolute !important;
+    bottom: 220px;
+    left: 560px;
 `;
 
 export default class PreferencesScreen extends Component {
@@ -36,8 +43,10 @@ export default class PreferencesScreen extends Component {
     render() {
         return (
             <Screen>
-                <SwitchLabel>
-                    <SwitchLabelName>Mario gender:</SwitchLabelName>
+                <SwitchLabel style={{left: 488, bottom: 350}}>
+                    <SwitchLabelName style={{paddingRight: 16}}>
+                        Mario gender:
+                    </SwitchLabelName>
                     <SwitchLabelSpan>m</SwitchLabelSpan>
                     <Switch
                         onChange={(sexSwitch) => this.updateState({sexSwitch})}
@@ -50,7 +59,7 @@ export default class PreferencesScreen extends Component {
                     <SwitchLabelSpan>f</SwitchLabelSpan>
                 </SwitchLabel>
 
-                <SwitchLabel>
+                <SwitchLabel style={{left: 560, bottom: 310}}>
                     <SwitchLabelName>Sound:</SwitchLabelName>
                     <SwitchLabelSpan>Off</SwitchLabelSpan>
                     <Switch
@@ -61,11 +70,16 @@ export default class PreferencesScreen extends Component {
                     />
                     <SwitchLabelSpan>On</SwitchLabelSpan>
                 </SwitchLabel>
+
+                <BackBtn onClick={() => this.props.showStart()}>
+                    Back to menu
+                </BackBtn>
             </Screen>
         );
     }
 
     updateState(newState) {
+        // TODO: save only on BackBtn.onClick instead
         if (
             newState.sexSwitch != null &&
             newState.sexSwitch !== this.state.sexSwitch
