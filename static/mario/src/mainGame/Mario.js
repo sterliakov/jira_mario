@@ -4,18 +4,18 @@ import Bullet from './Bullet';
 import Drawable from './Drawable';
 
 class MarioHat extends Drawable {
-    sX = 66;
-    sY = 811;
+    sX = 585;
+    sY = 40;
     height = 15;
 
     get IMAGE_SRC() {
-        return 'redraw.png';
+        return 'mario-sprites.png';
     }
 }
 
 export default class Mario extends Drawable {
     get IMAGE_SRC() {
-        return 'redraw.png';
+        return 'mario-sprites.png';
     }
 
     type = 'small';
@@ -41,7 +41,7 @@ export default class Mario extends Drawable {
                 this._frame = 0;
                 break;
             case 'jump0':
-                this._frame = 6;
+                this._frame = 11;
                 break;
             case 'left0':
                 this._frame = 5;
@@ -50,23 +50,22 @@ export default class Mario extends Drawable {
                 this._frame = 5;
                 break;
             case 'jumpNext':
-                this._frame = Math.min(36, this._frame + 6);
+                this._frame = ((this._frame - 6 + 1) % 6) + 6;
                 break;
             case 'jumpPrev':
-                this._frame = Math.max(0, this._frame - 6);
+                this._frame = ((this._frame - 6 - 1) % 6) + 6;
                 break;
             case 'leftNext':
-                this._frame =
-                    this._frame === 0 ? 5 : Math.min(5, this._frame - 1);
+                this._frame = (this._frame + 5 - 1) % 5;
                 break;
             case 'rightNext':
-                this._frame = this._frame >= 5 ? 0 : this._frame + 1;
+                this._frame = (this._frame + 1) % 5;
                 break;
             case 'dead':
-                this._frame = 11;
+                this._frame = 13;
                 break;
             case 'win':
-                this._frame = 17;
+                this._frame = 12;
                 break;
             default:
                 throw new Error('Unknown frame');
@@ -90,6 +89,38 @@ export default class Mario extends Drawable {
         super.draw();
         if (this.type === 'big') {
             this.hat.x = this.x;
+            if (this.sex === 'm') {
+                switch (this.frame) {
+                    case 0:
+                        this.hat.x += 1;
+                        break;
+                    case 2:
+                        this.hat.x -= 2;
+                        break;
+                    case 4:
+                    case 7:
+                    case 8:
+                    case 11:
+                        this.hat.x += 2;
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                switch (this.frame) {
+                    case 2:
+                    case 3:
+                        this.hat.x -= 1;
+                        break;
+                    case 4:
+                    case 7:
+                    case 11:
+                        this.hat.x += 1;
+                        break;
+                    default:
+                        break;
+                }
+            }
             this.hat.y = this.y;
             this.hat.draw();
         }
@@ -97,17 +128,28 @@ export default class Mario extends Drawable {
     }
 
     setSXBeforeDraw() {
-        this.sX = 65 + 45 * (this.frame % 6);
-        this.sY = 27 + 45 * Math.floor(this.frame / 6);
-        if (this.type === 'big') this.sY -= 15;
-        else if (this.type === 'fire' && this.frame !== 11 && this.frame !== 17)
-            this.sY += 410;
-        // FIXME: align images instead
-        if (!this.jumping) this.sX -= 3;
+        this.sX = 0 + 45 * this.frame;
+        this.sY = 0;
+        if (this.type === 'big') this.sY -= 13;
+        else if (this.type === 'fire' && this.frame !== 12 && this.frame !== 13)
+            this.sY += 42;
+        if (this.sex === 'f') this.sY += 97;
     }
 
     checkType() {
-        this.height = this.type === 'big' ? 60 : 45;
+        switch (this.type) {
+            case 'small':
+                this.height = 40;
+                break;
+            case 'big':
+                this.height = 53;
+                break;
+            case 'fire':
+                this.height = 45;
+                break;
+            default:
+                throw new Error('Unknown type');
+        }
     }
 
     resetPos() {
@@ -125,7 +167,7 @@ export default class Mario extends Drawable {
         this.jumping = true;
         this.grounded = false;
         this.velY = -(this.speed / 2 + 5.5);
-        this.frame = 'start';
+        this.frame = 'jump0';
         return true;
     }
 
@@ -145,7 +187,7 @@ export default class Mario extends Drawable {
 
     pickFrame() {
         if (this.jumping) {
-            if (this.jumpTickCounter++ === 5) {
+            if (this.jumpTickCounter++ === 8) {
                 if (this.velY < 0) this.frame = 'jumpNext';
                 else if (this.velY > 0) this.frame = 'jumpPrev';
                 this.jumpTickCounter = 0;

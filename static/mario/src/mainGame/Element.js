@@ -19,7 +19,10 @@ export default class Element extends Drawable {
             case 'l':
             case 'r': {
                 mario.velX = 0;
-                mario.jumping = false;
+                if (mario.jumping) {
+                    mario.jumping = false;
+                    mario.frame = 'start';
+                }
 
                 //flag pole
                 if (this.type === Types.FlagPole)
@@ -30,7 +33,10 @@ export default class Element extends Drawable {
                 if (this.type !== Types.FlagPole) {
                     //only if not flag pole
                     mario.grounded = true;
-                    mario.jumping = false;
+                    if (mario.jumping) {
+                        mario.jumping = false;
+                        mario.frame = 'start';
+                    }
                 }
                 break;
             }
