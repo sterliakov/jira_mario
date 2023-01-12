@@ -104,31 +104,15 @@ export default class Enemy extends Drawable {
             case 'b':
                 this.velX *= -1;
 
-                if (mario.type === 'small') {
-                    return 'die';
-                } else {
-                    if (mario.type === 'big') mario.type = 'small';
-                    else if (mario.type === 'fire') mario.type = 'big';
-
-                    mario.invulnerable = true;
-                    setTimeout(() => {
-                        mario.invulnerable = false;
-                    }, 1000);
-
+                try {
+                    mario.reduce();
                     return 'reduce';
+                } catch {
+                    // throws if Mario dies
+                    return 'die';
                 }
             default: {
             }
         }
-    }
-
-    meetBullet(bullet) {
-        // Check for collision only if goombas exist and is not dead
-        if (this.isDead) return false;
-        if (collisionCheck(this, bullet)) {
-            this.state = 'deadFromBullet';
-            return true;
-        }
-        return false;
     }
 }

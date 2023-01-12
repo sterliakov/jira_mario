@@ -6,6 +6,7 @@ export default class Drawable extends CanvasCapable {
     sY = 0;
     width = 32;
     height = 32;
+    scale = 1;
 
     constructor(type, x, y) {
         super({}); // Should be props, but we never actually use it as a Component
@@ -34,8 +35,8 @@ export default class Drawable extends CanvasCapable {
             this.height,
             this.x,
             this.y,
-            this.width,
-            this.height,
+            this.width * this.scale,
+            this.height * this.scale,
         );
         if (this.update) this.update();
     }

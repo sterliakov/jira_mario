@@ -28,8 +28,8 @@ export default class Types {
     static Deer = 27;
     static Mushroom = 30;
     static Flower = 31;
-    static Bullet = 40;
-    static BulletBill = 50; // FIXME: not used at all
+    static MarioBullet = 40;
+    static EnemyBullet = 41;
 
     static isElement(type) {
         return 1 <= type && type <= 12;

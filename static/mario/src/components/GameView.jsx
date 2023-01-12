@@ -191,6 +191,7 @@ export default class GameView extends CanvasCapable {
 
         this.checkPowerUpMarioCollision();
         this.checkBulletEnemyCollision();
+        this.checkBulletMarioCollision();
         this.checkEnemyMarioCollision();
 
         this.mario.draw();
@@ -331,11 +332,27 @@ export default class GameView extends CanvasCapable {
     checkBulletEnemyCollision() {
         for (const goomba of this.goombas) {
             this.bullets = this.bullets.filter((bullet) => {
-                if (!goomba.meetBullet(bullet)) return true;
+                if (!bullet.meetEnemy(goomba)) return true;
                 this.killEnemy();
                 return false;
             });
         }
+    }
+
+    checkBulletMarioCollision() {
+        this.bullets = this.bullets.filter((bullet) => {
+            switch (bullet.meetMario(this.mario)) {
+                case 'die':
+                    this.die();
+                    return false;
+                case 'reduce':
+                    saveMario(this.mario);
+                    this.playSound('powerDown');
+                    return false;
+                default:
+                    return true;
+            }
+        });
     }
 
     killEnemy() {

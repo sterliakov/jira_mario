@@ -1,4 +1,5 @@
 import {FRICTION, GRAVITY} from '../constants';
+import {Types} from '../constants';
 import {getMario, saveMario} from '../helpers';
 import Bullet from './Bullet';
 import Drawable from './Drawable';
@@ -191,7 +192,7 @@ export default class Mario extends Drawable {
         //only let mario fire bullet after 500ms
         this.bulletFlag = true;
         setTimeout(() => (this.bulletFlag = false), 500);
-        return new Bullet(this.x, this.y, direction);
+        return new Bullet(Types.MarioBullet, this.x, this.y, direction);
     }
 
     pickFrame() {
@@ -252,5 +253,13 @@ export default class Mario extends Drawable {
             }
         }
         return false;
+    }
+
+    reduce() {
+        if (this.type === 'big') this.type = 'small';
+        else if (this.type === 'fire') this.type = 'big';
+        else throw new Error('Dead');
+        this.invulnerable = true;
+        setTimeout(() => (this.invulnerable = false), 1000);
     }
 }
