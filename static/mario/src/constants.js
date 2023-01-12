@@ -35,12 +35,6 @@ const imageSources = {
 };
 
 export const Images = {};
-for (const [src, data] of Object.entries(imageSources)) {
-    const im = new Image();
-    im.src = data;
-    Images[src.split('/').at(-1)] = im;
-}
-
 export const Sounds = {
     coin: new Audio(coinSound),
     powerUpAppear: new Audio(powerUpAppearSound),
@@ -52,4 +46,12 @@ export const Sounds = {
     powerDown: new Audio(powerDownSound),
     jump: new Audio(jumpSound),
 };
-for (const audio of Object.values(Sounds)) audio.load();
+
+(() => {
+    for (const [src, data] of Object.entries(imageSources)) {
+        const im = new Image();
+        im.src = data;
+        Images[src.split('/').at(-1)] = im;
+    }
+    for (const audio of Object.values(Sounds)) audio.load();
+})();
