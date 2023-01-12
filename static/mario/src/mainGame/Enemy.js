@@ -1,6 +1,7 @@
 import {Types} from '../constants';
 import {GRAVITY} from '../constants';
 import {collisionCheck} from '../helpers';
+import Bullet from './Bullet';
 import Drawable from './Drawable';
 
 export default class Enemy extends Drawable {
@@ -74,6 +75,14 @@ export default class Enemy extends Drawable {
         } else {
             this.frame = (this.frame + 1) % 6;
         }
+    }
+
+    shoot() {
+        if (this.type !== Types.Witch) return null;
+        if (this.frame !== 2 && this.frame !== 5) return null;
+        if (this.tickCounter !== 0) return null;
+        const direction = this.velX < 0 ? -1 : 1;
+        return new Bullet(Types.EnemyBullet, this.x, this.y, direction);
     }
 
     meetElement(element) {
