@@ -3,8 +3,6 @@ import bullet from './static/images/bullet.png';
 import coin from './static/images/coin.png';
 import elements from './static/images/elements.png';
 import enemies from './static/images/enemies.png';
-import flagPole from './static/images/flag-pole.png';
-import flag from './static/images/flag.png';
 import marioHead from './static/images/mario-head.png';
 import marioSprites from './static/images/mario-sprites.png';
 import powerUps from './static/images/powerups.png';
@@ -30,8 +28,6 @@ const imageSources = {
     './static/images/coin.png': coin,
     './static/images/elements.png': elements,
     './static/images/enemies.png': enemies,
-    './static/images/flag-pole.png': flagPole,
-    './static/images/flag.png': flag,
     './static/images/start-screen.png': startScreen,
     './static/images/mario-head.png': marioHead,
     './static/images/mario-sprites.png': marioSprites,
