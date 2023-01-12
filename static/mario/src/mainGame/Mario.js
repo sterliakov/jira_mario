@@ -101,6 +101,7 @@ export default class Mario extends Drawable {
                     case 7:
                     case 8:
                     case 11:
+                    case 12:
                         this.hat.x += 2;
                         break;
                     default:
@@ -115,6 +116,7 @@ export default class Mario extends Drawable {
                     case 4:
                     case 7:
                     case 11:
+                    case 12:
                         this.hat.x += 1;
                         break;
                     default:

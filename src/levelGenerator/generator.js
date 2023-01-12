@@ -47,6 +47,7 @@ export default class LevelGenerator {
     }
 
     _addOneEnemy(x, y) {
+        // FIXME: check that 2 tiles are available
         let t = Types.AllEnemies[this.random.nextInt(Types.AllEnemies.length)];
         // turtle constraint
         // TODO: add it back with new guys
