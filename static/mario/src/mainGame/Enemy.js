@@ -16,6 +16,8 @@ export default class Enemy extends Drawable {
     tickCounter = 0;
     maxTick = 10;
 
+    // FIXME: last enemy type not aligned properly
+
     fromType(type) {
         this.type = type ?? this.type ?? Types.Vampire;
         this.sX = 0;
@@ -67,14 +69,12 @@ export default class Enemy extends Drawable {
     }
 
     pickNextFrame() {
-        if (this.isDirected) {
-            // TODO: shoot on frame 2 or 5
+        if (this.isDirected)
             if (this.velX < 0)
+                // TODO: shoot on frame 2 or 5
                 this.frame = ((Math.max(this.frame, 3) + 1 - 3) % 3) + 3;
             else this.frame = (Math.min(this.frame, 2) + 1) % 3;
-        } else {
-            this.frame = (this.frame + 1) % 6;
-        }
+        else this.frame = (this.frame + 1) % 6;
     }
 
     shoot() {
@@ -112,7 +112,6 @@ export default class Enemy extends Drawable {
             case 'l':
             case 'b':
                 this.velX *= -1;
-
                 try {
                     mario.reduce();
                     return 'reduce';
@@ -120,8 +119,8 @@ export default class Enemy extends Drawable {
                     // throws if Mario dies
                     return 'die';
                 }
-            default: {
-            }
+            default:
+                return null;
         }
     }
 }

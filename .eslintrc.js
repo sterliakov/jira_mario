@@ -18,12 +18,12 @@ module.exports = {
         'eslint-config-prettier',
         'plugin:sonarjs/recommended',
         'plugin:react/recommended',
+        'react-app',
     ],
-    plugins: ['react-hooks'],
     rules: {
         'react-hooks/rules-of-hooks': 2,
         'linebreak-style': [2, 'unix'],
-        quotes: [1, 'single', 'avoid-escape'],
+        quotes: [2, 'single', 'avoid-escape'],
         semi: [2, 'always'],
         'max-len': [1, 120, 2, {ignoreUrls: true}],
         'no-trailing-spaces': 2,
@@ -34,18 +34,17 @@ module.exports = {
         'max-statements': [2, 133],
         complexity: [2, 45],
         'no-eval': 2,
-        'no-underscore-dangle': 0,
+        'no-underscore-dangle': 0, // Use _ extensively
         'no-loop-func': 2,
         'no-floating-decimal': 2,
         eqeqeq: [2, 'smart'],
         'new-cap': 2,
-        'no-empty': 0,
         'space-infix-ops': 2,
         'comma-dangle': [2, 'always-multiline'],
         curly: [2, 'multi', 'consistent'],
         'no-constant-condition': [2, {checkLoops: false}],
-        'no-unused-vars': 0,
-        'react/react-in-jsx-scope': 0,
+        'react/react-in-jsx-scope': 0, // DOesn;t play well with @forge/ui
+        'react/prop-types': 0, // No plans on adding validators
     },
     settings: {
         react: {

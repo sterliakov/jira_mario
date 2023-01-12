@@ -86,14 +86,14 @@ export default class Bullet extends Drawable {
             this.type === Types.EnemyBullet &&
             !mario.invulnerable &&
             collisionCheck(mario, this)
-        ) {
+        )
             try {
                 mario.reduce();
                 return 'reduce';
             } catch {
                 return 'die';
             }
-        }
+
         return null;
     }
 }

@@ -97,7 +97,7 @@ export default class Mario extends Drawable {
         super.draw();
         if (this.type === 'big') {
             this.hat.x = this.x;
-            if (this.sex === 'm') {
+            if (this.sex === 'm')
                 switch (this.frame) {
                     case 0:
                         this.hat.x += 1;
@@ -115,7 +115,7 @@ export default class Mario extends Drawable {
                     default:
                         break;
                 }
-            } else {
+            else
                 switch (this.frame) {
                     case 2:
                     case 3:
@@ -130,7 +130,7 @@ export default class Mario extends Drawable {
                     default:
                         break;
                 }
-            }
+
             this.hat.y = this.y;
             this.hat.draw();
         }

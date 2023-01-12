@@ -31,6 +31,29 @@ export default class Element extends Drawable {
         if (this.update) this.update();
     }
 
+    _topMarioCollision(mario) {
+        if (this.type !== Types.FlagPole) mario.velY *= -1;
+
+        switch (this.type) {
+            case Types.PowerUpBox:
+            case Types.FlowerBox: {
+                const type =
+                    mario.type === 'small' && this.type === Types.PowerUpBox
+                        ? Types.Mushroom
+                        : Types.Flower;
+                const powerUp = new PowerUp(type, this.x, this.y);
+                this.type = Types.UselessBox;
+                //gives mushroom if mario is small, otherwise gives flower
+                return {action: 'powerUp', args: [powerUp]};
+            }
+            case Types.CoinBox:
+                this.type = Types.UselessBox;
+                return {action: 'coinBox', args: []};
+            default:
+                return null;
+        }
+    }
+
     meetMario(mario) {
         // TODO: Types.NormalBrick should be breakable by big Mario
         const collisionDirection = collisionCheck(mario, this);
@@ -64,32 +87,10 @@ export default class Element extends Drawable {
                 break;
             }
             case 't': {
-                if (this.type !== Types.FlagPole) mario.velY *= -1;
-
-                switch (this.type) {
-                    case Types.PowerUpBox:
-                    case Types.FlowerBox: {
-                        const type =
-                            mario.type === 'small' &&
-                            this.type === Types.PowerUpBox
-                                ? Types.Mushroom
-                                : Types.Flower;
-                        const powerUp = new PowerUp(type, this.x, this.y);
-                        this.type = Types.UselessBox;
-                        //gives mushroom if mario is small, otherwise gives flower
-                        return {action: 'powerUp', args: [powerUp]};
-                    }
-                    case Types.CoinBox:
-                        this.type = Types.UselessBox;
-                        return {action: 'coinBox', args: []};
-                    default: {
-                    }
-                }
-                break;
+                return this._topMarioCollision(mario);
             }
-
-            default: {
-            }
+            default:
+                return null;
         }
     }
 }

@@ -129,7 +129,7 @@ export default class GameView extends CanvasCapable {
     }
 
     touchesToKeys(touches, isStart) {
-        for (const touch of touches) {
+        for (const touch of touches)
             if (touch.pageX <= 200) {
                 this.keys[37] = isStart; //left arrow
             } else if (touch.pageX > 200 && touch.pageX < 400) {
@@ -141,7 +141,6 @@ export default class GameView extends CanvasCapable {
             } else if (touch.pageX > 1080 && touch.pageX < 1280) {
                 this.keys[32] = isStart; //space
             }
-        }
     }
     //key binding for touch events
     onTouchstart(e) {
@@ -158,7 +157,7 @@ export default class GameView extends CanvasCapable {
         const touches = e.changedTouches;
         e.preventDefault();
 
-        for (const touch of touches) {
+        for (const touch of touches)
             if (touch.pageX <= 200) {
                 this.keys[37] = true;
                 this.keys[39] = false;
@@ -173,7 +172,6 @@ export default class GameView extends CanvasCapable {
                 this.keys[16] = false;
                 this.keys[17] = false;
             }
-        }
     }
 
     //Main Game Loop
@@ -219,42 +217,47 @@ export default class GameView extends CanvasCapable {
         );
     }
 
+    _renderEnemy(type, column, row) {
+        const enemy = new Enemy(
+            type,
+            column * this.tileSize,
+            row * this.tileSize,
+        );
+        enemy.draw();
+        this.goombas.push(enemy);
+        this.map[row][column] = Types.Blank;
+    }
+
+    _renderElement(type, column, row) {
+        const element = new Element(
+            type,
+            column * this.tileSize,
+            row * this.tileSize,
+        );
+        element.draw();
+        if (type !== Types.Flag) {
+            this.checkElementMarioCollision(element, row, column);
+            if (type !== Types.FlagPole) {
+                this.checkElementPowerUpCollision(element);
+                this.checkElementEnemyCollision(element);
+                this.checkElementBulletCollision(element);
+            }
+        }
+    }
+
     renderMap() {
         //setting false each time the this.map renders so this elements fall off a platform and not hover around
         this.mario.grounded = false;
         for (const powerUp of this.powerUps) powerUp.grounded = false;
         for (const goomba of this.goombas) goomba.grounded = false;
 
-        for (let row = 0; row < this.map.length; row++) {
+        for (let row = 0; row < this.map.length; row++)
             for (let column = 0; column < this.map[row].length; column++) {
                 const type = this.map[row][column];
-                if (Types.isEnemy(type)) {
-                    const enemy = new Enemy(
-                        type,
-                        column * this.tileSize,
-                        row * this.tileSize,
-                    );
-                    enemy.draw();
-                    this.goombas.push(enemy);
-                    this.map[row][column] = Types.Blank;
-                } else if (Types.isElement(type)) {
-                    const element = new Element(
-                        type,
-                        column * this.tileSize,
-                        row * this.tileSize,
-                    );
-                    element.draw();
-                    if (type !== Types.Flag) {
-                        this.checkElementMarioCollision(element, row, column);
-                        if (type !== Types.FlagPole) {
-                            this.checkElementPowerUpCollision(element);
-                            this.checkElementEnemyCollision(element);
-                            this.checkElementBulletCollision(element);
-                        }
-                    }
-                }
+                if (Types.isEnemy(type)) this._renderEnemy(type, column, row);
+                else if (Types.isElement(type))
+                    this._renderElement(type, column, row);
             }
-        }
     }
 
     checkElementMarioCollision(element, row, column) {
@@ -263,26 +266,26 @@ export default class GameView extends CanvasCapable {
         switch (action) {
             case 'levelFinish':
                 this.levelFinish(args[0]);
-                break;
+                return;
             case 'powerUp':
                 this.powerUps.push(args[0]);
                 this.map[row][column] = Types.UselessBox;
                 this.playSound('powerUpAppear');
-                break;
+                return;
             case 'coinBox': {
                 this.addCoin();
                 this.map[row][column] = Types.UselessBox;
                 this.playSound('coin');
-                break;
+                return;
             }
             case 'coin': {
                 this.addCoin();
                 this.map[row][column] = Types.Blank;
                 this.playSound('coin');
-                break;
+                return;
             }
-            default: {
-            }
+            default:
+                return;
         }
     }
 
@@ -301,7 +304,7 @@ export default class GameView extends CanvasCapable {
     }
 
     checkPowerUpMarioCollision() {
-        for (const [i, powerUp] of this.powerUps.entries()) {
+        for (const [i, powerUp] of this.powerUps.entries())
             if (powerUp.meetMario(this.mario)) {
                 this.powerUps.splice(i, 1);
 
@@ -311,11 +314,10 @@ export default class GameView extends CanvasCapable {
                 this.playSound('powerUp');
                 break; // No multiple collisions possible
             }
-        }
     }
 
     checkEnemyMarioCollision() {
-        for (const goomba of this.goombas) {
+        for (const goomba of this.goombas)
             switch (goomba.meetMario(this.mario)) {
                 case 'kill':
                     this.killEnemy();
@@ -327,20 +329,17 @@ export default class GameView extends CanvasCapable {
                     saveMario(this.mario);
                     this.playSound('powerDown');
                     return;
-                default: {
-                }
+                default:
             }
-        }
     }
 
     checkBulletEnemyCollision() {
-        for (const goomba of this.goombas) {
+        for (const goomba of this.goombas)
             this.bullets = this.bullets.filter((bullet) => {
                 if (!bullet.meetEnemy(goomba)) return true;
                 this.killEnemy();
                 return false;
             });
-        }
     }
 
     checkBulletMarioCollision() {

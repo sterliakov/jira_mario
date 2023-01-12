@@ -39,24 +39,20 @@ export function collisionCheck(objA, objB) {
     const hWidths = objA.width / 2 + objB.width / 2;
     const hHeights = objA.height / 2 + objB.height / 2;
 
-    // if the x and y vector are less than the half width or half height, then we must be inside the object, causing a collision
-    if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
-        // figures out on which side we are colliding (top, bottom, left, or right)
-        const offsetX = hWidths - Math.abs(vX);
-        const offsetY = hHeights - Math.abs(vY);
+    // if the x and y vector are less than the half width or half height,
+    // then we must be inside the object, causing a collision
+    if (Math.abs(vX) >= hWidths || Math.abs(vY) >= hHeights) return null;
+    // figures out on which side we are colliding (top, bottom, left, or right)
 
-        if (offsetX >= offsetY) {
-            if (0 < vY && vY < 37) {
-                if (objB.type !== Types.FlagPole) objA.y += offsetY;
-                return 't';
-            } else if (vY < 0) {
-                if (objB.type !== Types.FlagPole) objA.y -= offsetY;
-                return 'b';
-            }
-        } else {
-            objA.x += offsetX * Math.sign(vX);
-            return vX > 0 ? 'l' : 'r';
-        }
+    const offsetX = hWidths - Math.abs(vX);
+    const offsetY = hHeights - Math.abs(vY);
+
+    if (offsetX >= offsetY) {
+        if (vY > 37) return null;
+        if (objB.type !== Types.FlagPole) objA.y += offsetY * Math.sign(vY);
+        return vY > 0 ? 't' : 'b';
+    } else {
+        objA.x += offsetX * Math.sign(vX);
+        return vX > 0 ? 'l' : 'r';
     }
-    return null;
 }

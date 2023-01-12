@@ -18,6 +18,7 @@ repos:
             additional_dependencies:
                 - eslint
                 - eslint-config-prettier
+                - eslint-config-react-app
                 - eslint-plugin-sonarjs
                 - eslint-plugin-react
     - repo: https://github.com/pre-commit/mirrors-prettier

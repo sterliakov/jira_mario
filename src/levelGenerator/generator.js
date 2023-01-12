@@ -291,7 +291,7 @@ export default class LevelGenerator {
     addPlatforms(ground) {
         // platforms
         let y = this.height;
-        for (let x = 0, h = ground[x]; x < this.maxX; x++, h = ground[x]) {
+        for (let x = 0; x < this.maxX; x++) {
             const max = this._firstNonEmpty(ground, x);
             if (y === this.height) {
                 if (
@@ -324,13 +324,12 @@ export default class LevelGenerator {
         ) {
             if (this.random.nextFloat() >= this.CHANCE_COIN) continue;
             y = h - 1 - Math.floor(this.random.nextFloat() * this.COIN_HEIGHT);
-            for (
-                ;
+            while (
                 y > 1 &&
                 this.getBlock(x, y + 1) === Types.Blank &&
-                this.getBlock(x, y + 2) === Types.Blank;
-                y--
-            ) {}
+                this.getBlock(x, y + 2) === Types.Blank
+            )
+                y--;
             if (this.getBlock(x, y) === Types.Blank)
                 this.setBlock(x, y, Types.Coin);
         }
