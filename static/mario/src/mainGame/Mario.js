@@ -1,5 +1,5 @@
 import {FRICTION, GRAVITY} from '../constants';
-import {getMario} from '../helpers';
+import {getMario, saveMario} from '../helpers';
 import Bullet from './Bullet';
 import Drawable from './Drawable';
 
@@ -78,10 +78,17 @@ export default class Mario extends Drawable {
         this.hat = new MarioHat(this.canvasRef);
         return (async () => {
             const {type, sex} = props ?? (await getMario());
-            this._type = type;
+            this.type = type;
             this.sex = sex;
             return this;
         })();
+    }
+
+    resetToStart() {
+        saveMario({type: 'small'});
+        this.type = 'small';
+        this.invulnerable = false;
+        this.frame = 'start';
     }
 
     draw() {

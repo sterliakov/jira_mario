@@ -319,6 +319,7 @@ export default class GameView extends CanvasCapable {
                     this.die();
                     return;
                 case 'reduce':
+                    saveMario(this.mario);
                     this.playSound('powerDown');
                     return;
                 default: {
@@ -365,8 +366,12 @@ export default class GameView extends CanvasCapable {
         });
 
         this.timeOutId = setTimeout(() => {
-            if (this.state.lifeCount === 0) this.gameOver();
-            else this.resetGame();
+            if (this.state.lifeCount === 0) {
+                this.gameOver();
+            } else {
+                this.mario.resetToStart();
+                this.init();
+            }
         }, 3000);
     }
 
@@ -443,10 +448,5 @@ export default class GameView extends CanvasCapable {
             this.centerPos - 122,
             this.height / 2,
         );
-    }
-
-    async resetGame() {
-        this.mario = null;
-        await this.init();
     }
 }

@@ -21,6 +21,7 @@ export default class PowerUp extends Drawable {
     fromType(type) {
         this.type = type ?? this.type;
         if (this.type === Types.Flower) {
+            this.x += 5;
             this.velX = 0;
             this.frame = 0;
             this.width = CANDY_WIDTH;
