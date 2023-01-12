@@ -18,11 +18,14 @@ export default class Types {
     // static PipeTopRight = 10;
     // static PipeFlower = 10;
     static FlowerBox = 12; // fake?
-    static Enemy = 20;
-    static Goomba = 20;
-    static GreenKoopa = 20;
-    static RedKoopa = 20;
-    static Spiky = 20;
+    static Vampire = 20;
+    static Bear = 21;
+    static Troll = 22;
+    static Owl = 23;
+    static Zombie = 24;
+    static Witch = 25;
+    static BigFoot = 26;
+    static Deer = 27;
     static Mushroom = 30;
     static Flower = 31;
     static Bullet = 40;
@@ -33,13 +36,17 @@ export default class Types {
     }
 
     static isEnemy(type) {
-        return type === Types.Enemy;
+        return 20 <= type && type <= 27;
     }
 
     static AllEnemies = [
-        Types.Goomba,
-        Types.GreenKoopa,
-        Types.RedKoopa,
-        Types.Spiky,
+        Types.Vampire,
+        Types.Bear,
+        Types.Troll,
+        Types.Owl,
+        Types.Zombie,
+        Types.Witch,
+        Types.BigFoot,
+        Types.Deer,
     ];
 }

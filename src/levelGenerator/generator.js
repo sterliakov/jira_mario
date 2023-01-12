@@ -49,9 +49,10 @@ export default class LevelGenerator {
     _addOneEnemy(x, y) {
         let t = Types.AllEnemies[this.random.nextInt(Types.AllEnemies.length)];
         // turtle constraint
-        if (t === Types.GreenKoopa || t === Types.RedKoopa)
-            if (this.turtleCount < this.maxTurtles) this.turtleCount++;
-            else t = Types.Goomba;
+        // TODO: add it back with new guys
+        // if (t === Types.GreenKoopa || t === Types.RedKoopa)
+        //     if (this.turtleCount < this.maxTurtles) this.turtleCount++;
+        //     else t = Types.Goomba;
 
         const winged = this.random.nextFloat() < this.CHANCE_WINGED;
         this.setBlock(x, y, this.getWingedEnemyVersion(t, winged));

@@ -8,7 +8,6 @@ import flag from './static/images/flag.png';
 import marioHead from './static/images/mario-head.png';
 import marioSprites from './static/images/mario-sprites.png';
 import powerUps from './static/images/powerups.png';
-import redraw from './static/images/redraw.png';
 import startScreen from './static/images/start-screen.png';
 import bulletSound from './static/sounds/bullet.wav';
 import coinSound from './static/sounds/coin.wav';
@@ -37,7 +36,6 @@ const imageSources = {
     './static/images/mario-head.png': marioHead,
     './static/images/mario-sprites.png': marioSprites,
     './static/images/powerups.png': powerUps,
-    './static/images/redraw.png': redraw,
 };
 
 export const Images = {};

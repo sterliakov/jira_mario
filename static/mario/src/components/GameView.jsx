@@ -231,7 +231,7 @@ export default class GameView extends CanvasCapable {
                     );
                     enemy.draw();
                     this.goombas.push(enemy);
-                    this.map[row][column] = 0;
+                    this.map[row][column] = Types.Blank;
                 } else if (Types.isElement(type)) {
                     const element = new Element(
                         type,

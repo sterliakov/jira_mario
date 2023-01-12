@@ -53,7 +53,7 @@ resolver.define('getGame', async (req) => {
     const {context: ctx} = req;
     const key = `game_${ctx.extension.project.key}_${ctx.accountId}`;
     let game = await storage.get(key);
-    if (!game || game.lifeCount === 0) {
+    if (!game || game.lifeCount <= 0) {
         game = DEFAULT_GAME_CONF;
         await storage.set(key, game);
     }

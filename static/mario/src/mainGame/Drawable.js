@@ -2,7 +2,6 @@ import {GRAVITY, Images} from '../constants';
 import CanvasCapable from './CanvasCapable';
 
 export default class Drawable extends CanvasCapable {
-    grounded = false;
     sX = 0;
     sY = 0;
     width = 32;
@@ -11,6 +10,8 @@ export default class Drawable extends CanvasCapable {
     constructor(type, x, y) {
         super({}); // Should be props, but we never actually use it as a Component
         this.element = Images[this.IMAGE_SRC];
+        this.velX = 0;
+        this.velY = 0;
 
         if (type) this.fromType(type);
         if (typeof x !== 'undefined' && typeof y !== 'undefined')
