@@ -20,7 +20,7 @@ export default class PowerUp extends Drawable {
 
     fromType(type) {
         this.type = type ?? this.type;
-        if (this.type === Types.Flower) {
+        if (this.type === Types.Candy) {
             this.x += 5;
             this.velX = 0;
             this.frame = 0;
@@ -36,13 +36,13 @@ export default class PowerUp extends Drawable {
 
     setSXBeforeDraw() {
         this.sX =
-            this.type === Types.Flower
+            this.type === Types.Candy
                 ? 0
                 : CANDY_WIDTH + (this.frame - 1) * DONUT_WIDTH;
     }
 
     update() {
-        if (this.type !== Types.Mushroom) return;
+        if (this.type !== Types.Donut) return;
         if (this.grounded) this.velY = 0;
         this.move();
         if (this.tickCounter++ >= this.maxTick) {
@@ -62,10 +62,10 @@ export default class PowerUp extends Drawable {
     meetMario(mario) {
         if (collisionCheck(this, mario)) {
             //mushroom
-            if (this.type === Types.Mushroom && mario.type === 'small')
+            if (this.type === Types.Donut && mario.type === 'small')
                 mario.type = 'big';
             //flower
-            else if (this.type === Types.Flower) mario.type = 'fire';
+            else if (this.type === Types.Candy) mario.type = 'fire';
             return true;
         }
         return false;

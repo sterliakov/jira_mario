@@ -36,8 +36,7 @@ export default class Element extends Drawable {
 
         switch (this.type) {
             case Types.PowerUpBox: {
-                const type =
-                    mario.type === 'small' ? Types.Mushroom : Types.Flower;
+                const type = mario.type === 'small' ? Types.Donut : Types.Candy;
                 const powerUp = new PowerUp(type, this.x, this.y);
                 this.type = Types.UselessBox;
                 //gives mushroom if mario is small, otherwise gives flower

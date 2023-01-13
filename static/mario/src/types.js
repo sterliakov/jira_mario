@@ -20,8 +20,8 @@ export default class Types {
     static Witch = 25;
     static BigFoot = 26;
     static Deer = 27;
-    static Mushroom = 30;
-    static Flower = 31;
+    static Donut = 30;
+    static Candy = 31;
     static MarioBullet = 40;
     static EnemyBullet = 41;
 
