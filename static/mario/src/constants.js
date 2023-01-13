@@ -28,23 +28,23 @@ const imageSources = {
     './static/images/coin.png': coin,
     './static/images/elements.png': elements,
     './static/images/enemies.png': enemies,
-    './static/images/start-screen.png': startScreen,
     './static/images/mario-head.png': marioHead,
     './static/images/mario-sprites.png': marioSprites,
     './static/images/powerups.png': powerUps,
+    './static/images/start-screen.png': startScreen,
 };
 
 export const Images = {};
 export const Sounds = {
-    coin: new Audio(coinSound),
-    powerUpAppear: new Audio(powerUpAppearSound),
-    powerUp: new Audio(powerUpSound),
-    marioDie: new Audio(marioDieSound),
-    killEnemy: new Audio(killEnemySound),
-    stageClear: new Audio(stageClearSound),
     bullet: new Audio(bulletSound),
-    powerDown: new Audio(powerDownSound),
+    coin: new Audio(coinSound),
     jump: new Audio(jumpSound),
+    killEnemy: new Audio(killEnemySound),
+    marioDie: new Audio(marioDieSound),
+    powerDown: new Audio(powerDownSound),
+    powerUp: new Audio(powerUpSound),
+    powerUpAppear: new Audio(powerUpAppearSound),
+    stageClear: new Audio(stageClearSound),
 };
 
 (() => {
