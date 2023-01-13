@@ -46,15 +46,9 @@ export default class CanvasCapable extends Component {
         );
     }
 
-    makeBox(x, y, width, height) {
-        this.ctx.rect(x, y, width, height);
-        this.ctx.fillStyle = 'black';
-        this.ctx.fill();
-    }
-
-    writeText(text, x, y) {
-        this.ctx.font = '20px SuperMario256';
-        this.ctx.fillStyle = 'white';
+    writeText(text, x, y, fs = 20, color = '#2e2ec1') {
+        this.ctx.font = `${fs}px SuperMario256`;
+        this.ctx.fillStyle = color;
         this.ctx.fillText(text, x, y);
     }
 }

@@ -465,14 +465,13 @@ export default class GameView extends CanvasCapable {
     }
 
     async gameOver() {
-        // TODO: use regular bg + text
         this.setState(await getGameState());
-        this.makeBox(0, 0, this.maxWidth, this.height);
-        this.writeText('Game Over', this.centerPos - 80, this.height - 300);
+        this.clear(0, 0, this.maxWidth, this.height);
         this.writeText(
-            'Thanks For Playing',
-            this.centerPos - 122,
-            this.height / 2,
+            'Game Over',
+            this.centerPos - 120,
+            this.height - 200,
+            48,
         );
     }
 }
