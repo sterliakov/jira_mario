@@ -266,10 +266,10 @@ export default class LevelGenerator {
                 this._addOneEnemy(x, h - 1);
     }
 
-    _firstNonEmpty(ground, col, test = (el) => el === Types.Blank) {
+    _firstNonEmpty(ground, col) {
         // find the highest object
         for (let max = 0; max < ground[col]; max++)
-            if (!test(this.getBlock(col, max))) return max;
+            if (this.getBlock(col, max) !== Types.Blank) return max;
         return ground[col];
     }
 
@@ -303,22 +303,13 @@ export default class LevelGenerator {
     addMissingPlatforms(ground) {
         const maxes = [];
         for (let x = 0; x < this.maxX; x++)
-            maxes.push(
-                this._firstNonEmpty(
-                    ground,
-                    x,
-                    (el) => el === Types.Blank || Types.isEnemy(el),
-                ),
-            );
+            maxes.push(this._firstNonEmpty(ground, x));
 
         for (let x = this.minX; x < this.maxX; x++) {
-            console.log(x, maxes[x], ground[x]);
             if (ground[x] === this.height) continue;
             if ([-4, -3, -2, -1].every((dx) => ground[x + dx] - maxes[x] > 4)) {
                 const h = ground[x - 2] - 2;
-                const oldBlock = this.getBlock(x - 2, h);
-                if (oldBlock !== Types.Blank && !Types.isEnemy(oldBlock))
-                    continue;
+                if (this.getBlock(x - 2, h) !== Types.Blank) continue;
                 this.setBlock(x - 2, h, Types.NormalBrick);
                 maxes[x - 2] = h;
             }
@@ -352,9 +343,9 @@ export default class LevelGenerator {
         const ground = this.addGround();
         this.addHills(ground);
         this.addPipes(ground);
-        this.addEnemies(ground);
         this.addPlatforms(ground);
         this.addMissingPlatforms(ground);
+        this.addEnemies(ground);
         this.addCoins(ground);
         this.addFlag();
 
