@@ -16,8 +16,6 @@ export default class Enemy extends Drawable {
     tickCounter = 0;
     maxTick = 10;
 
-    // FIXME: last enemy type not aligned properly
-
     fromType(type) {
         this.type = type ?? this.type ?? Types.Vampire;
         this.sX = 0;
