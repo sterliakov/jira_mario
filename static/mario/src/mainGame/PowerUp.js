@@ -15,13 +15,13 @@ export default class PowerUp extends Drawable {
     constructor(type, x, y) {
         super(type, x, y);
         this.y = y - this.height;
+        this.x = type === Types.Candy ? x + 7 : x;
         this.tickCounter = 0;
     }
 
     fromType(type) {
         this.type = type ?? this.type;
         if (this.type === Types.Candy) {
-            this.x += 5;
             this.velX = 0;
             this.frame = 0;
             this.width = CANDY_WIDTH;
