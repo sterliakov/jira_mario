@@ -12,7 +12,6 @@ export default class Types {
     static PipeRight = 9;
     static Flag = 10;
     static FlagPole = 11;
-    static FlowerBox = 12; // fake?
     static Vampire = 20;
     static Bear = 21;
     static Troll = 22;

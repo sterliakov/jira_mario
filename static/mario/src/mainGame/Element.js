@@ -35,12 +35,9 @@ export default class Element extends Drawable {
         if (this.type !== Types.FlagPole) mario.velY *= -1;
 
         switch (this.type) {
-            case Types.PowerUpBox:
-            case Types.FlowerBox: {
+            case Types.PowerUpBox: {
                 const type =
-                    mario.type === 'small' && this.type === Types.PowerUpBox
-                        ? Types.Mushroom
-                        : Types.Flower;
+                    mario.type === 'small' ? Types.Mushroom : Types.Flower;
                 const powerUp = new PowerUp(type, this.x, this.y);
                 this.type = Types.UselessBox;
                 //gives mushroom if mario is small, otherwise gives flower
