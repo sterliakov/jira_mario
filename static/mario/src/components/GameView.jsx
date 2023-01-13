@@ -101,8 +101,8 @@ export default class GameView extends CanvasCapable {
         this.mario.resetPos();
 
         this.maxWidth =
-            this.tileSize *
-            this.map.reduce((acc, row) => Math.max(acc, row.length), 0);
+            this.tileSize
+            * this.map.reduce((acc, row) => Math.max(acc, row.length), 0);
         this.bindKeyPress();
         this.reset();
         this.startGame();
@@ -441,8 +441,8 @@ export default class GameView extends CanvasCapable {
     checkMarioPos() {
         // side scrolling as mario reaches center of the viewPort
         if (
-            this.mario.x > this.centerPos &&
-            this.centerPos + this.viewPort / 2 < this.maxWidth
+            this.mario.x > this.centerPos
+            && this.centerPos + this.viewPort / 2 < this.maxWidth
         ) {
             this.scrollWindow(-this.mario.speed, 0);
             this.translatedDist += this.mario.speed;

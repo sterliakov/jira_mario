@@ -93,8 +93,8 @@ resolver.define('getLevel', async (req) => {
     const {context: ctx, payload} = req;
     const issue = await fetchIssue(ctx.extension.issue.key);
     if (
-        issue.fields.assignee?.accountId !== ctx.accountId ||
-        issue.fields.status.name !== 'Done'
+        issue.fields.assignee?.accountId !== ctx.accountId
+        || issue.fields.status.name !== 'Done'
     )
         return null;
 

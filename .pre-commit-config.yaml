@@ -27,5 +27,5 @@ repos:
           - id: prettier
             files: \.jsx?$
             additional_dependencies:
-                - prettier
+                - '@btmills/prettier'
                 - '@trivago/prettier-plugin-sort-imports'

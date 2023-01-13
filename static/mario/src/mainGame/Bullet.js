@@ -83,9 +83,9 @@ export default class Bullet extends Drawable {
     meetMario(mario) {
         // Check for collision only if goombas exist and is not dead
         if (
-            this.type === Types.EnemyBullet &&
-            !mario.invulnerable &&
-            collisionCheck(mario, this)
+            this.type === Types.EnemyBullet
+            && !mario.invulnerable
+            && collisionCheck(mario, this)
         )
             try {
                 mario.reduce();

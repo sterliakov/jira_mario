@@ -55,8 +55,8 @@ export default class LevelGenerator {
         if (this.random.nextFloat() < this.CHANCE_BLOCK_POWER_UP) {
             this.setBlock(x, y, Types.PowerUpBox);
         } else if (
-            this.random.nextFloat() < this.CHANCE_BLOCK_COIN &&
-            this.coinBlockCount < this.maxCoinBlocks
+            this.random.nextFloat() < this.CHANCE_BLOCK_COIN
+            && this.coinBlockCount < this.maxCoinBlocks
         ) {
             this.setBlock(x, y, Types.CoinBox);
             this.coinBlockCount++;
@@ -126,10 +126,10 @@ export default class LevelGenerator {
 
         // used to place the ground
         let lastY =
-            this.GROUND_MAX_HEIGHT +
-            Math.floor(
-                this.random.nextFloat() *
-                    (this.height - 1 - this.GROUND_MAX_HEIGHT),
+            this.GROUND_MAX_HEIGHT
+            + Math.floor(
+                this.random.nextFloat()
+                    * (this.height - 1 - this.GROUND_MAX_HEIGHT),
             );
         let [y, nextY] = [lastY, lastY];
         let justChanged = false;
@@ -146,9 +146,9 @@ export default class LevelGenerator {
                 justChanged = true;
                 length = 1;
             } else if (
-                x > this.minX &&
-                this.random.nextFloat() < this.CHANGE_HILL_CHANGE &&
-                !justChanged
+                x > this.minX
+                && this.random.nextFloat() < this.CHANGE_HILL_CHANGE
+                && !justChanged
             ) {
                 // adjust ground level
                 nextY += Math.floor(
@@ -158,11 +158,11 @@ export default class LevelGenerator {
                 justChanged = true;
                 length = 1;
             } else if (
-                x > this.minX &&
-                y < this.height &&
-                this.random.nextFloat() < this.CHANGE_GAP &&
-                !justChanged &&
-                this.gapCount < this.maxGaps
+                x > this.minX
+                && y < this.height
+                && this.random.nextFloat() < this.CHANGE_GAP
+                && !justChanged
+                && this.gapCount < this.maxGaps
             ) {
                 // add a gap
                 landHeight = Math.min(this.height - 1, lastY);
@@ -187,8 +187,8 @@ export default class LevelGenerator {
         if (y === this.height) {
             if (x > 10 && this.random.nextFloat() < this.CHANCE_HILL) {
                 y = Math.floor(
-                    this.HILL_HEIGHT +
-                        this.random.nextFloat() * (h - this.HILL_HEIGHT),
+                    this.HILL_HEIGHT
+                        + this.random.nextFloat() * (h - this.HILL_HEIGHT),
                 );
                 if (y === lastY - 5) y++;
                 this.setBlock(x, y, Types.Platform);
@@ -229,14 +229,14 @@ export default class LevelGenerator {
             x++, h = ground[x]
         ) {
             if (
-                this.random.nextFloat() < this.CHANCE_PIPE &&
-                h === lastY &&
-                lastlastY <= lastY &&
-                x > lastX + 1
+                this.random.nextFloat() < this.CHANCE_PIPE
+                && h === lastY
+                && lastlastY <= lastY
+                && x > lastX + 1
             ) {
                 const height =
-                    this.PIPE_MIN_HEIGHT +
-                    Math.floor(this.random.nextFloat() * this.PIPE_HEIGHT);
+                    this.PIPE_MIN_HEIGHT
+                    + Math.floor(this.random.nextFloat() * this.PIPE_HEIGHT);
                 this.placePipe(x - 1, h, height);
                 lastX = x;
             }
@@ -253,8 +253,8 @@ export default class LevelGenerator {
             x++, h = ground[x]
         )
             if (
-                this.random.nextFloat() < this.CHANCE_ENEMY &&
-                this.getBlock(x, h - 1) === Types.Blank
+                this.random.nextFloat() < this.CHANCE_ENEMY
+                && this.getBlock(x, h - 1) === Types.Blank
             )
                 this._addOneEnemy(x, h - 1);
     }
@@ -274,8 +274,8 @@ export default class LevelGenerator {
             const max = this._firstNonEmpty(ground, x);
             if (y === this.height) {
                 if (
-                    x > this.minX &&
-                    this.random.nextFloat() < this.CHANCE_PLATFORM
+                    x > this.minX
+                    && this.random.nextFloat() < this.CHANCE_PLATFORM
                 ) {
                     y = max - this.PLATFORM_HEIGHT;
                     if (y >= 1) this.placeBlock(x, y);
@@ -320,9 +320,9 @@ export default class LevelGenerator {
             if (this.random.nextFloat() >= this.CHANCE_COIN) continue;
             y = h - 1 - Math.floor(this.random.nextFloat() * this.COIN_HEIGHT);
             while (
-                y > 1 &&
-                this.getBlock(x, y + 1) === Types.Blank &&
-                this.getBlock(x, y + 2) === Types.Blank
+                y > 1
+                && this.getBlock(x, y + 1) === Types.Blank
+                && this.getBlock(x, y + 2) === Types.Blank
             )
                 y--;
             if (this.getBlock(x, y) === Types.Blank)

@@ -31,9 +31,9 @@ export default class Enemy extends Drawable {
 
     get isDirected() {
         return (
-            this.type === Types.Zombie ||
-            this.type === Types.Witch ||
-            this.type === Types.Deer
+            this.type === Types.Zombie
+            || this.type === Types.Witch
+            || this.type === Types.Deer
         );
     }
 
