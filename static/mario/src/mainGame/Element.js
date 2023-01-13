@@ -49,6 +49,13 @@ export default class Element extends Drawable {
             case Types.CoinBox:
                 this.type = Types.UselessBox;
                 return {action: 'coinBox', args: []};
+            case Types.NormalBrick:
+                if (mario.type !== 'small') {
+                    this.type = Types.Blank;
+                    return {action: 'destroyBrick'};
+                } else {
+                    return null;
+                }
             default:
                 return null;
         }

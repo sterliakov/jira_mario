@@ -284,6 +284,12 @@ export default class GameView extends CanvasCapable {
                 this.playSound('coin');
                 return;
             }
+            case 'destroyBrick':
+                this.updateState({
+                    totalScore: this.state.totalScore + 50,
+                });
+                this.map[row][column] = Types.Blank;
+                return;
             default:
                 return;
         }
