@@ -43,7 +43,8 @@ module.exports = {
         'comma-dangle': [2, 'always-multiline'],
         curly: [2, 'multi', 'consistent'],
         'no-constant-condition': [2, {checkLoops: false}],
-        'react/react-in-jsx-scope': 0, // DOesn;t play well with @forge/ui
+        'prefer-const': 2,
+        'react/react-in-jsx-scope': 0, // Doesn't play well with @forge/ui
         'react/prop-types': 0, // No plans on adding validators
     },
     settings: {

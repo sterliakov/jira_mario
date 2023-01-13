@@ -186,7 +186,7 @@ export default class GameView extends CanvasCapable {
         for (const powerUp of this.powerUps) powerUp.draw();
         for (const goomba of this.goombas) {
             goomba.draw();
-            let bullet = goomba.shoot();
+            const bullet = goomba.shoot();
             if (bullet) this.bullets.push(bullet);
         }
         for (const bullet of this.bullets) bullet.draw();
