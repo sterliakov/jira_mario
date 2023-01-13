@@ -327,14 +327,15 @@ export default class GameView extends CanvasCapable {
             switch (goomba.meetMario(this.mario)) {
                 case 'kill':
                     this.killEnemy();
-                    return;
+                    break;
                 case 'die':
                     this.die();
-                    return;
+                    break;
                 case 'reduce':
+                    // Prevent cheating: reloading won't help restore fire/big mario
                     saveMario(this.mario);
                     this.playSound('powerDown');
-                    return;
+                    break;
                 default:
             }
     }
