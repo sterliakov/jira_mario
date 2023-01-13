@@ -69,7 +69,6 @@ export default class Enemy extends Drawable {
     pickNextFrame() {
         if (this.isDirected)
             if (this.velX < 0)
-                // TODO: shoot on frame 2 or 5
                 this.frame = ((Math.max(this.frame, 3) + 1 - 3) % 3) + 3;
             else this.frame = (Math.min(this.frame, 2) + 1) % 3;
         else this.frame = (this.frame + 1) % 6;

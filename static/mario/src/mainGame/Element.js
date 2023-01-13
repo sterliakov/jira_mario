@@ -58,7 +58,6 @@ export default class Element extends Drawable {
     }
 
     meetMario(mario) {
-        // TODO: Types.NormalBrick should be breakable by big Mario
         const collisionDirection = collisionCheck(mario, this);
         if (collisionDirection != null && this.type === Types.Coin) {
             this.type = Types.Blank;

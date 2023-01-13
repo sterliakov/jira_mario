@@ -1,5 +1,4 @@
 export default class Types {
-    // FIXME: clean repeats
     static Blank = 0;
     static Ground = 1;
     static Platform = 2;
@@ -26,7 +25,7 @@ export default class Types {
     static EnemyBullet = 41;
 
     static isElement(type) {
-        return 1 <= type && type <= 12;
+        return 1 <= type && type <= 11;
     }
 
     static isEnemy(type) {
