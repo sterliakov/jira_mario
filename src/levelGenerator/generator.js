@@ -192,22 +192,15 @@ export default class LevelGenerator {
                 );
                 if (y === lastY - 5) y++;
                 this.setBlock(x, y, Types.Platform);
-                // for (let i = y + 1; i < h; i++)
-                //     this.setBlock(x, i, Types.PlatformBackground);
             }
         } else if (y >= h) {
             // end if hitting a wall
             y = this.height;
         } else if (this.random.nextFloat() < this.CHANCE_END_HILL) {
             this.setBlock(x, y, Types.Platform);
-            // for (let i = y + 1; i < h; i++)
-            //     this.setBlock(x, i, Types.PlatformBackground);
             y = this.height;
         } else {
             this.setBlock(x, y, Types.Platform);
-            // for (let i = y + 1; i < h; i++)
-            //     this.setBlock(x, i, Types.PlatformBackground);
-
             if (this.random.nextFloat() < this.CHANCE_HILL_ENEMY)
                 this._addOneEnemy(x, y - 1);
         }

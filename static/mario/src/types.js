@@ -3,7 +3,6 @@ export default class Types {
     static Blank = 0;
     static Ground = 1;
     static Platform = 2;
-    static PlatformBackground = 50; // FIXME: remove it?
     static NormalBrick = 3;
     static CoinBox = 4;
     static Coin = 5;
@@ -13,10 +12,6 @@ export default class Types {
     static PipeRight = 9;
     static Flag = 10;
     static FlagPole = 11;
-    // static Pipe = 9;
-    // static PipeTopLeft = 9;
-    // static PipeTopRight = 10;
-    // static PipeFlower = 10;
     static FlowerBox = 12; // fake?
     static Vampire = 20;
     static Bear = 21;
