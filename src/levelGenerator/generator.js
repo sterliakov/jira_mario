@@ -10,53 +10,44 @@ export default class LevelGenerator {
     maxX = 147;
 
     // TODO: some chances should depend on issue state
-    CHANCE_BLOCK_POWER_UP = 0.05;
     CHANCE_BLOCK_COIN = 0.3;
     CHANCE_BLOCK_ENEMY = 0.2;
-    CHANCE_WINGED = 0.5;
+    CHANCE_BLOCK_POWER_UP = 0.05;
     CHANCE_COIN = 0.2;
-    COIN_HEIGHT = 5;
-    CHANCE_PLATFORM = 0.1;
-    CHANCE_END_PLATFORM = 0.1;
-    PLATFORM_HEIGHT = 4;
-    CHANCE_ENEMY = 0.15;
-    CHANCE_PIPE = 0.1;
-    PIPE_MIN_HEIGHT = 2;
-    PIPE_HEIGHT = 3.0;
-    CHANCE_HILL = 0.1;
     CHANCE_END_HILL = 0.3;
+    CHANCE_END_PLATFORM = 0.1;
+    CHANCE_ENEMY = 0.1;
+    CHANCE_HILL = 0.1;
     CHANCE_HILL_ENEMY = 0.3;
-    HILL_HEIGHT = 4;
-    GAP_LENGTH = 5;
+    CHANCE_PIPE = 0.1;
+    CHANCE_PLATFORM = 0.1;
     CHANGE_GAP = 0.1;
     CHANGE_HILL_CHANGE = 0.1;
+    COIN_HEIGHT = 5;
+    GROUND_MAX_HEIGHT = 5;
+    HILL_HEIGHT = 4;
+    PIPE_HEIGHT = 3.0;
+    PIPE_MIN_HEIGHT = 2;
+    PLATFORM_HEIGHT = 4;
+    GAP_LENGTH = 5;
     GAP_OFFSET = -5;
     GAP_RANGE = 10;
-    GROUND_MAX_HEIGHT = 5;
 
     // constraints
     gapCount = 0;
-    turtleCount = 0;
     coinBlockCount = 0;
 
-    constructor(seed, maxGaps = 10, maxTurtles = 7, maxCoinBlocks = 10) {
+    constructor(seed, maxGaps = 10, maxCoinBlocks = 10) {
         this.random = new Random(seed);
         this.maxGaps = maxGaps;
-        this.maxTurtles = maxTurtles;
         this.maxCoinBlocks = maxCoinBlocks;
     }
 
     _addOneEnemy(x, y) {
-        // FIXME: check that 2 tiles are available
-        let t = Types.AllEnemies[this.random.nextInt(Types.AllEnemies.length)];
-        // turtle constraint
-        // TODO: add it back with new guys
-        // if (t === Types.GreenKoopa || t === Types.RedKoopa)
-        //     if (this.turtleCount < this.maxTurtles) this.turtleCount++;
-        //     else t = Types.Goomba;
-
-        const winged = this.random.nextFloat() < this.CHANCE_WINGED;
-        this.setBlock(x, y, this.getWingedEnemyVersion(t, winged));
+        if (this.getBlock(x, y - 1) !== Types.Blank) return;
+        const enemyType =
+            Types.AllEnemies[this.random.nextInt(Types.AllEnemies.length)];
+        this.setBlock(x, y, enemyType);
     }
 
     placeBlock(x, y) {
@@ -117,11 +108,6 @@ export default class LevelGenerator {
         return this.map[Math.max(Math.min(x, this.width - 1), 0)][
             Math.max(Math.min(y, this.height - 1), 0)
         ];
-    }
-
-    getWingedEnemyVersion(enemy, winged) {
-        // No-op for now
-        return enemy;
     }
 
     addFlag() {
