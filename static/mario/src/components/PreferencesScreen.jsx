@@ -37,6 +37,7 @@ export default class PreferencesScreen extends Component {
         this.state = {
             sexSwitch: props.mario.sex === 'f',
             soundSwitch: props.game.soundEnabled,
+            isLoading: false,
         };
     }
 
@@ -49,7 +50,7 @@ export default class PreferencesScreen extends Component {
                     </SwitchLabelName>
                     <SwitchLabelSpan>m</SwitchLabelSpan>
                     <Switch
-                        onChange={(sexSwitch) => this.updateState({sexSwitch})}
+                        onChange={(sexSwitch) => this.setState({sexSwitch})}
                         checked={this.state.sexSwitch}
                         onColor="#080"
                         offColor="#080"
@@ -63,43 +64,32 @@ export default class PreferencesScreen extends Component {
                     <SwitchLabelName>Sound:</SwitchLabelName>
                     <SwitchLabelSpan>Off</SwitchLabelSpan>
                     <Switch
-                        onChange={(soundSwitch) =>
-                            this.updateState({soundSwitch})
-                        }
+                        onChange={(soundSwitch) => this.setState({soundSwitch})}
                         checked={this.state.soundSwitch}
                     />
                     <SwitchLabelSpan>On</SwitchLabelSpan>
                 </SwitchLabel>
 
-                <BackBtn onClick={() => this.props.showStart()}>
-                    Back to menu
+                <BackBtn
+                    onClick={this.savePreferences.bind(this)}
+                    isLoading={this.state.isLoading}
+                >
+                    Save
                 </BackBtn>
             </Screen>
         );
     }
 
-    updateState(newState) {
-        // TODO: save only on BackBtn.onClick instead
-        if (
-            newState.sexSwitch != null &&
-            newState.sexSwitch !== this.state.sexSwitch
-        ) {
-            const m = {
-                sex: newState.sexSwitch ? 'f' : 'm',
-            };
-            saveMario(m);
-            this.props.storeMario(m);
-        }
-        if (
-            newState.soundSwitch != null &&
-            newState.soundSwitch !== this.state.soundSwitch
-        ) {
-            const g = {
-                soundEnabled: !!newState.soundSwitch,
-            };
-            saveGameState(g);
-            this.props.storeGame(g);
-        }
-        this.setState(newState);
+    async savePreferences() {
+        this.setState({isLoading: true});
+
+        const m = {sex: this.state.sexSwitch ? 'f' : 'm'};
+        const g = {soundEnabled: !!this.state.soundSwitch};
+        this.props.storeMario(m);
+        this.props.storeGame(g);
+        await Promise.all([saveMario(m), saveGameState(g)]);
+
+        this.setState({isLoading: false});
+        this.props.showStart();
     }
 }
