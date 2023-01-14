@@ -23,9 +23,21 @@ const CoinScore = styled.div`
     padding-left: 40px;
 `;
 
-const LifeCount = styled(CoinScore)`
-    background-image: url('${Images['mario-head.png'].src}');
+const LifeCount = styled.div`
     width: 150px;
+    float: left;
+    padding-left: ${(props) => (props.sex === 'f' ? 72 : 42)}px;
+    &:before {
+        background: url('${Images['mario-head.png'].src}') -${(props) =>
+                props.sex === 'f' ? 32 : 0}px 4px no-repeat;
+        position: absolute;
+        content: '';
+        width: ${(props) => (props.sex === 'f' ? 60 : 30)}px;
+        height: 42px;
+    }
+`;
+const LifeCountSpan = styled.span`
+    padding-left: ${(props) => (props.sex === 'f' ? 70 : 40)}px;
 `;
 
 const LevelNum = styled.div`
@@ -42,7 +54,11 @@ export default class Score extends Component {
             <Wrapper>
                 <CoinScore>Coins: {this.props.coinScore}</CoinScore>
                 <TotalScore>Score: {this.props.totalScore}</TotalScore>
-                <LifeCount>x: {this.props.lifeCount}</LifeCount>
+                <LifeCount sex={this.props.marioSex}>
+                    <LifeCountSpan sex={this.props.marioSex}>
+                        {this.props.lifeCount}
+                    </LifeCountSpan>
+                </LifeCount>
                 <LevelNum>Level: {this.props.levelNum}</LevelNum>
             </Wrapper>
         );

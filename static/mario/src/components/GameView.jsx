@@ -40,6 +40,7 @@ export default class GameView extends CanvasCapable {
                     totalScore={this.state.totalScore}
                     lifeCount={this.state.lifeCount}
                     levelNum={this.state.levelNum}
+                    marioSex={this.props.mario.sex}
                 />
                 <Screen
                     className="game-screen"
