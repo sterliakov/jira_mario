@@ -12,8 +12,8 @@ const Wrapper = styled.div`
     border-bottom: none;
     line-height: 50px;
     font-size: 20px;
-    background-color: #add1f3;
-    color: #ffffff;
+    background-color: #fe8;
+    color: #2f81b5;
 `;
 
 const CoinScore = styled.div`
