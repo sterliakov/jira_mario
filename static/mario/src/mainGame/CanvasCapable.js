@@ -20,8 +20,9 @@ export default class CanvasCapable extends Component {
         return _canvas;
     }
 
-    clear(x, y, width, height) {
-        this.ctx.clearRect(x, y, width, height);
+    clear() {
+        this.ctx.clearRect(0, 0, this.maxWidth, this.height);
+        this.ctx.beginPath();
     }
 
     reset() {

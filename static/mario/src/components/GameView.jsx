@@ -181,7 +181,7 @@ export default class GameView extends CanvasCapable {
             this.startGame.bind(this),
         );
 
-        this.clear(0, 0, this.maxWidth, this.height);
+        this.clear();
         this.renderMap();
 
         for (const powerUp of this.powerUps) powerUp.draw();
@@ -201,8 +201,17 @@ export default class GameView extends CanvasCapable {
         this.updateMario();
         this.wallCollision();
         this.marioInGround = this.mario.grounded; //for use with flag sliding
+        this.cleanUp();
 
         if (this.instructionTick++ < 1000) this.showInstructions();
+    }
+
+    cleanUp() {
+        this.goombas = this.goombas.filter((g) => g.y <= this.height + 5);
+        this.bullets = this.bullets.filter(
+            (b) =>
+                b.y <= this.height + 5 && 0 <= b.x && b.x <= this.maxWidth - 1,
+        );
     }
 
     showInstructions() {
@@ -468,7 +477,7 @@ export default class GameView extends CanvasCapable {
 
     async gameOver() {
         this.setState(await getGameState());
-        this.clear(0, 0, this.maxWidth, this.height);
+        this.clear();
         this.writeText(
             'Game Over',
             this.centerPos - 120,
