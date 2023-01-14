@@ -44,7 +44,7 @@ module.exports = {
         curly: [2, 'multi', 'consistent'],
         'no-constant-condition': [2, {checkLoops: false}],
         'prefer-const': 2,
-        'operator-linebreak': [2, 'before'],
+        'operator-linebreak': [2, 'before', {overrides: {'=': 'after'}}],
         'react/react-in-jsx-scope': 0, // Doesn't play well with @forge/ui
         'react/prop-types': 0, // No plans on adding validators
     },

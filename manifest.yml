@@ -5,7 +5,9 @@ modules:
           resolver:
             function: resolver
           title: Jirio
-          icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
+          # Hack: use atlassian-hosted image
+          # https://community.developer.atlassian.com/t/change-the-default-atlassian-icon-of-the-app-in-issue-view-hide-the-app-button/47337/11?u=adammoore
+          icon: https://f170ccf8-e672-4c4a-ae29-23bfcffab2fb.cdn.prod.atlassian-dev.net/e067347f-97c9-494e-a0a2-561f9f0f5212/3f457d87-eede-4077-a0c1-885fd44f4fe7/9d8dffaf-f03d-4b1e-b51c-08a7a6bd8bbc/game/logo32.png
     function:
         - key: resolver
           handler: index.handler
