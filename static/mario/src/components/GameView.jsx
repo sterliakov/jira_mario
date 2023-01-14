@@ -28,7 +28,7 @@ export default class GameView extends CanvasCapable {
         super(props);
         this._canvasRef = canvas;
         this.height = parseInt(props.Height, 10);
-        this.viewPort = parseInt(props.Width, 10); // width of canvas, viewPort this can be seen
+        this.viewPort = parseInt(props.Width, 10); // width of canvas, viewPort that can be seen
         this.state = {...props.game};
     }
 
@@ -216,7 +216,7 @@ export default class GameView extends CanvasCapable {
 
     showInstructions() {
         this.writeText(
-            'Controls: Arrow this.keys for direction, shift to run, ctrl for bullets',
+            'Controls: Arrow keys for direction, shift to run, ctrl for bullets',
             30,
             30,
         );
@@ -256,7 +256,7 @@ export default class GameView extends CanvasCapable {
     }
 
     renderMap() {
-        //setting false each time the this.map renders so this elements fall off a platform and not hover around
+        //setting false each time the map renders so that elements fall off a platform and not hover around
         this.mario.grounded = false;
         for (const powerUp of this.powerUps) powerUp.grounded = false;
         for (const goomba of this.goombas) goomba.grounded = false;

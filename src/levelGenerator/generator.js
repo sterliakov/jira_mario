@@ -79,11 +79,9 @@ export default class LevelGenerator {
         this.setRectangle(x, y + 1, 1, this.height - 1 - y, Types.Ground);
 
         this.setBlock(x, y, Types.Ground);
-        if (y < lastY)
-            for (let i = y + 1; i <= lastY; i++)
-                this.setBlock(x, i, Types.Ground);
-        else if (y < nextY)
-            for (let i = y + 1; i <= nextY; i++)
+        const upTo = y < lastY ? lastY : y < nextY ? nextY : null;
+        if (upTo != null)
+            for (let i = y + 1; i <= upTo; i++)
                 this.setBlock(x, i, Types.Ground);
     }
 
@@ -145,11 +143,10 @@ export default class LevelGenerator {
                 nextY = landHeight;
                 justChanged = true;
                 length = 1;
-            } else if (
-                x > this.minX
-                && this.random.nextFloat() < this.CHANGE_HILL_CHANGE
-                && !justChanged
-            ) {
+            } else if (justChanged || x <= this.minX) {
+                length++;
+                justChanged = false;
+            } else if (this.random.nextFloat() < this.CHANGE_HILL_CHANGE) {
                 // adjust ground level
                 nextY += Math.floor(
                     this.GAP_OFFSET + this.GAP_RANGE * this.random.nextFloat(),
@@ -158,21 +155,18 @@ export default class LevelGenerator {
                 justChanged = true;
                 length = 1;
             } else if (
-                x > this.minX
-                && y < this.height
+                y < this.height
                 && this.random.nextFloat() < this.CHANGE_GAP
-                && !justChanged
-                && this.gapCount < this.maxGaps
+                && this.gapCount++ < this.maxGaps
             ) {
                 // add a gap
                 landHeight = Math.min(this.height - 1, lastY);
                 nextY = this.height;
                 justChanged = true;
                 length = 1;
-                this.gapCount++;
             } else {
-                length++;
                 justChanged = false;
+                length++;
             }
 
             this.setGroundHeight(x, y, lastY, nextY);
