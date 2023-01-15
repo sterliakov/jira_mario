@@ -82,9 +82,10 @@ resolver.define('setGame', async (req) => {
 const disownsIssue = (fields, ctx) => {
     if (fields.assignee?.accountId !== ctx.accountId) return 'NOT_OWNER';
     if (
-        fields.resolution.id !== '10000'
-        && fields.resolution.name !== 'Done'
-        && fields.status.name !== 'Done'
+        !fields.resolution
+        || (fields.resolution.id !== '10000'
+            && fields.resolution.name !== 'Done'
+            && fields.status?.name !== 'Done')
     )
         return 'NOT_COMPLETED';
     return null;
