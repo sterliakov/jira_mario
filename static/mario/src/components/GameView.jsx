@@ -18,6 +18,7 @@ const Screen = styled.canvas`
     background-size: auto 480px;
     background-repeat: repeat;
     margin: 0 auto;
+    outline: none;
 `;
 
 export default class GameView extends CanvasCapable {
@@ -50,6 +51,11 @@ export default class GameView extends CanvasCapable {
                     onTouchstart={this.onTouchstart.bind(this)}
                     onTouchend={this.onTouchend.bind(this)}
                     onTouchmove={this.onTouchmove.bind(this)}
+                    onBlur={(ev) => {
+                        ev.preventDefault();
+                        document.querySelector('canvas').focus();
+                        return false;
+                    }}
                 ></Screen>
             </>
         );
@@ -57,6 +63,9 @@ export default class GameView extends CanvasCapable {
 
     async componentDidMount() {
         initCanvas(this._canvasRef);
+        const c = document.querySelector('canvas');
+        c.setAttribute('tabindex', '1');
+        c.focus();
         await this.init();
     }
 
