@@ -9,7 +9,6 @@ export default class LevelGenerator {
     minX = 5;
     maxX = 147;
 
-    // TODO: some chances should depend on issue state
     CHANCE_BLOCK_COIN = 0.3;
     CHANCE_BLOCK_ENEMY = 0.2;
     CHANCE_BLOCK_POWER_UP = 0.05;
@@ -26,21 +25,81 @@ export default class LevelGenerator {
     COIN_HEIGHT = 5;
     GROUND_MAX_HEIGHT = 5;
     HILL_HEIGHT = 4;
-    PIPE_HEIGHT = 3.0;
+    PIPE_ADD_HEIGHT = 3;
     PIPE_MIN_HEIGHT = 2;
     PLATFORM_HEIGHT = 4;
     GAP_LENGTH = 5;
     GAP_OFFSET = -5;
     GAP_RANGE = 10;
 
+    NON_PR_ISSUES_SCORE_COEF = 0.2;
+
     // constraints
     gapCount = 0;
     coinBlockCount = 0;
 
-    constructor(seed, maxGaps = 10, maxCoinBlocks = 10) {
+    constructor(seed, fields, maxPriority = 5) {
         this.random = new Random(seed);
-        this.maxGaps = maxGaps;
-        this.maxCoinBlocks = maxCoinBlocks;
+        this.issue = fields;
+
+        const watchesScore = Math.min(
+            1,
+            (fields.watches.watchCount - fields.watches.isWatching) / 100,
+        );
+        const votesScore = Math.min(
+            1,
+            (fields.votes.votes - fields.votes.hasVoted) / 100,
+        );
+        const priorityScore =
+            (maxPriority + 1 - parseInt(fields.priority.id, 10)) / maxPriority;
+        const importanceScore =
+            Math.max(watchesScore, votesScore) / 5 + priorityScore / 4;
+        this.importanceScore = importanceScore;
+        this.CHANCE_COIN = Math.min(0.5, importanceScore);
+        this.CHANCE_BLOCK_COIN = Math.min(0.9, importanceScore);
+        this.maxCoinBlocks = Math.min(20, 2 / importanceScore);
+
+        let complexityScore = fields.issuetype.name === 'Epic' ? 10 : 5;
+        complexityScore += fields.issuetype.hierarchyLevel * 2 ?? 0;
+        complexityScore -= fields.issuetype.subtask;
+        complexityScore = Math.max(complexityScore, 3);
+        this.complexityScore = complexityScore;
+
+        this.maxGaps = Math.min(10, complexityScore);
+        this.CHANCE_HILL_ENEMY = Math.min(0.4, complexityScore / 20);
+        this.CHANCE_BLOCK_ENEMY = Math.min(0.3, complexityScore / 20);
+        this.CHANCE_ENEMY = Math.min(0.2, complexityScore / 20);
+    }
+
+    getScoreMultiplier() {
+        try {
+            const prCountField = this.issue.customfield_10000 ?? '';
+            if (!prCountField.includes('pullrequest'))
+                return this.NON_PR_ISSUES_SCORE_COEF;
+            const parsed = JSON.parse(
+                prCountField.split('json=')[1].slice(0, -1),
+            );
+            const pr = parsed.cachedValue.summary.pullrequest.overall;
+            // If pr still open or declined, nothing to praise for
+            if (pr.state !== 'MERGED') return this.NON_PR_ISSUES_SCORE_COEF;
+        } catch (ex) {
+            console.log(ex);
+            // Record part not found, so there's certainly no PR
+            return this.NON_PR_ISSUES_SCORE_COEF;
+        }
+
+        let score = this.importanceScore + this.complexityScore / 6;
+        if (this.issue.duedate && new Date(this.issue.duedate) - new Date() < 0)
+            score /= 2;
+        if (this.issue.resolutionDate) {
+            const age =
+                new Date(this.issue.resolutionDate)
+                - new Date(this.issue.created);
+            const msPerDay = 1000 * 60 * 60 * 24;
+            if (age > msPerDay * 365) score *= 0.8;
+            else if (age > msPerDay * 60) score *= 1.25;
+        }
+        return Math.round(10 * score) / 10;
     }
 
     _addOneEnemy(x, y) {
@@ -230,7 +289,9 @@ export default class LevelGenerator {
             ) {
                 const height =
                     this.PIPE_MIN_HEIGHT
-                    + Math.floor(this.random.nextFloat() * this.PIPE_HEIGHT);
+                    + Math.floor(
+                        this.random.nextFloat() * this.PIPE_ADD_HEIGHT,
+                    );
                 this.placePipe(x - 1, h, height);
                 lastX = x;
             }

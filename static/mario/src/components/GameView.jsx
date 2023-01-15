@@ -74,12 +74,12 @@ export default class GameView extends CanvasCapable {
             this.updateState({
                 coinScore: 0,
                 lifeCount: this.state.lifeCount + 1,
-                totalScore: this.state.totalScore + 100,
+                totalScore: this.state.totalScore + 100 * this.scoreMultiplier,
             });
         else
             this.updateState({
                 coinScore: this.state.coinScore + 1,
-                totalScore: this.state.totalScore + 100,
+                totalScore: this.state.totalScore + 100 * this.scoreMultiplier,
             });
     }
 
@@ -89,7 +89,9 @@ export default class GameView extends CanvasCapable {
         this.powerUps = [];
         this.keys = [];
 
-        this.map = await getLevel(this.state.levelNum);
+        const {level, scoreMultiplier} = await getLevel(this.state.levelNum);
+        this.map = level;
+        this.scoreMultiplier = scoreMultiplier;
         if (!this.map) {
             await this.gameOver();
             return;
@@ -296,7 +298,8 @@ export default class GameView extends CanvasCapable {
             }
             case 'destroyBrick':
                 this.updateState({
-                    totalScore: this.state.totalScore + 50,
+                    totalScore:
+                        this.state.totalScore + 50 * this.scoreMultiplier,
                 });
                 this.map[row][column] = Types.Blank;
                 return;
@@ -325,7 +328,8 @@ export default class GameView extends CanvasCapable {
                 this.powerUps.splice(i, 1);
 
                 this.updateState({
-                    totalScore: this.state.totalScore + 1000,
+                    totalScore:
+                        this.state.totalScore + 1000 * this.scoreMultiplier,
                 });
                 this.playSound('powerUp');
                 break; // No multiple collisions possible
@@ -377,7 +381,7 @@ export default class GameView extends CanvasCapable {
 
     killEnemy() {
         this.updateState({
-            totalScore: this.state.totalScore + 1000,
+            totalScore: this.state.totalScore + 1000 * this.scoreMultiplier,
         });
         this.playSound('killEnemy');
     }

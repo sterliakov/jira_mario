@@ -21,11 +21,12 @@ const fetchUser = async (userId) => {
         .requestJira(route`/rest/api/3/user?accountId=${userId}`, _useJson);
     return rsp.json();
 };
-
-resolver.define('getIssue', async (req) => {
-    const {context: ctx} = req;
-    return fetchIssue(ctx.extension.issue.key);
-});
+const fetchMaxPriority = async (userId) => {
+    const rsp = await api
+        .asUser()
+        .requestJira(route`/rest/api/3/priority/search`, _useJson);
+    return (await rsp.json()).total;
+};
 
 resolver.define('getMario', async (req) => {
     const {context: ctx} = req;
@@ -78,30 +79,50 @@ resolver.define('setGame', async (req) => {
     return {success: true};
 });
 
+const disownsIssue = (fields, ctx) => {
+    if (fields.assignee?.accountId !== ctx.accountId) return 'NOT_OWNER';
+    if (
+        fields.resolution.id !== '10000'
+        && fields.resolution.name !== 'Done'
+        && fields.status.name !== 'Done'
+    )
+        return 'NOT_COMPLETED';
+    return null;
+};
+
 resolver.define('canPlay', async (req) => {
     const {context: ctx} = req;
-    const issue = await fetchIssue(ctx.extension.issue.key);
-    if (issue.fields.assignee?.accountId !== ctx.accountId) return 'NOT_OWNER';
-    if (issue.fields.status.name !== 'Done') return 'NOT_COMPLETED';
-    const key = `issues_played_${ctx.extension.project.key}_${ctx.accountId}`;
+    const {accountId, extension: ctxExt} = ctx;
+    const issue = await fetchIssue(ctxExt.issue.key);
+
+    const owns = disownsIssue(issue.fields, ctx);
+    if (owns != null) return owns;
+
+    const key = `issues_played_${ctxExt.project.key}_${accountId}`;
     const played = (await storage.get(key)) ?? [];
-    if (played.includes(ctx.extension.issue.key)) return 'ALREADY_PLAYED';
+    if (played.includes(ctxExt.issue.key)) return 'ALREADY_PLAYED';
     return 'OK';
 });
 
 resolver.define('getLevel', async (req) => {
     const {context: ctx, payload} = req;
-    const issue = await fetchIssue(ctx.extension.issue.key);
-    if (
-        issue.fields.assignee?.accountId !== ctx.accountId
-        || issue.fields.status.name !== 'Done'
-    )
-        return null;
+    const [issue, maxPriority] = await Promise.all([
+        fetchIssue(ctx.extension.issue.key),
+        fetchMaxPriority(),
+    ]);
+    if (disownsIssue(issue.fields, ctx)) return null;
 
-    return new LevelGenerator(
+    const gen = new LevelGenerator(
         `level_${ctx.extension.project.key}_${payload.levelNum}`,
-    ).generateLevel();
+        issue.fields,
+        maxPriority,
+    );
+    return {
+        level: gen.generateLevel(),
+        scoreMultiplier: gen.getScoreMultiplier(),
+    };
 });
+
 resolver.define('getLeaderboard', async (req) => {
     const {context: ctx} = req;
     const users = [];
