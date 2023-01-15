@@ -10,7 +10,7 @@ export default class Enemy extends Drawable {
     }
 
     frame = 0;
-    width = 45;
+    cellWidth = 45;
     height = 45;
 
     tickCounter = 0;
@@ -22,11 +22,13 @@ export default class Enemy extends Drawable {
         this.velX = 1;
         this.state = 'alive';
         this.grounded = false;
+        this.width = type === Types.Witch ? 28 : 45;
     }
 
     setSXBeforeDraw() {
         this.sY = this.height * (this.type - 20);
-        this.sX = this.width * this.frame;
+        if (this.state !== 'alive') this.sY += 1;
+        this.sX = this.cellWidth * this.frame;
     }
 
     get isDirected() {
