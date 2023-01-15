@@ -10,7 +10,7 @@ const Wrapper = styled.div`
 `;
 
 const BackBtn = styled(BaseButton)`
-    background-color: #e63f2b !important;
+    background-color: #be2e7e !important;
     margin: 10px;
 `;
 

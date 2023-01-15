@@ -24,7 +24,7 @@ const SwitchLabelName = styled.span`
 `;
 
 const BackBtn = styled(BaseButton)`
-    background-color: #080 !important;
+    background-color: #4646d5 !important;
     margin: 10px;
     position: absolute !important;
     bottom: 220px;
@@ -52,8 +52,8 @@ export default class PreferencesScreen extends Component {
                     <Switch
                         onChange={(sexSwitch) => this.setState({sexSwitch})}
                         checked={this.state.sexSwitch}
-                        onColor="#080"
-                        offColor="#080"
+                        onColor="#BE2E7E"
+                        offColor="#BE2E7E"
                         checkedIcon={false}
                         uncheckedIcon={false}
                     />
@@ -66,6 +66,8 @@ export default class PreferencesScreen extends Component {
                     <Switch
                         onChange={(soundSwitch) => this.setState({soundSwitch})}
                         checked={this.state.soundSwitch}
+                        onColor="#BE2E7E"
+                        offColor="#7D7B71"
                     />
                     <SwitchLabelSpan>On</SwitchLabelSpan>
                 </SwitchLabel>

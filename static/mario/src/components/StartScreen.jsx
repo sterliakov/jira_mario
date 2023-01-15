@@ -14,11 +14,11 @@ const ScreenBtn = styled(BaseButton)`
     bottom: 300px;
 `;
 const StartBtn = styled(ScreenBtn)`
-    background-color: #e63f2b !important;
+    background-color: #be2e7e !important;
     left: 700px;
 `;
 const PreferencesBtn = styled(ScreenBtn)`
-    background-color: #0a0aee !important;
+    background-color: #4646d5 !important;
     right: 700px;
 `;
 
