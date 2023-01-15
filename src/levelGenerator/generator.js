@@ -5,9 +5,9 @@ import Random from './random';
 
 export default class LevelGenerator {
     height = 15;
-    width = 150;
+    width = 300;
     minX = 5;
-    maxX = 147;
+    maxX = 297;
 
     CHANCE_BLOCK_COIN = 0.3;
     CHANCE_BLOCK_ENEMY = 0.2;
@@ -57,15 +57,15 @@ export default class LevelGenerator {
         this.importanceScore = importanceScore;
         this.CHANCE_COIN = Math.min(0.5, importanceScore);
         this.CHANCE_BLOCK_COIN = Math.min(0.9, importanceScore);
-        this.maxCoinBlocks = Math.min(20, 2 / importanceScore);
+        this.maxCoinBlocks = 2 * Math.min(20, 2 / importanceScore);
 
         let complexityScore = fields.issuetype.name === 'Epic' ? 10 : 5;
-        complexityScore += fields.issuetype.hierarchyLevel * 2 ?? 0;
+        complexityScore += fields.issuetype.hierarchyLevel * 3 ?? 0;
         complexityScore -= fields.issuetype.subtask;
         complexityScore = Math.max(complexityScore, 3);
         this.complexityScore = complexityScore;
 
-        this.maxGaps = Math.min(10, complexityScore);
+        this.maxGaps = 2 * Math.min(10, complexityScore);
         this.CHANCE_HILL_ENEMY = Math.min(0.4, complexityScore / 20);
         this.CHANCE_BLOCK_ENEMY = Math.min(0.3, complexityScore / 20);
         this.CHANCE_ENEMY = Math.min(0.2, complexityScore / 20);
