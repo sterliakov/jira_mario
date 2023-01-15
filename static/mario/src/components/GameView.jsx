@@ -60,8 +60,8 @@ export default class GameView extends CanvasCapable {
         await this.init();
     }
 
-    async updateState(newState) {
-        this.setState(newState);
+    async updateState(newState, cb) {
+        this.setState(newState, cb);
         return saveGameState(newState);
     }
 
@@ -398,18 +398,21 @@ export default class GameView extends CanvasCapable {
         this.mario.frame = 'dead';
 
         this.playSound('marioDie');
-        this.updateState({
-            lifeCount: this.state.lifeCount - 1,
-        });
-
-        this.timeOutId = setTimeout(() => {
-            if (this.state.lifeCount === 0) {
-                this.gameOver();
-            } else {
-                this.mario.resetToStart();
-                this.init();
-            }
-        }, 3000);
+        this.updateState(
+            {
+                lifeCount: this.state.lifeCount - 1,
+            },
+            () => {
+                this.timeOutId = setTimeout(() => {
+                    if (this.state.lifeCount === 0) {
+                        this.gameOver();
+                    } else {
+                        this.mario.resetToStart();
+                        this.init();
+                    }
+                }, 3000);
+            },
+        );
     }
 
     // controlling mario with key events
@@ -476,13 +479,14 @@ export default class GameView extends CanvasCapable {
     }
 
     async gameOver() {
-        this.setState(await getGameState());
-        this.clear();
-        this.writeText(
-            'Game Over',
-            this.centerPos - 120,
-            this.height - 200,
-            48,
-        );
+        this.setState(await getGameState(), () => {
+            this.clear();
+            this.writeText(
+                'Game Over',
+                this.centerPos - 120,
+                this.height - 200,
+                48,
+            );
+        });
     }
 }
