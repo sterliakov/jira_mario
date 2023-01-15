@@ -115,6 +115,7 @@ export default class GameView extends CanvasCapable {
         // so that it uses the same instance when reloading
         this.mario ??= await new Mario(this.props.mario);
         this.mario.resetPos();
+        this.viewPort = parseInt(this.props.Width, 10);
 
         this.maxWidth =
             this.tileSize
