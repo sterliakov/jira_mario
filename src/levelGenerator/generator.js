@@ -89,12 +89,14 @@ export default class LevelGenerator {
         }
 
         let score = this.importanceScore + this.complexityScore / 6;
-        if (this.issue.duedate && new Date(this.issue.duedate) - new Date() < 0)
-            score /= 2;
         if (this.issue.resolutionDate) {
-            const age =
-                new Date(this.issue.resolutionDate)
-                - new Date(this.issue.created);
+            const resDate = new Date(this.issue.resolutionDate);
+            if (
+                this.issue.duedate
+                && new Date(this.issue.duedate) - resDate < 0
+            )
+                score /= 2;
+            const age = resDate - new Date(this.issue.created);
             const msPerDay = 1000 * 60 * 60 * 24;
             if (age > msPerDay * 365) score *= 0.8;
             else if (age > msPerDay * 60) score *= 1.25;
