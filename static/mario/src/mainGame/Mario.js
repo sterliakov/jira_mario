@@ -118,7 +118,6 @@ export default class Mario extends Drawable {
             else
                 switch (this.frame) {
                     case 2:
-                    case 3:
                         this.hat.x -= 1;
                         break;
                     case 4:
@@ -140,10 +139,10 @@ export default class Mario extends Drawable {
     setSXBeforeDraw() {
         this.sX = 0 + 45 * this.frame;
         this.sY = 0;
-        if (this.type === 'big') this.sY -= 13;
+        if (this.type === 'big') this.sY -= 11;
         else if (this.type === 'fire' && this.frame !== 12 && this.frame !== 13)
-            this.sY += 42;
-        if (this.sex === 'f') this.sY += 97;
+            this.sY += 38;
+        if (this.sex === 'f') this.sY += 99;
     }
 
     checkType() {
@@ -152,7 +151,7 @@ export default class Mario extends Drawable {
                 this.height = 40;
                 break;
             case 'big':
-                this.height = 53;
+                this.height = 48;
                 break;
             case 'fire':
                 this.height = 45;
