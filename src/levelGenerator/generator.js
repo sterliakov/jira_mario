@@ -5,9 +5,9 @@ import Random from './random';
 
 export default class LevelGenerator {
     height = 15;
-    width = 300;
+    width = 250;
     minX = 5;
-    maxX = 297;
+    maxX = 247;
 
     CHANCE_BLOCK_COIN = 0.3;
     CHANCE_BLOCK_ENEMY = 0.2;
