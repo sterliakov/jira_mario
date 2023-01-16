@@ -44,9 +44,9 @@ export default class PreferencesScreen extends Component {
     render() {
         return (
             <Screen>
-                <SwitchLabel style={{left: 488, bottom: 350}}>
+                <SwitchLabel style={{left: 530, bottom: 350}}>
                     <SwitchLabelName style={{paddingRight: 16}}>
-                        Mario gender:
+                        Jirio sex:
                     </SwitchLabelName>
                     <SwitchLabelSpan>m</SwitchLabelSpan>
                     <Switch
