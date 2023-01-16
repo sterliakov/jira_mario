@@ -115,7 +115,6 @@ export default class GameView extends CanvasCapable {
         // so that it uses the same instance when reloading
         this.mario ??= await new Mario(this.props.mario);
         this.mario.resetPos();
-        this.viewPort = parseInt(this.props.Width, 10);
 
         this.maxWidth =
             this.tileSize
@@ -440,19 +439,14 @@ export default class GameView extends CanvasCapable {
     // controlling mario with key events
     updateMario() {
         this.mario.checkType();
+        this.checkMarioPos(); // if mario goes to the center of the screen, sidescroll the map
 
         // up arrow
         if ((this.keys[38] || this.keys[32]) && this.mario.jump())
             this.playSound('jump');
 
-        // right arrow
-        if (this.keys[39]) {
-            this.checkMarioPos(); // if mario goes to the center of the screen, sidescroll the map
-            this.mario.onRight();
-        }
-
-        // left arrow
-        if (this.keys[37]) this.mario.onLeft();
+        if (this.keys[39]) this.mario.onRight(); // right arrow
+        if (this.keys[37]) this.mario.onLeft(); // left arrow
 
         this.mario.setSpeed(this.keys[16]); // Shift
 

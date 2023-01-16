@@ -140,8 +140,7 @@ export default class Mario extends Drawable {
         this.sX = 0 + 45 * this.frame;
         this.sY = 0;
         if (this.type === 'big') this.sY -= 11;
-        else if (this.type === 'fire' && this.frame !== 12 && this.frame !== 13)
-            this.sY += 38;
+        else if (this.type === 'fire' && this.frame !== 13) this.sY += 38;
         if (this.sex === 'f') this.sY += 99;
     }
 
