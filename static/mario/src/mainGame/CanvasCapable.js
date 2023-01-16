@@ -26,7 +26,8 @@ export default class CanvasCapable extends Component {
     }
 
     reset() {
-        this.ctx.reset();
+        if (this.ctx.reset) this.ctx.reset();
+        else this.clear();
     }
 
     scrollWindow(x, y) {
